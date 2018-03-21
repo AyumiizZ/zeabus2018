@@ -129,6 +129,15 @@ class Gate(object):
                 elif back >= 3:
                     print 'MOVE FURTHUR FROM THE GATE'
                     auv.driveX(-0.4)
+            # go through the gate
+            if mode == 2:
+                print '---mode 2---'
+                auv.driveX(8)
+                mode = -1
+
+        # passed through gate
+        auv.stop()
+        print 'Gate completed'
 
 if __name__=='__main__':
     rospy.init_node('gate_node')
