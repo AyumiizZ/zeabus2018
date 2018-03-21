@@ -214,5 +214,3 @@ class AIControl:
 
 if __name__=='__main__':
     rospy.init_node('aicontrol_node')
-    aicontrol = AIControl()
-    aicontrol.driveX(0.82)
