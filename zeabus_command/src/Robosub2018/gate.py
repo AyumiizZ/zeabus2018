@@ -48,6 +48,7 @@ class Gate(object):
             # find gate
             if mode == 0:
                 print '---mode 0---'
+
                 # check if gate is appear
                 if appear:
                     count += 1
@@ -129,6 +130,7 @@ class Gate(object):
                 elif back >= 3:
                     print 'MOVE FURTHUR FROM THE GATE'
                     auv.driveX(-0.4)
+
             # go through the gate
             if mode == 2:
                 print '---mode 2---'
