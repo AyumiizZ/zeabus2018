@@ -4,6 +4,7 @@ import rospy
 from aicontrol import AIControl
 from zeabus_example.srv import vision_srv_gate
 from zeabus_example.msg import vision_gate
+from std_msgs.msg import String
 
 class Gate(object):
     def __init__(self):
@@ -93,11 +94,11 @@ class Gate(object):
                         auv.move('right', cons.AUV_M_SPEED*abs(cx))
 
                     # check if gate is center or not
-                    if -cons.VISION_ERROR <= cx <= cons.VISION_ERROR:
+                    if -cons.VISION_GATE_ERROR <= cx <= cons.VISION_GATE_ERROR:
                         print '<<<CENTER>>>'
                         center += 1
                         auv.stop()
-                    elif -cons.VISION_ERROR > cx > cons.VISION_ERROR:
+                    elif -cons.VISION_GATE_ERROR > cx > cons.VISION_GATE_ERROR:
                         reset += 1
 
                 # check center's counter
