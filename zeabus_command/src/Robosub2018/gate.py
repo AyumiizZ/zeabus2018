@@ -45,6 +45,7 @@ class Gate(object):
             cx = self.gate_data.cx
             pos = self.data.gate_data.pos
 
+            # find gate
             if mode == 0:
                 print '---mode 0---'
                 # check if gate is appear
@@ -60,13 +61,74 @@ class Gate(object):
                 if count >= 5:
                     count = 0
                     reset = 0
-                    print '<<<Change to mode 2>>>'
-                    mode = 2
+                    print '<<<Change to mode 1>>>'
+                    mode = 1
                 elif reset >= 5:
                     reset = 0
                     count = 0
 
                 auv.move('forward', cons.AUV_M_SPEED)
+
+            # move to center of the gate
+            if mode == 1:
+                print '---mode 1---'
+                print 'POS: %d'%(pos)
+                print 'cx: %f'%(cx)
+                print 'area: %f'%(area)
+
+                # found only left part
+                if pos == -1:
+                    auv.move('right', cons.AUV_M_SPEED)
+
+                # found only right part
+                elif pos == 1:
+                    auv.move('left', cons.AUV_M_SPEED)
+
+                # found both left and right
+                elif pos == 0:
+                    if cx < 0:
+                        auv.move('left', cons.AUV_M_SPEED*abs(cx))
+                    elif cx > 0:
+                        auv.move('right', cons.AUV_M_SPEED*abs(cx))
+
+                    # check if gate is center or not
+                    if -cons.VISION_ERROR <= cx <= cons.VISION_ERROR:
+                        print '<<<CENTER>>>'
+                        center += 1
+                        auv.stop()
+                    elif -cons.VISION_ERROR > cx > cons.VISION_ERROR:
+                        reset += 1
+
+                # check center's counter
+                    if center >= 3:
+                        print '<<<Change to mode 2>>>'
+                        mode = 2
+                    elif reset >= 10:
+                        center = 0
+                        reset = 0
+
+                # check if auv is too close or too far from the gate
+                if area > 0.01 or (appear and pos == 7):
+                    print 'TOO CLOSE'
+                    back += 1
+                    forward = 0
+                    auv.stop()
+                elif 0 < area < 0.005:
+                    print 'TOO FAR'
+                    forward += 1
+                    back = 0
+                    auv.stop()
+                elif 0.005 <= area <= 0.01:
+                    forward = 0
+                    back = 0
+
+                # check distance's counter
+                if forward >= 3:
+                    print 'MOVE CLOSER TO THE GATE'
+                    auv.driveX(0.3)
+                elif back >= 3:
+                    print 'MOVE FURTHUR FROM THE GATE'
+                    auv.driveX(-0.4)
 
 if __name__=='__main__':
     rospy.init_node('gate_node')
