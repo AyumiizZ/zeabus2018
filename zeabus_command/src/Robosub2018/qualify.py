@@ -19,6 +19,7 @@ class Qualify(object):
         auv.driveX(5)
         auv.driveY(-2)
         auv.driveX(10)
+        auv.depthAbs(-0.2)
 
 if __name__=='__main__':
     rospy.init_node('qualify_node')
