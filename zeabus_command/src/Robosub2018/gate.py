@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 import rospy
+import constants as cons
 from aicontrol import AIControl
 from zeabus_example.srv import vision_srv_gate
 from zeabus_example.msg import vision_gate
