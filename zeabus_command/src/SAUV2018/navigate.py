@@ -165,6 +165,7 @@ class Gate(object):
         auv.stop()
 
 if __name__=='__main__':
+    rospy.init_node('navigate_node')
     mission_gate = Gate()
     mission_gate.run()
     print 'finish gate'
