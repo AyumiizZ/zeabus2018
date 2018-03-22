@@ -22,8 +22,23 @@ class Path(object) :
         self.data = self.detect_path(String('path'), String('path'))
         self.data = self.data.data
 
-    
+
     def run(self) :
         auv = self.aicontrol
+
         print '<===DOING PATH===>'
+        auv.depthAbs(cons.PATH_DEPTH)
+
+
+        mode = 0
+        center = 0 
+
+        while not rospy.is_shutdown() and not mode == -1:
+        #find path
+        self.detectPath()
+        area = self.data.area
+        appear = self.data.appear
+        cx = self.data.cx
+
+
 
