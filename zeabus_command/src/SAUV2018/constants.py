@@ -40,6 +40,8 @@ DRUM_DROP_BALL = 0.82
 DRUM_POS = 'left'
 #DRUM_POS = 'right'
 
+PATH_DEPTH = -1
+
 ############################################################
 # RE-CHECK EVERYTIME BEFORE RUNNING MISSION
 ############################################################
