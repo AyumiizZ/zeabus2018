@@ -70,7 +70,7 @@ class AIControl:
         print 'Move %s at speed %f m/s'%(direction, speed)
 
         if direction == 'left':
-            self.vel.linear.y = speed
+           self.vel.linear.y = speed
         elif direction == 'right':
             self.vel.linear.y = -speed
         elif direction == 'forward':
