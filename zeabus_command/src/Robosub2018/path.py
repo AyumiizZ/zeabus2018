@@ -18,9 +18,62 @@ class Path(object) :
 
 
 
-    def detectPath(self) :
-        self.data = self.detect_path(String('path'), String('path'))
+    def detectPath(self, piece) :
+        self.data = self.detect_path(String('path'), String(str(piece)))
         self.data = self.data.data
+
+    def checkCenter(seif) :
+        center = False
+        x = False
+        y = False
+        centerx = 0
+        centaey = 0
+        resetx = 0
+        resety = 0
+        cx = self.data.cx
+        cy = seif.data.cy
+
+        #check cx's center
+        if cx < 0:
+            auv.move('left', cons.AUV_M_SPEED*abs(cx))
+        elif cx > 0:
+            auv.move('right', cons.AUV_M_SPEED*abs(cx))
+
+        #check if auv is centerx of path or not
+        if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+            print '<<<CENTERX>>>'
+            centerx += 1
+        elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+            resetx += 1
+
+        #check centerx's counter
+        if centerx >= 3:
+            x = True
+        elif resetx >= 10:
+            centerx = 0
+            resetx = 0
+
+        #check cy's center
+        if cy < 0:
+            auv.move('forward', cons.AUV_M_SPEED*abs(cy))
+        elif cy > 0:
+            auv.move('backward', cons.AUV_M_SPEED*abs(cy))
+
+        #check if auv is centery of path or not
+        if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+            print '<<<CENTERY>>>'
+            centery += 1
+        elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+            resety += 1
+
+        #check center's counter
+        if centery >= 3:
+            y = True
+        elif resety >= 10:
+            centery = 0
+            resety = 0
+        if centerx and centery :
+            center = True
 
 
     def run(self) :
@@ -31,20 +84,12 @@ class Path(object) :
 
         mode = 0
         count = 0
-        center = 0 
 
         while not rospy.is_shutdown() and not mode == -1:
-            #get data from vision service and store in temp variables
-            self.detectPath()
-            area = self.data.area
-            appear = self.data.appear
-            cx = self.data.cx
-            angle = self.data.angle
-
             #find path
             if mode == 0 :
                 print '<---MODE 0--->'
-
+                self.deetactPath('edage')
                 #check if path appear
                 if appear :
                     count += 1
@@ -60,6 +105,7 @@ class Path(object) :
                     reset = 0
                     print '<<<Change to mode 1>>>'
                     mode = 1
+                    auv.stop()
                 elif reset >= 5:
                     reset = 0
                     count = 0
@@ -69,28 +115,11 @@ class Path(object) :
             if mode == 1 :
                 print '<---MODE 1--->'
                 print 'cx: %f'%(cx)
-                print 'area: %f'%(area)
-                if cx < 0:
-                    auv.move('left', cons.AUV_M_SPEED*abs(cx))
-                elif cx > 0:
-                    auv.move('right', cons.AUV_M_SPEED*abs(cx))
-                #check if auv is center of path or not
-                if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
-                    print '<<<CENTER>>>'
-                    center += 1
-                    auv.stop()
-                elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
-                    reset += 1
-                #check center's counter
-                if center >= 3:
-                    print '<<<Change to mode 2>>>'  
-                    mode = 2
-                elif reset >= 10:
-                    center = 0
-                    reset = 0
+                print 'cy: %f'%(cy)
+                #print 'area: %f'%(area)
 
             #go on path
             if mode == 2 :
                 print '<---MODE 2--->'
                 auv.move('forward', cons.AUV_M_SPEED)
-                auv.turnAbs(angle,cons.VISION_PATH_ERROR)
+                auv.turnRel(angle,cons.VISION_PATH_ERROR)
