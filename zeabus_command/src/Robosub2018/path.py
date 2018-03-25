@@ -17,21 +17,21 @@ class Path(object) :
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
 
 
-
     def detectPath(self, piece) :
         self.data = self.detect_path(String('path'), String(str(piece)))
         self.data = self.data.data
 
-    def checkCenter(seif) :
-        center = False
+
+    def checkCenter(self) :
         x = False
         y = False
         centerx = 0
-        centaey = 0
+        centery = 0
         resetx = 0
         resety = 0
         cx = self.data.cx
         cy = seif.data.cy
+        self.detectPath()
 
         #check cx's center
         if cx < 0:
@@ -60,10 +60,10 @@ class Path(object) :
             auv.move('backward', cons.AUV_M_SPEED*abs(cy))
 
         #check if auv is centery of path or not
-        if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+        if -cons.VISION_PATH_ERROR <= cy <= cons.VISION_PATH_ERROR:
             print '<<<CENTERY>>>'
             centery += 1
-        elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+        elif -cons.VISION_PATH_ERROR > cy > cons.VISION_PATH_ERROR:
             resety += 1
 
         #check center's counter
@@ -72,24 +72,27 @@ class Path(object) :
         elif resety >= 10:
             centery = 0
             resety = 0
-        if centerx and centery :
-            center = True
+        if x and y :
+            print '<<<CENTER>>>'
+            return True
 
 
     def run(self) :
         auv = self.aicontrol
 
         print '<===DOING PATH===>'
+
         auv.depthAbs(cons.PATH_DEPTH)
 
         mode = 0
         count = 0
-
+        reset = 0
         while not rospy.is_shutdown() and not mode == -1:
             #find path
             if mode == 0 :
                 print '<---MODE 0--->'
-                self.deetactPath('edage')
+                self.detectPath('edge')
+                appear = self.data.appear
                 #check if path appear
                 if appear :
                     count += 1
@@ -103,23 +106,55 @@ class Path(object) :
                 if count >= 5:
                     count = 0
                     reset = 0
-                    print '<<<Change to mode 1>>>'
-                    mode = 1
+                    print 'let\' to adjust->>>'
                     auv.stop()
+                    mode = 1
                 elif reset >= 5:
                     reset = 0
                     count = 0
 
                 auv.move('forward', cons.AUV_M_SPEED)
-
+            #adjust angle and center before go on path
             if mode == 1 :
                 print '<---MODE 1--->'
                 print 'cx: %f'%(cx)
                 print 'cy: %f'%(cy)
-                #print 'area: %f'%(area)
+                self.detechPath('edge')
+                self.checkCenter()
+                auv.turnRel(angle,cons.VISION_PATH_ERROR)
+                print 'I\'m ready!!'
+                auv.stop()
+                mode = 2
 
-            #go on path
+            #go on path to angle
             if mode == 2 :
                 print '<---MODE 2--->'
-                auv.move('forward', cons.AUV_M_SPEED)
-                auv.turnRel(angle,cons.VISION_PATH_ERROR)
+                print 'cx: %f'%(cx)
+                print 'cy: %f'%(cy)
+                angle = self.data.angle
+                req_appear = self.data.req_appear
+                self.detechPath('angle')
+                self.checkCenter()
+                #if find angle of path
+                if req_appear :
+                    self.checkCenter
+                    auv.turnRel(angle,cons.VISION_PATH_ERROR)
+                    print 'Go to finish path :D'
+                    mode = 3
+                elif not req_appear :
+                    auv.move('forward', cons.AUV_M_SPEED)
+
+            #from angle to finish path
+            if mode == 3 :
+                print '<---mode 3--->'
+                auv.driveX(8)
+                mode = -1
+
+        # passed through path
+        auv.stop()
+        print 'Path completed'
+
+if __name__=='__main__':
+rospy.init_node('path_node')
+
+
