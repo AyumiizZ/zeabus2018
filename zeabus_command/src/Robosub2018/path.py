@@ -96,7 +96,7 @@ class Path(object) :
                 #check if path appear
                 if appear :
                     count += 1
-                     reset = 0
+                    reset = 0
                     print 'FOUND PATH: %d'%(count)
                 elif not appear:
                     reset += 1
@@ -155,6 +155,6 @@ class Path(object) :
         print 'Path completed'
 
 if __name__=='__main__':
-rospy.init_node('path_node')
+    rospy.init_node('path_node')
 
 
