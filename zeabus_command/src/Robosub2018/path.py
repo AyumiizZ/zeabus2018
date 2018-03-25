@@ -4,7 +4,7 @@ import rospy
 from std_msgs.msg import String, Float64, Bool
 from zeabus_example.srv import vision_srv_path
 from zeabus_example.msg import vision_path
-form aicontrol import AIControl
+from aicontrol import AIControl
 import constants as cons
 
 class Path(object) :
