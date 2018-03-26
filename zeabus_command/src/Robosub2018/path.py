@@ -75,6 +75,8 @@ class Path(object) :
         if x and y :
             print '<<<CENTER>>>'
             return True
+        else :
+            return False
 
 
     def run(self) :
@@ -120,11 +122,11 @@ class Path(object) :
                 print 'cx: %f'%(cx)
                 print 'cy: %f'%(cy)
                 self.detechPath('edge')
-                self.checkCenter()
-                auv.turnRel(angle,cons.VISION_PATH_ERROR)
-                print 'I\'m ready!!'
-                auv.stop()
-                mode = 2
+                if self.checkCenter() :
+                    auv.turnRel(angle)
+                    print 'I\'m ready!!'
+                    auv.stop()
+                    mode = 2
 
             #go on path to angle
             if mode == 2 :
@@ -134,20 +136,20 @@ class Path(object) :
                 angle = self.data.angle
                 req_appear = self.data.req_appear
                 self.detechPath('angle')
-                self.checkCenter()
                 #if find angle of path
-                if req_appear :
-                    self.checkCenter
-                    auv.turnRel(angle,cons.VISION_PATH_ERROR)
-                    print 'Go to finish path :D'
-                    mode = 3
-                elif not req_appear :
-                    auv.move('forward', cons.AUV_M_SPEED)
+                if self.checkCenter() :
+                    if req_appear :
+                        self.checkCenter
+                        auv.turnRel(angle)
+                        print 'Go to finish path :D'
+                        mode = 3
+                    elif not req_appear :
+                        auv.move('forward', cons.AUV_M_SPEED)
 
             #from angle to finish path
             if mode == 3 :
                 print '<---mode 3--->'
-                auv.driveX(8)
+                auv.driveX(1.5)
                 mode = -1
 
         # passed through path
