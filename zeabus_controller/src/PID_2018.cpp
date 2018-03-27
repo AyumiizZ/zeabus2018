@@ -47,7 +47,7 @@ class PID{
 
 	double PID::calculate_PID(double error, double velocity){
 		ros::Time current_time = ros::Time::now();
-		this->diff_time = current_time.toSec() -this->previous_time.toSec();//time.toSec(change time's unit to sec)
+		this->diff_time = current_time.toSec() -this->previous_time.toSec();//time.toSec()(change time's unit to sec)
 		this->diff_error = error - previous_error;
 		this->sum_error += error*this->diff_time;//sum_error use in Ki
 // calculate   Kp     Ki     Kd    Kvs
