@@ -13,7 +13,7 @@ class PID{
 		double previous_error;
 		double diff_time;
 		double diff_error;
-		double ttl;
+		double ttl;//ttl(time to live)
 
 	public: //this is publlic
 		double calculate_PID(double error, double velocity);
