@@ -51,6 +51,7 @@ class PID{
 		this->Ki = 0;
 		this->Kd = 0;
 		this->Kvs = 0;
+		this->ttl = 0;
 		this->previous_time = ros::Time::now();
 	}
 
@@ -59,6 +60,7 @@ class PID{
 		this->Ki = Ki;
 		this->Kd = Kd;
 		this->Kvs = Kvs;
+		this->ttl = 0;
 		this->previous_time = ros::Time::now();
 	}
 
