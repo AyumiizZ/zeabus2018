@@ -16,5 +16,4 @@ class force_axis{
 		double	constant_value; // this is c
 		double	axis_gravity; // this is g
 		double	force_thruster; // this is will answer for force in each axis
-		double	
 }
