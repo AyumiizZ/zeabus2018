@@ -111,7 +111,7 @@ class Gate(object):
                         reset = 0
 
                 # check if auv is too close or too far from the gate
-                if area > 0.01 or (appear and pos == 7):
+                if area > 0.01:
                     print 'TOO CLOSE'
                     back += 1
                     forward = 0
