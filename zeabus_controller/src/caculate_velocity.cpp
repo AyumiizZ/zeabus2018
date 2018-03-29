@@ -1,3 +1,4 @@
+// please set nu tabstop=4
 // this include standare operation of c++
 #include 	<iostream>
 
@@ -72,6 +73,7 @@ namespace find_velocity{
 			double sum_error;
 			double previous_error;
 			double diff_time;
+			double ttl;
 			bool use_ttl;
 
 		protected:
@@ -80,18 +82,62 @@ namespace find_velocity{
 			double D_constant;
 			
 		public:
-			second_case(double P_constant , double I_constant , double D_constant);
+			second_case();
 			double calculate_velocity(double error_distance);
 			void set_constant(double P_constant , double I_constant , double D_constant);
-			void reset();	
+			void reset();
+			void check_ttl();	
 	}
 
 // Init second case and assign value of P I D constant
-	second_case::second_case(double P_constant, double I_constant, double D_constant){
+	second_case::second_case(){
 		std::cout << "Init second case about find_velocitiy" << std::endl;
+		this->P_constant = 0;
+		this->I_constant = 0;
+		this->D_constant = 0;
+		this->use_ttl = true;
+	}
+
+// set up new constant
+	void second_case::set_constant(double P_constant , double I_constant , double D_constant){
+		std::cout << "set_up constant" << std::endl;
 		this->P_constant = P_constant;
 		this->I_constant = I_constant;
 		this->D_constant = D_constant;
+		reset();
 	}
 
+// reset value Integral
+	void second_case::reset(){
+		this->sum_error = 0;
+		this->previous_error = ros::Time::now();
+		this->ttl = 0;
+	}
+
+// calculate velocity by use PID
+	double second_case::calculate_velocity(double error_distance){
+		check_ttl();
+		ros::Time current_time = ros::Time::now()
+// We must to find different time in second unit
+		this->diff_time = current_time.toSec() - this->previous_time.toSec();
+		this->diff_error = error_distance - this->previous_error;
+// Sum error is area of graph must use 1/2 * sum of || height
+		this->sum_error += this->previous_error + error_distance * this->diff_time;
+		this->previous_time = current_time; 
+// plus diff time to ttl
+		this->ttl += diff_time;		
+		return this->P_constant * error_distance
+						+ this->I_constant * this->sum_error
+						+ this->D_constant * this->diff_error / this->diff_time;
+	}
+
+// check ttl because I is Integral will sum all area
+// that means if you wnat to use ttl you must to have
+// reset about that. ttl is time to live
+	void second_case::check_ttl(){
+		if(use_ttl)
+			if ( ttl > default_ttl ) reset();
+		else reset();
+	}
+ 
 }
