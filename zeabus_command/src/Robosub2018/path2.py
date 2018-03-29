@@ -16,13 +16,10 @@ class Path(object) :
         rospy.wait_for_service('vision_path')
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
 
-
-    def detectPath(self, piece) :
-        self.data = self.detect_path(String('path'), String(str(piece)))
-        self.data = self.data.data
-
-
-    def checkCenter(self) :
+def detectPath(self, piece) :
+    self.data = self.detect_path(String('path'))
+    self.data = self.data.data
+def checkCenter(self) :
         x = False
         y = False
         centerx = 0
@@ -75,9 +72,11 @@ class Path(object) :
         if x and y :
             print '<<<CENTER>>>'
             return True
+        else :
+            return False
 
 
-    def run(self) :
+def run(self) :
         auv = self.aicontrol
 
         print '<===DOING PATH===>'
@@ -89,9 +88,10 @@ class Path(object) :
         reset = 0
         while not rospy.is_shutdown() and not mode == -1:
             #find path
+            self.detectPath()
+            angle = self.data.angle
             if mode == 0 :
                 print '<---MODE 0--->'
-                self.detectPath('edge')
                 appear = self.data.appear
                 #check if path appear
                 if appear :
@@ -106,7 +106,7 @@ class Path(object) :
                 if count >= 5:
                     count = 0
                     reset = 0
-                    print 'let\' to adjust->>>'
+                    print 'let\'s to adjust->>>'
                     auv.stop()
                     mode = 1
                 elif reset >= 5:
@@ -114,40 +114,36 @@ class Path(object) :
                     count = 0
 
                 auv.move('forward', cons.AUV_M_SPEED)
-            #adjust angle and center before go on path
+            #go on path
             if mode == 1 :
                 print '<---MODE 1--->'
                 print 'cx: %f'%(cx)
                 print 'cy: %f'%(cy)
-                self.detechPath('edge')
-                self.checkCenter()
-                auv.turnRelative(angle,cons.VISION_PATH_ERROR)
-                print 'I\'m ready!!'
-                auv.stop()
-                mode = 2
+                if angle >= 15 :
+                    auv.turnRelative(angle)
+                if checkCenter() :
+                    print 'I\'m going on path'
+                if appear :
+                    reset += 1
+                    print 'FOUND PATH: %d'%(count)
+                elif not appear:
+                    reset = 0
+                    count += 1
+                    print 'NOT FOUND PATH: %d'%(reset)
 
-            #go on path to angle
+                # check counter
+                if count >= 5:
+                    count = 0
+                    reset = 0
+                    print 'let\'s to adjust->>>'
+                    auv.stop()
+                    mode = 2
+                elif reset >= 5:
+                    reset = 0
+                    count = 0
+            # exist path yatta!
             if mode == 2 :
-                print '<---MODE 2--->'
-                print 'cx: %f'%(cx)
-                print 'cy: %f'%(cy)
-                angle = self.data.angle
-                req_appear = self.data.req_appear
-                self.detechPath('angle')
-                self.checkCenter()
-                #if find angle of path
-                if req_appear :
-                    self.checkCenter
-                    auv.turnRelative(angle,cons.VISION_PATH_ERROR)
-                    print 'Go to finish path :D'
-                    mode = 3
-                elif not req_appear :
-                    auv.move('forward', cons.AUV_M_SPEED)
-
-            #from angle to finish path
-            if mode == 3 :
-                print '<---mode 3--->'
-                auv.driveX(8)
+                auv.driveX(1) 
                 mode = -1
 
         # passed through path
