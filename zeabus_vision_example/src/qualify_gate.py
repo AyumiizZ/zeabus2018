@@ -4,8 +4,8 @@ import rospy
 import numpy as np
 #from remove_noise import *
 from sensor_msgs.msg import CompressedImage , Image
-from qualification_gate.msg import qulification_gate
-from qualification_gate.srv import srv_qualification_gate
+from zeabus_example.msg import qulification_gate
+from zeabus_example.srv import srv_qualification_gate
 from cv_bridge import CvBridge , CvBridgeError
 from qualify import *
 img = None
