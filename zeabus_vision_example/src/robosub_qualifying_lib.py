@@ -4,11 +4,11 @@ import rospy
 import numpy as np
 #from remove_noise import *
 from sensor_msgs.msg import CompressedImage , Image
-from qualification_gate.msg import *
-from qualification_gate.srv import *
+from zeabus_example.msg import *
+from zeabus_example.srv import *
 from cv_bridge import CvBridge , CvBridgeError
-from qualify_gate import *
-from find_marker import *
+from robosub_qualifying_gate import *
+from robosub_qualifying_marker import *
 sub_sampling = 1
 
 def prepocessing (image):

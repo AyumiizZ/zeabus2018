@@ -56,8 +56,8 @@ add_message_files(
    vision_gate.msg
    vision_drum.msg
    vision_flare.msg
-   qulification_gate.msg
-   qualification_marker.msg
+   robosub_qualifying_gate_msg.msg
+   robosub_qualifying_marker_msg.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -66,8 +66,8 @@ add_service_files(
    vision_srv_gate.srv
    vision_srv_flare.srv
    vision_srv_drum.srv
-   srv_qualification_gate.srv
-   robosub_marker.srv
+   robosub_qualifying_gate_srv.srv
+   robosub_qualifying_marker_srv.srv
 )
 
 ## Generate actions in the 'action' folder

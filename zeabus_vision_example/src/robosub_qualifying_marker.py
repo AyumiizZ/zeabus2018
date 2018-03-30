@@ -4,8 +4,8 @@ import rospy
 import numpy as np
 #from remove_noise import *
 from sensor_msgs.msg import CompressedImage , Image
-from qualification_gate.msg import qualification_marker
-from qualification_gate.srv import robosub_marker
+from zeabus_example.msg import robosub_qualifying_marker_msg
+from zeabus_example.srv import robosub_qualifying_marker_srv
 from cv_bridge import CvBridge , CvBridgeError
 from qualify import *
 img = None
@@ -83,7 +83,7 @@ def main():
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
     #abc = rospy.Publisher(res_topic, CompressedImage, queue_size=10)
     print "fuck"
-    rospy.Service('vision_gate', robosub_marker(), mission_callback)
+    rospy.Service('vision_gate', robosub_qualifying_marker_srv(), mission_callback)
     print "fuck"
     rospy.spin()
 
