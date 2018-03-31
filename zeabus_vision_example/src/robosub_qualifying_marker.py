@@ -7,7 +7,7 @@ from sensor_msgs.msg import CompressedImage , Image
 from zeabus_example.msg import robosub_qualifying_marker_msg
 from zeabus_example.srv import robosub_qualifying_marker_srv
 from cv_bridge import CvBridge , CvBridgeError
-from qualify import *
+from robosub_qualifying_marker import *
 img = None
 img_res = None
 sub_sampling = 1
@@ -49,12 +49,15 @@ def find_marker():
     himg , wimg = img.shape[:2]
     print himg
     print wimg
-    # img_res = process_gate(img_res)
-    # hsv = cv.cvtColor(img_res,cv.COLOR_BGR2HSV)
-    # l = np.array([8,111,109])
-    # h = np.array([19,216,247])
-    # mask = cv.inRange(hsv,l,h)
-    mask = process_gate(img_res)
+    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
+    b,g,r = cv.split(img)
+    r.fill(250)
+    image =cv.merge((b,g,r))
+    # image = img
+    img = cv.medianBlur(image,5)
+    lower = np.array([0,0,0])
+    upper = np.array([255,255,128])
+    mask = cv.inRange(hsv,lower,upper)
     contours = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
         cnt_area = cv.contourArea(cnt)
@@ -71,20 +74,18 @@ def find_marker():
             cv.putText(img, "right", (x+w+5,himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
                    [0, 0, 0])
     print "appear = " + str(appear)
-    publish_result(img,'bgr','/img_marker')
-    publish_result(mask,'gray','mask')
+    publish_result(img,'bgr','/qualify_marker/img')
+    publish_result(mask,'gray','/qualify_marker/mask')
     return message_marker(cx_left,cx_right,area,appear)
 
 def main():
     rospy.init_node('vision_gate', anonymous=True)
-    image_topic = "/syrena/front_cam/image_raw/compressed"
-    # image_topic = "/top/center/image_raw/compressed"
-    res_topic = "/top/center/res/compressed"
+    # image_topic = "/syrena/front_cam/image_raw/compressed"
+    image_topic = "/top/center/image_raw/compressed"
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    #abc = rospy.Publisher(res_topic, CompressedImage, queue_size=10)
-    print "fuck"
+    print "init_pub_sub"
     rospy.Service('vision_gate', robosub_qualifying_marker_srv(), mission_callback)
-    print "fuck"
+    print "init_ser"
     rospy.spin()
 
 

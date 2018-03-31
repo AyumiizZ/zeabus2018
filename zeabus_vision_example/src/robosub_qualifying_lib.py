@@ -7,13 +7,13 @@ from sensor_msgs.msg import CompressedImage , Image
 from zeabus_example.msg import *
 from zeabus_example.srv import *
 from cv_bridge import CvBridge , CvBridgeError
-from robosub_qualifying_gate import *
-from robosub_qualifying_marker import *
+# from robosub_qualifying_gate import *
+# from robosub_qualifying_marker import *
 sub_sampling = 1
 
 def prepocessing (image):
     b,g,r = cv.split(image)
-    b.fill(250)
+    r.fill(250)
     image =cv.merge((b,g,r))
     blur = cv.medianBlur(image,5)
     return blur
@@ -26,8 +26,8 @@ def get_object(image) :
     hsv = cv.cvtColor(image,cv.COLOR_BGR2HSV)
     # lower_orange = np.array([130,0,0])
     # upper_orange = np.array([158,255,255])
-    lower_orange = np.array([123,0,0])
-    upper_orange = np.array([180,255,255])
+    lower_orange = np.array([0,0,0])
+    upper_orange = np.array([255,255,245])
     obj = cv.inRange(hsv,lower_orange,upper_orange)
     return obj
 
@@ -56,11 +56,12 @@ def get_kernel(shape = 'rect',ksize =(5,5)) :
 
 def process_gate(frame) :
     mask_change_color = prepocessing(frame)
+    publish_result(mask_change_color,'bgr','/temp')
     obj = get_object(mask_change_color)
     # bg = get_bg(mask_change_color)
     #mask = obj - bg
-    remove = remove_noise(obj)
-    return remove
+    # remove = remove_noise(obj)
+    return obj
 
 def publish_result(img, type, topicName):
     if img is None:
@@ -79,7 +80,7 @@ def publish_result(img, type, topicName):
 def message(x=0, pos=0, area=0, appear=False):
     global c_img
     print(x,pos,area,appear)
-    m = qulification_gate()
+    m = robosub_qualifying_marker_srv
     m.cx = x
     m.pos = pos
     m.area = area
@@ -90,7 +91,7 @@ def message(x=0, pos=0, area=0, appear=False):
 def message_marker(cx_left = 0 , cx_right = 0 , area = 0 , appear = False) :
     global c_img
     print(cx_left,cx_right,area,appear)
-    m = qualification_marker()
+    m = robosub_qualifying_marker_msg()
     m.cx_left = cx_left
     m.cx_right = cx_right
     m.area = area

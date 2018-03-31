@@ -5,9 +5,9 @@ import numpy as np
 #from remove_noise import *
 from sensor_msgs.msg import CompressedImage , Image
 from zeabus_example.msg import robosub_qualifying_gate_msg
-from zeabus_exmaple.srv import robosub_qualifying_gate_srv
+from zeabus_example.srv import robosub_qualifying_gate_srv
 from cv_bridge import CvBridge , CvBridgeError
-from qualify import *
+from robosub_qualifying_lib import *
 img = None
 img_res = None
 sub_sampling = 1
@@ -29,6 +29,7 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                      fx=sub_sampling, fy=sub_sampling)
+    # img = cv.cvtColor(img,cv.COLOR_BayerBG2BGR)
     img_res = img.copy()
 
 def find_gate () :
@@ -44,17 +45,17 @@ def find_gate () :
     while img is None and not rospy.is_shutdown() :
         print('img is none.\nPlease check topic name or check camera is running')
         break
-    # img = frame.copy()
-    # cv.imshow('img',img)
     himg , wimg = img.shape[:2]
-    print himg
-    print wimg
-    # img_res = process_gate(img_res)
-    # hsv = cv.cvtColor(img_res,cv.COLOR_BGR2HSV)
-    # l = np.array([8,111,109])
-    # h = np.array([19,216,247])
-    # mask = cv.inRange(hsv,l,h)
-    mask = process_gate(img_res)
+    # mask = process_gate(img_res)
+    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
+    b,g,r = cv.split(img)
+    r.fill(250)
+    image =cv.merge((b,g,r))
+    # image = img
+    img = cv.medianBlur(image,5)
+    lower = np.array([0,0,0])
+    upper = np.array([255,255,128])
+    mask = cv.inRange(hsv,lower,upper)
     contours = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     c = 0
     ROI = []
@@ -67,8 +68,8 @@ def find_gate () :
             rect = cv.minAreaRect(cnt)
             box = cv.boxPoints(rect)
             box = np.int0(box)
-            hbox = (abs(box[0, 0] - box[1, 0])**2 + abs(box[0, 1] - box[1, 1])**2)**0.5
-            wbox = (abs(box[1, 0] - box[2, 0])**2 + abs(box[1, 1] - box[2, 1])**2)**0.5
+            wbox = (abs(box[0, 0] - box[1, 0])**2 + abs(box[0, 1] - box[1, 1])**2)**0.5
+            hbox = (abs(box[1, 0] - box[2, 0])**2 + abs(box[1, 1] - box[2, 1])**2)**0.5
             for i in box:
                 if(i[0] < 0.05*wimg):
                     left_excess = True
@@ -80,9 +81,15 @@ def find_gate () :
                     bot_excess = True
             img = cv.drawContours(img, [box], 0, (0,0,255), 2)
             ROI.append(cnt)
-            ROI_area.append([hbox,wbox])
-    # print "appear = " + str(appear)
-    # print len(ROI)
+    if len(ROI) >= 2:
+        pos = 0
+        temp = []
+        for cnt in ROI:
+            M = cv.moments(cnt)
+            cx = int(M["m10"]/M["m00"])
+            temp.append(cx)
+        cx = sum(temp)/len(temp)
+        img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
     if len(ROI) == 2:
         pos = 0
         M = cv.moments(ROI[0])
@@ -90,48 +97,34 @@ def find_gate () :
         M = cv.moments(ROI[1])
         cx_1 = int(M["m10"] / M["m00"])
         cx = int((cx_0+cx_1)/2)
-        # print "pos = " + str(pos)
-        # print "cx = " + str(cx)
         img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
     if len(ROI) == 1:
-        # print ROI_area[0]
-        # print "----"
-        area = ROI_area[0][0]*ROI_area[0][1]/(himg*wimg)
+        area = (hbox*wbox)/(himg*wimg)
         if left_excess is False and right_excess is True:
             pos = -1
-            # print "-1 = left"
+            print "-1 = left"
         elif left_excess is True and right_excess is False:
             pos = 1
-            # print "1 = right"
-        elif area > 0.1:
+            print "1 = right"
+        elif hbox < wbox:
             pos = 0
-            M = cv.moments(ROI[0])
-            cx = int(M["m10"] / M["m00"])
-            # print "pos = " + str(pos)
-            # print "cx = " + str(cx)
+            cx = int((hbox/2)+box[2, 1])
             img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
         else:
             pos = -99
-        # print area
-    # cv.imshow('img',img)
-    publish_result(img,'bgr','/imgbhhkmyug')
-    publish_result(mask,'gray','/imgbug')
-    # cv.imshow('m',mask)
-    # cv.waitKey(1000)
-    # cv.destroyAllWindows()
+    publish_result(img,'bgr','/qualify_gate/img')
+    publish_result(mask,'gray','/qualify_gate/mask')
     return message(cx,pos,area,appear)
 
 
 def main():
     rospy.init_node('vision_gate', anonymous=True)
-    image_topic = "/syrena/front_cam/image_raw/compressed"
-    # image_topic = "/top/center/image_raw/compressed"
-    res_topic = "/top/center/res/compressed"
+    # image_topic = "/syrena/front_cam/image_raw/compressed"
+    image_topic = "/top/center/image_raw/compressed"
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    #abc = rospy.Publisher(res_topic, CompressedImage, queue_size=10)
-    print "fuck"
+    print "init_pub_sub"
     rospy.Service('vision_gate', robosub_qualifying_gate_srv (), mission_callback)
-    print "fuck"
+    print "init_ser"
     rospy.spin()
 
 
