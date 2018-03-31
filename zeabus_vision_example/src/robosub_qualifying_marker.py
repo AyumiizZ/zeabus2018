@@ -7,7 +7,7 @@ from sensor_msgs.msg import CompressedImage , Image
 from zeabus_example.msg import robosub_qualifying_marker_msg
 from zeabus_example.srv import robosub_qualifying_marker_srv
 from cv_bridge import CvBridge , CvBridgeError
-from robosub_qualifying_marker import *
+from robosub_qualifying_lib import *
 img = None
 img_res = None
 sub_sampling = 1
