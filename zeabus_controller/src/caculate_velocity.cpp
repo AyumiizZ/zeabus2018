@@ -50,7 +50,7 @@ namespace find_velocity{
  					<< " and value for final_velocity is " << final_velocity << std::endl;
 		this->constant = constant;
 		this->final_velocity = final_velocity;
-	}
+	};
 
 // this function for calculate target_velocity	 
 	double first_case::calculate_velocity(double error_distance , double constant){
@@ -87,7 +87,7 @@ namespace find_velocity{
 			void set_constant(double P_constant , double I_constant , double D_constant);
 			void reset();
 			void check_ttl();	
-	}
+	};
 
 // Init second case and assign value of P I D constant
 	second_case::second_case(){

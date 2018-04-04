@@ -32,7 +32,7 @@ namespace find_acceleration{
 			first_case();
 			double calculate_velocity(double target_velocity , double current_velocity);
 			void set_constant(double calculate_time);
-	}
+	};
 
 // start init object class
 	first_case::first_case(){
