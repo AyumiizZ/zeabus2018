@@ -45,7 +45,7 @@ namespace find_velocity{
 // declare detail of init class or object
 // You must to declare about constant and final_velocity already
 	first_case::first_case(double constant , double final_velocity){
-		std::cout << "Init first case about find_velocitiy" << std::endl;
+		std::cout 	<< "Init first case about find_velocitiy" << std::endl;
 		std::cout 	<< "Input value for K is" << constant 
  					<< " and value for final_velocity is " << final_velocity << std::endl;
 		this->constant = constant;
@@ -122,7 +122,7 @@ namespace find_velocity{
 		this->diff_time = current_time.toSec() - this->previous_time.toSec();
 		this->diff_error = error_distance - this->previous_error;
 // Sum error is area of graph must use 1/2 * sum of || height
-		this->sum_error += this->previous_error + error_distance * this->diff_time;
+		this->sum_error += (this->previous_error + error_distance) * this->diff_time/2;
 		this->previous_time = current_time; 
 // plus diff time to ttl
 		this->ttl += diff_time;		
