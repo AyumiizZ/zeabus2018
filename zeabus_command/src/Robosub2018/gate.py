@@ -145,3 +145,5 @@ class Gate(object):
 
 if __name__=='__main__':
     rospy.init_node('gate_node')
+    gate = Gate()
+    gate.run()
