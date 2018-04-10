@@ -46,8 +46,6 @@ def find_gate () :
         print('img is none.\nPlease check topic name or check camera is running')
         break
     himg , wimg = img.shape[:2]
-    # mask = process_gate(img_res)
-    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
     img = cv.medianBlur(img,5)
     mask = get_object(img)
     contours = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]

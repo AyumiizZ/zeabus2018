@@ -47,21 +47,12 @@ def find_marker():
     # cv.imshow('img',img)
     img = cv.resize(img,(640,480))
     himg , wimg = img.shape[:2]
-    print himg
-    print wimg
-    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
-    b,g,r = cv.split(img)
-    r.fill(250)
-    image =cv.merge((b,g,r))
-    # image = img
-    img = cv.medianBlur(image,5)
-    lower = np.array([0,0,0])
-    upper = np.array([255,255,128])
-    mask = cv.inRange(hsv,lower,upper)
+    img = cv.medianBlur(img,5)
+    mask = get_object(img)
     contours = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
         cnt_area = cv.contourArea(cnt)
-        if cnt_area > 500 :
+        if cnt_area > 1000 :
             appear = True
             x, y, w, h = cv.boundingRect(cnt)
             # cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0), 2)
