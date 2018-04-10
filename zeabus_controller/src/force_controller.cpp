@@ -4,6 +4,7 @@
 #include 	<iostream> // Base of CPP Language
 
 #include 	"manage_file.cpp" // Use Load or Save dynamic value
+#include 	"calculate_force.cpp" // Use calculate force form acceleration
 
 // 2 line will use between quaternion with roll pitch yaw
 #include 	<tf/transform_datatypes.h>
@@ -15,4 +16,6 @@
 #include 	<std_msgs/Float64.h> // Include message for receive or send variable type float 64
 #include 	<std_msgs/String.h> // Include message for receive type string
 
-
+int main(){
+	std::cout << "Welcome to force controller\n";
+}

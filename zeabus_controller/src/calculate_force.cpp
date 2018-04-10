@@ -1,7 +1,9 @@
 // please :set nu tabstop=4
 
-#include 	<ros/ros.h> // include if you wan to use time
-#include 	<math.h> // use math for calculate
+#include 	<iostream> // include standard c++
+
+//#include 	<ros/ros.h> // include if you want to use time
+//#include 	<math.h> // use math for calculate
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //			-------Supasan Komonlit 2018--------------
@@ -17,8 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 // init const values
-const static double mass = 35.0;
-const static double volumn = 1.1 * 0.38 * 0.68;
+// mass is normal_mass + add_mass
+const static double mass = 32.0;
+const static double volumn = 44000.0/1000000.0;
 const static double density_liquid = 1000;
 
 // normal from is F(thruster) F(gravity) F(drag of liquid)
@@ -55,7 +58,7 @@ namespace find_force{
 					<< " and use_force_constant " << use_force_constant << "\n";
 		this->force_gravity = gravity*mass;
 		this->force_adding = force_adding;
-		this->force_constant = density_liquid * volumn * gravity;
+		this->force_constant = density_liquid * volumn * gravity * (-1);
 		this->use_force_constant = use_force_constant;
 		this->constant = constant;
 	}
@@ -93,12 +96,14 @@ namespace find_force{
 	}
 }
 
+#ifdef DEBUG
 int main(){
+	std::cout 	<< "Welcome to main of calculate force\n";
 	std::cout 	<< "Welcome to test calculate force \n";
 	std::cout 	<< "I will use find_force::first_case_axiis\n";
 	std::cout 	<< "mass is " << mass << "\n";
 	std::cout 	<< "volumn is " << volumn << "\n";
-	find_force::first_case_axis test_z(9.807 , 0 , 200 , true);
+	find_force::first_case_axis test_z(-9.807 , 0 , 200 , true);
 	std::cout 	<< "function calculate have use target_axeleration and current_velocity \n";
 	double target_acceleration , current_velocity;
 	int working;
@@ -109,3 +114,4 @@ int main(){
 		else std::cout << "\nresult is " << test_z.calculate_force_axis(target_acceleration , current_velocity) << "\n";
 	}
 }
+#endif
