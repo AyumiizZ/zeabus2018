@@ -16,6 +16,3 @@
 #include 	<std_msgs/Float64.h> // Include message for receive or send variable type float 64
 #include 	<std_msgs/String.h> // Include message for receive type string
 
-int main(){
-	std::cout << "Welcome to force controller\n";
-}

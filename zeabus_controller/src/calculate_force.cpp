@@ -2,6 +2,9 @@
 
 #include 	<iostream> // include standard c++
 
+// next line is for want to show data
+#define debug
+
 //#include 	<ros/ros.h> // include if you want to use time
 //#include 	<math.h> // use math for calculate
 
@@ -52,10 +55,12 @@ namespace find_force{
 										double force_adding,
 										double constant, 
 										bool use_force_constant){
+		#ifdef debug
 		std::cout 	<< "Init first case about find force \n";
 		std::cout 	<< "Input value for gravity is " << gravity
 					<< " and value for force_adding " << force_adding 
 					<< " and use_force_constant " << use_force_constant << "\n";
+		#endif
 		this->force_gravity = gravity*mass;
 		this->force_adding = force_adding;
 		this->force_constant = density_liquid * volumn * gravity * (-1);
@@ -68,12 +73,14 @@ namespace find_force{
 	double first_case_axis::calculate_force_axis(	double target_acceleration, 
 													double current_velocity){
 //		if(this->use_force_constant){
+			#ifdef debug
 			std::cout 	<< "use force constant to calculate \n";
 			std::cout 	<< "force_gravity is " << force_gravity;
 			std::cout 	<< "\nforce_drag is " 
 						<< this->constant * current_velocity * current_velocity << "\n";
 			std::cout	<< "force_constant is " << this->force_constant;
 			std::cout 	<< "\nforce_adding " << this->force_adding;
+			#endif
 			force_thruster =	mass * target_acceleration // ma 
 							-	this->force_gravity // force_gravity
 							-	this->constant * current_velocity * current_velocity // force_drag
@@ -103,15 +110,15 @@ namespace find_force{
 	};
 }
 
-#ifdef DEBUG
+#ifdef debug
 	int main(){
 		std::cout 	<< "Welcome to main of calculate force\n";
 		std::cout 	<< "Welcome to test calculate force \n";
 		std::cout 	<< "I will use find_force::first_case_axiis\n";
 		std::cout 	<< "mass is " << mass << "\n";
 		std::cout 	<< "volumn is " << volumn << "\n";
-		find_force::first_case_axis test_z(-9.807 , 0 , 200 , true);
 		std::cout 	<< "function calculate have use target_axeleration and current_velocity \n";
+		find_force::first_case_axis test_z(-9.807 , 0 , 200 , true);
 		double target_acceleration , current_velocity;
 		int working;
 		while(true){
