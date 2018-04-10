@@ -48,39 +48,29 @@ def find_gate () :
     himg , wimg = img.shape[:2]
     # mask = process_gate(img_res)
     hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
-    b,g,r = cv.split(img)
-    r.fill(250)
-    image =cv.merge((b,g,r))
-    # image = img
-    img = cv.medianBlur(image,5)
-    lower = np.array([0,0,0])
-    upper = np.array([255,255,128])
-    mask = cv.inRange(hsv,lower,upper)
+    img = cv.medianBlur(img,5)
+    mask = get_object(img)
     contours = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     c = 0
     ROI = []
     ROI_area = []
     for cnt in contours:
         cnt_area = cv.contourArea(cnt)
-        if cnt_area > 500 :
+        if cnt_area > 5000 :
             c += 1
             appear = True
-            rect = cv.minAreaRect(cnt)
-            box = cv.boxPoints(rect)
-            box = np.int0(box)
-            wbox = (abs(box[0, 0] - box[1, 0])**2 + abs(box[0, 1] - box[1, 1])**2)**0.5
-            hbox = (abs(box[1, 0] - box[2, 0])**2 + abs(box[1, 1] - box[2, 1])**2)**0.5
-            for i in box:
-                if(i[0] < 0.05*wimg):
-                    left_excess = True
-                if(i[0] > 0.95*wimg):
-                    right_excess = True
-                if(i[1] < 0.05*himg):
-                    top_excess = True
-                if(i[1] > 0.95*himg):
-                    bot_excess = True
-            img = cv.drawContours(img, [box], 0, (0,0,255), 2)
+            x,y,w,h = cv.boundingRect(cnt)
+            if(x < 0.05*wimg):
+                left_excess = True
+            if((x+w) > 0.95*wimg):
+                right_excess = True
+            if(y < 0.05*himg):
+                top_excess = True
+            if((y+h) > 0.95*himg):
+                bot_excess = True
+            img = cv.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
             ROI.append(cnt)
+    print len(ROI)
     if len(ROI) >= 2:
         pos = 0
         temp = []
@@ -99,16 +89,20 @@ def find_gate () :
         cx = int((cx_0+cx_1)/2)
         img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
     if len(ROI) == 1:
-        area = (hbox*wbox)/(himg*wimg)
+        area = (h*w)/(himg*wimg)
         if left_excess is False and right_excess is True:
             pos = -1
             print "-1 = left"
         elif left_excess is True and right_excess is False:
             pos = 1
             print "1 = right"
-        elif hbox < wbox:
+        elif left_excess is True and right_excess is True:
             pos = 0
-            cx = int((hbox/2)+box[2, 1])
+            cx = wimg/2
+            img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
+        elif h < 5*w:
+            pos = 0
+            cx = (2*x+w)/2
             img = cv.line(img,(cx,0),(cx,himg),(255,0,0),5)
         else:
             pos = -99

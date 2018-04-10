@@ -26,9 +26,10 @@ def get_object(image) :
     hsv = cv.cvtColor(image,cv.COLOR_BGR2HSV)
     # lower_orange = np.array([130,0,0])
     # upper_orange = np.array([158,255,255])
-    lower_orange = np.array([0,0,0])
-    upper_orange = np.array([255,255,245])
+    lower_orange = np.array([96,0,0])
+    upper_orange = np.array([179,151,255])
     obj = cv.inRange(hsv,lower_orange,upper_orange)
+    obj = remove_noise(obj)
     return obj
 
 # # def get_bg(image) :
