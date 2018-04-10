@@ -103,8 +103,8 @@ namespace find_force{
 	}
 
 	//this class will use only about calculate angle
-	// we will call force in this class torch
-	// some torque is 
+	// we will call force in this class torque
+	// sum torque = torque_adding or torque = torque_tune
 	class first_case_angle{
 			
 	};
