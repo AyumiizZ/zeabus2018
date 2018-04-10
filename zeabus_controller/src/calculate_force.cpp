@@ -67,7 +67,7 @@ namespace find_force{
 //       F{thruster} = ma{target} - F{gravity} - F{drag of liquid} - F{nature} + F{adding}
 	double first_case_axis::calculate_force_axis(	double target_acceleration, 
 													double current_velocity){
-		if(this->use_force_constant){
+//		if(this->use_force_constant){
 			std::cout 	<< "use force constant to calculate \n";
 			std::cout 	<< "force_gravity is " << force_gravity;
 			std::cout 	<< "\nforce_drag is " 
@@ -79,13 +79,13 @@ namespace find_force{
 							-	this->constant * current_velocity * current_velocity // force_drag
 							-	this->force_constant // F{nature}
 							+	this->force_adding; // F{adding}
-		}
+/*		}
 		else
 			force_thruster =	mass * target_acceleration // ma 
 							-	this->force_gravity // force_gravity
 							-	this->constant * current_velocity * current_velocity // force_drag
 							+	this->force_adding; // F{adding}
-	}
+	}*/
 // for set any value can change
 	void first_case_axis::set_constant(	double constant, 
 										double force_adding, 
@@ -94,24 +94,31 @@ namespace find_force{
 		this->force_adding = force_adding;
 		this->use_force_constant = use_force_constant;
 	}
+
+	//this class will use only about calculate angle
+	// we will call force in this class torch
+	// some torque is 
+	class first_case_angle{
+			
+	};
 }
 
 #ifdef DEBUG
-int main(){
-	std::cout 	<< "Welcome to main of calculate force\n";
-	std::cout 	<< "Welcome to test calculate force \n";
-	std::cout 	<< "I will use find_force::first_case_axiis\n";
-	std::cout 	<< "mass is " << mass << "\n";
-	std::cout 	<< "volumn is " << volumn << "\n";
-	find_force::first_case_axis test_z(-9.807 , 0 , 200 , true);
-	std::cout 	<< "function calculate have use target_axeleration and current_velocity \n";
-	double target_acceleration , current_velocity;
-	int working;
-	while(true){
-		std::cout	<< "Input your data working target_acceleration current_velocity : ";
-		std::cin	>> working >> target_acceleration >> current_velocity;
-		if(working == 0) break;
-		else std::cout << "\nresult is " << test_z.calculate_force_axis(target_acceleration , current_velocity) << "\n";
+	int main(){
+		std::cout 	<< "Welcome to main of calculate force\n";
+		std::cout 	<< "Welcome to test calculate force \n";
+		std::cout 	<< "I will use find_force::first_case_axiis\n";
+		std::cout 	<< "mass is " << mass << "\n";
+		std::cout 	<< "volumn is " << volumn << "\n";
+		find_force::first_case_axis test_z(-9.807 , 0 , 200 , true);
+		std::cout 	<< "function calculate have use target_axeleration and current_velocity \n";
+		double target_acceleration , current_velocity;
+		int working;
+		while(true){
+			std::cout	<< "Input your data working target_acceleration current_velocity : ";
+			std::cin	>> working >> target_acceleration >> current_velocity;
+			if(working == 0) break;
+			else std::cout << "\nresult is " << test_z.calculate_force_axis(target_acceleration , current_velocity) << "\n";
 	}
 }
 #endif
