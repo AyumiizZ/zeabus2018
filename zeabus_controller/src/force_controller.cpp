@@ -12,7 +12,8 @@
 
 #include	<nav_msgs/Odometry.h> // Include message for receive auv_state
 #include 	<geometry_msgs/Twist.h> // Include message for send to thruster_mapper
+#include 	<geometry_msgs/Point.h> 
 
 #include 	<std_msgs/Float64.h> // Include message for receive or send variable type float 64
 #include 	<std_msgs/String.h> // Include message for receive type string
-
+#include	<math.h>
