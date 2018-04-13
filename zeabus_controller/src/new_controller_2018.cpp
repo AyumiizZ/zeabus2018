@@ -251,7 +251,7 @@ int main(int argc, char **argv){
 	ros::Subscriber test_state = nh.subscribe("/test/point" , 1000, &test_current_state);
 	ros::Subscriber test_orientation = nh.subscribe("/test/orientation", 1000, &test_current_orientation);
 // setup listen topic
-	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
+	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);//(topic,number of max input,function's address)
 	ros::Subscriber sub_target_velocity = nh.subscribe("/zeabus/cmd_vel", 1000, &listen_target_velocity);
 	ros::Subscriber sub_target_position = nh.subscribe("/cmd_fix_position", 1000, &listen_target_position);
 	ros::Subscriber sub_controller = nh.subscribe("/zeabus_controller/mode", 1000, &listen_mode);

@@ -91,8 +91,8 @@ namespace find_force{
 			force_thruster =	mass * target_acceleration // ma 
 							-	this->force_gravity // force_gravity
 							-	this->constant * current_velocity * current_velocity // force_drag
-							+	this->force_adding; // F{adding}
-	}*/
+							+	this->force_adding; // F{adding}*/
+	}
 // for set any value can change
 	void first_case_axis::set_constant(	double constant, 
 										double force_adding, 
@@ -105,9 +105,9 @@ namespace find_force{
 	//this class will use only about calculate angle
 	// we will call force in this class torque
 	// sum torque = torque_adding or torque = torque_tune
-	class first_case_angle{
+//	class first_case_angle{
 			
-	};
+//	};
 }
 
 #ifdef debug
