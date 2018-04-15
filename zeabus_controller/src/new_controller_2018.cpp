@@ -32,7 +32,6 @@
 #include <dynamic_reconfigure/server.h>
 #include <zeabus_controller/PIDConstantConfig.h>
 #include <queue>
-#include <iostream>
 #include <zeabus_controller/drive_x.h>
 #include <modbus_ascii_ros/Switch.h>
 // include head of service
