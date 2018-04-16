@@ -592,7 +592,7 @@ void listen_absolute_orientation(const zeabus_controller::orientation message){
 }
 
 void listen_absolute_yaw(const std_msgs::Float64 message){
-	target_position[5] = message.data;
+	target_position[5] = message.data;//specific
 }
 
 void listen_absolute_xy(const zeabus_controller::point_xy message){
