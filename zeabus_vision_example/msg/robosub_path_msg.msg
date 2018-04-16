@@ -1,5 +1,5 @@
 bool appear
-float64 cx
-float64 cy
-float64 degree
-
+int16 cx
+int16 cy
+float64 degrees
+float64 area

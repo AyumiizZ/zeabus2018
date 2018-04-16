@@ -109,17 +109,11 @@ def find_gate () :
     return message(cx,pos,area,appear)
 
 
-def main():
-    rospy.init_node('vision_gate', anonymous=True)
-    # image_topic = "/syrena/front_cam/image_raw/compressed"
+if __name__ == '__main__':
+    rospy.init_node('vision_qualifying', anonymous=True)
     image_topic = "/top/center/image_raw/compressed"
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print "init_pub_sub"
-    rospy.Service('vision_gate', robosub_qualifying_gate_srv (), mission_callback)
+    rospy.Service('vision_qualifying', robosub_qualifying_gate_srv (), mission_callback)
     print "init_ser"
     rospy.spin()
-
-
-
-if __name__ == '__main__':
-    main()
