@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#please set nu tabstop=4
+
 import sys
 
 from PyQt4 import QtGui
@@ -28,7 +31,7 @@ class main_window():
 
 		window.setGeometry(0 , 0 , 200 , 400) # set origin window
 
-		window.setLayout( vbox )
+#		window.setLayout( vbox )
 
 		hbox = QtGui.QHBoxLayout() # manage horizontal layout
 
@@ -42,7 +45,13 @@ class main_window():
 		
 		hbox.addWidget(button_05)
 
-		window.setLayout( hbox ) # don't show hbox because have set vbox	
+		vbox.addStretch() # creates empty stretchable box
+
+		vbox.addLayout( hbox ) # add nested layout
+
+#		window.setLayout( hbox ) # don't show hbox because have set vbox	
+
+		window.setLayout( vbox ) # don't have any affected
 		
 		window.show()
 		
