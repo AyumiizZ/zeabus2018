@@ -44,6 +44,19 @@
 #include	<zeabus_controller/fix_rel_xy.h>
 #include	<zeabus_controller/ok_position.h>
 
+//setup function of ros
+void listen_mode_control(const std_msgs::Int16 message);
+void test_current_state(const geometry_msgs::Point message);
+void test_current_orientation(const zeabus_controller::orientation message);
+void listen_current_state(const nav_msgs::Odometry message);
+void listen_target_velocity(const geometry_msgs::Twist message);
+void listen_target_position(const geometry_msgs::Point message);
+void listen_target_depth(const std_msgs::Float64 message);
+void listen_absolute_yaw(const std_msgs::Float64 message);
+void listen_real_yaw(const std_msgs::Float64 message);
+void listen_absolute_xy(const zeabus_controller::point_xy message);
+void listen_absolute_orientation(const zeabus_controller::orientation message);
+
 int main(int argc, char **argv){
 //setup ros system(Initialization)
 	ros::init(argc, argv, "force_controller")//Initializing the roscpp Node
@@ -72,6 +85,7 @@ int main(int argc, char **argv){
     	ros::ServiceServer ser_cli_ok_position = nh.advertiseService("/ok_position" , service_ok_position);
 //Pub topic
 	 ros::Publisher tell_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-
-
 }
+
+
+void listen_mode_control(const std_msgs::Int16 message){}
