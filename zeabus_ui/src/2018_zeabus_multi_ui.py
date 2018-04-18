@@ -66,4 +66,5 @@ def main():
 
 if __name__ == "__main__":
 #	rospy.init_node('zeabus_ui', anonymous = True)
+	rospy.init_node('zeabus_ui')
 	main() 

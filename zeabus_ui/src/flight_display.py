@@ -28,18 +28,27 @@ class draw_flight_display(QtGui.QWidget):
 		self.black_pen.setBrush( QtCore.Qt.black )
 
 	def paintEvent(self, event):
-		print("paint")
+#		print("paintEvent")
 		drawing = QtGui.QPainter()
 		drawing.begin(self)
 		drawing.fillRect(0,0 , self.pixel_x , self.pixel_x, QtGui.QColor( QtCore.Qt.gray ) )
 		drawing.fillRect(0,self.pixel_x -5 , self.pixel_x , 10 , QtGui.QColor( QtCore.Qt.red))
 		drawing.setPen( self.black_pen )
+
 		drawing.setFont( QtGui.QFont('Times' , 20))
-		drawing.drawText(20 , self.pixel_x + 40 , "X = " + str(self.position[0]))
+		drawing.drawText(20 , self.pixel_x + 30 , "current_state")
+		drawing.setFont( QtGui.QFont('Times' , 16))
+		drawing.drawText(20 , self.pixel_x + 60 ,  "X\t= " + str(self.position[0]))
+		drawing.drawText(20 , self.pixel_x + 85 ,  "Y\t= " + str(self.position[1]))
+		drawing.drawText(20 , self.pixel_x + 110 , "Z\t= " + str(self.position[2]))
+		drawing.drawText(20 , self.pixel_x + 135 , "roll\t= " + str(self.position[3]))
+		drawing.drawText(20 , self.pixel_x + 160 , "pitch\t= " + str(self.position[4]))
+		drawing.drawText(20 , self.pixel_x + 185 , "yaw\t= " + str(self.position[5]))
+
 		drawing.end()
 
 	def get_current_state(self, message ):
-		print("receive value")
+#		print("receive value")
 		pose = message.pose.pose
 		tmp = (pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
 		ang = euler_from_quaternion(tmp)
