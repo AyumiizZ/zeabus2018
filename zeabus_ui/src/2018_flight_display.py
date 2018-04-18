@@ -8,13 +8,35 @@ class main_window_ui( QtGui.QMainWindow):
 	def __init__(self , parent=None):
 		super( main_window_ui , self).__init__(parent)
 		
-		self.flight_display_window = QtGui.QMdiArea()
+		self.multiple_document_interface = QtGui.QMdiArea()
 
-		self.setCentralWidget( self.flight_display_window )
+		self.setCentralWidget( self.multiple_document_interface )
 
-		menu_bar = self.menuBar()
+		self.tool_bar = self.addToolBar("Open New Window")
 
-		print( "main_window_ui.count first time is " + str(main_window_ui))
+#---------------Add button for flight display button--------------------------
+
+		self.flight_display_button = QtGui.QPushButton("Flight Display")
+		self.flight_display_button.setCheckable(True)
+		self.flight_display_button.toggle()
+		self.flight_display_button.clicked.connect( self.show_flight_display )
+		self.tool_bar.addWidget( self.flight_display_button )
+		
+		self.setWindowTitle( "ZEABUS UI 2018")
+#		print( "main_window_ui.count first time is " + str(main_window_ui.count))
+
+	def show_flight_display(self):
+#		print( self.flight_display_button.isChecked())
+		if not self.flight_display_button.isChecked():
+			print("button pressed")
+			flight_display = QtGui.QMdiSubWindow()
+			flight_display.setWidget()
+			flight_display.setWindowTitle( "flight display window")
+
+			self.multiple_document_interface.addSubWindow( flight_display )
+			flight_display.show()
+		else:
+			print("button released")
 
 
 def main():
