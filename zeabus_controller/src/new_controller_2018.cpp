@@ -208,7 +208,7 @@ bool same_direction(double num_01, double num_02);
 
 //declare for testing
 void test_current_state(const geometry_msgs::Point message);
-void est_current_orientation(const zeabus_controller::orientation message);
+void test_current_orientation(const zeabus_controller::orientation message);
 
 //declare calculate variable
 int fast_velocity_z = 0;

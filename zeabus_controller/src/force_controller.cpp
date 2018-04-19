@@ -31,11 +31,11 @@
 #include	<zeabus_controller/point_xy.h>
 #include	<zeabus_controller/orientation.h>
 #include	<modbus_ascii_ros/Switch.h>
-//#include	<dynamic_reconfigure/server.h> //used in code
-//#include	<zeabus_controller/PIDConstantConfig.h> //used in code 
+#include	<dynamic_reconfigure/server.h>
+#include	<zeabus_controller/PIDConstantConfig.h>
 
 //#include	<zeabus_controller/drive_x.h> //unused in code
-//#include	<zeabus_controller/message_service.h> //unused in code
+#include	<zeabus_controller/message_service.h>
 #include	<zeabus_controller/fix_abs_xy.h>
 #include	<zeabus_controller/fix_abs_x.h>
 #include	<zeabus_controller/fix_abs_y.h>
@@ -44,10 +44,11 @@
 #include	<zeabus_controller/fix_rel_xy.h>
 #include	<zeabus_controller/ok_position.h>
 
-//setup function of ros
-void listen_mode_control(const std_msgs::Int16 message);
+//void listen_mode_control(const std_msgs::Int16 message);
+//for testing
 void test_current_state(const geometry_msgs::Point message);
 void test_current_orientation(const zeabus_controller::orientation message);
+//setup function of ros
 void listen_current_state(const nav_msgs::Odometry message);
 void listen_target_velocity(const geometry_msgs::Twist message);
 void listen_target_position(const geometry_msgs::Point message);
@@ -56,14 +57,15 @@ void listen_absolute_yaw(const std_msgs::Float64 message);
 void listen_real_yaw(const std_msgs::Float64 message);
 void listen_absolute_xy(const zeabus_controller::point_xy message);
 void listen_absolute_orientation(const zeabus_controller::orientation message);
-
+//setup function of service
+bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response)
 int main(int argc, char **argv){
 //setup ros system(Initialization)
 	ros::init(argc, argv, "force_controller")//Initializing the roscpp Node
 	ros::NodeHandle nh;//Starting the roscpp Node
-	ros::Subscriber sub_mode = nh.subscribe("/mode_control", 1000, &listen_mode_control);//(topic, number of max input, function's address)
+	//ros::Subscriber sub_mode = nh.subscribe("/mode_control", 1000, &listen_mode_control);
 //test topic
-	ros::Subscriber test_state = nh.subscribe("/test/point" , 1000, &test_current_state);
+	ros::Subscriber test_state = nh.subscribe("/test/point" , 1000, &test_current_state);//(topic, number of max input, function's address)
 	ros::Subscriber test_orientation = nh.subscribe("/test/orientation", 1000, &test_current_orientation);
 //Sub topic
 	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
@@ -88,4 +90,24 @@ int main(int argc, char **argv){
 }
 
 
-void listen_mode_control(const std_msgs::Int16 message){}
+//void listen_mode_control(const std_msgs::Int16 message){}
+
+void test_current_state(const geometry_msgs::Point message){
+	current_position[0] = message.x;
+	current_position[1] = message.y;
+	current_position[2] = message.z;
+}
+
+void test_current_orientation(const zeabus_controller::orientation message){
+	current_position[3] = message.roll;
+	current_position[4] = message.pitch;
+	current_position[5] = message.yaw; 
+}
+
+bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
+	target_position[0] = request.x;
+	target_position[1] = request.y;
+	response.success = true;
+	return true;
+}
+
