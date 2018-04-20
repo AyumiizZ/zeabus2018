@@ -28,8 +28,8 @@ class main_window_ui( QtGui.QMainWindow):
 #---------------Add button for flight display button--------------------------
 
 		self.flight_display_button = QtGui.QPushButton("Flight Display")
-		self.flight_display_button.setCheckable(True)
-		self.flight_display_button.toggle()
+#		self.flight_display_button.setCheckable(True)
+#		self.flight_display_button.toggle()
 		self.flight_display_button.clicked.connect( self.show_flight_display )
 		self.tool_bar.addWidget( self.flight_display_button )
 		
@@ -39,20 +39,20 @@ class main_window_ui( QtGui.QMainWindow):
 
 	def show_flight_display(self):
 #		print( self.flight_display_button.isChecked())
-		if not self.flight_display_button.isChecked():
-			print("button pressed")
-			flight_display = QtGui.QMdiSubWindow()
+#		if not self.flight_display_button.isChecked():
+		print("button pressed")
+		flight_display = QtGui.QMdiSubWindow()
 
-			flight_display.setWidget( draw_flight_display(700 , self.y) )
+		flight_display.setWidget( draw_flight_display(self.x / 2 , self.y / 2 , 0) )
 
-			flight_display.setGeometry(0 , 0 , 700, self.y)
+		flight_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
 
-			flight_display.setWindowTitle( "flight display window")
+		flight_display.setWindowTitle( "flight display window")
 
-			self.multiple_document_interface.addSubWindow( flight_display )
-			flight_display.show()
-		else:
-			print("button released")
+		self.multiple_document_interface.addSubWindow( flight_display )
+		flight_display.show()
+#		else:
+#			print("button released")
 
 
 def main():
@@ -66,5 +66,5 @@ def main():
 
 if __name__ == "__main__":
 #	rospy.init_node('zeabus_ui', anonymous = True)
-	rospy.init_node('zeabus_ui')
+#	rospy.init_node('zeabus_ui', anonymous = True)
 	main() 
