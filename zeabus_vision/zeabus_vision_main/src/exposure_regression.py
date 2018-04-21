@@ -25,8 +25,8 @@ def find_parameter():
     path = rospkg.RosPack().get_path('zeabus_vision')
     client_name = '/ueye_cam_nodelet_bottom_left/'
     param = 'exposure'
-    f = open(path + "/src/parameter_" + a + ".txt", "a")
     a = str(raw_input('Press NO. File'))
+    f = open(path + "/src/parameter_" + a + ".txt", "a")
     img_id_current = 0
     while not rospy.is_shutdown():
         if img is None:
@@ -68,6 +68,6 @@ def find_parameter():
 if __name__ == '__main__':
     rospy.init_node('exposure_regression')
     print('<' * 8, 'init node', '>' * 8)
-    camera_topic = '/bottom/left/image_raw/compressed'
+    camera_topic = '/top/center/image_raw/compressed'
     rospy.Subscriber(camera_topic, CompressedImage, camera_callback)
     find_parameter()
