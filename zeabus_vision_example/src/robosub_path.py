@@ -53,7 +53,7 @@ def get_obj(img):
 def get_cx(mask):
     global img
     himg, wimg = img.shape[:2]
-    cv.line(img, (0, himg/2), (wimg, himg/2), (0, 255, 0),10)
+    cv.line(img, (0, himg/2), (wimg, himg/2), (0, 255, 0), 10)
     cx = []
     cy = []
     sum_area = 0
@@ -73,7 +73,7 @@ def get_cx(mask):
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + a
                 if ROI_cx >= 0.05 * wimg and ROI_cx <= 0.95 * wimg:
-                    cv.circle(img, (ROI_cx, ROI_cy), 10, (255, 0, 0),-1)
+                    cv.circle(img, (ROI_cx, ROI_cy), 10, (255, 0, 0), -1)
                     cx.append(ROI_cx)
                     cy.append(ROI_cy)
                     sum_area += this_area
@@ -89,26 +89,29 @@ def find_angle(cx, cy):
         rad = math.atan2(cy[i+1]-cy[i], cx[i+1]-cx[i])
         this_deg = math.degrees(rad)
         if len(deg) > 0 and abs(this_deg-deg[-1]) > 5:
-            cv.circle(img, (cx[i], cy[i]), 10, (255, 255, 255),-1)
+            cv.circle(img, (cx[i], cy[i]), 10, (255, 255, 255), -1)
             break
-        deg.append(this_deg)    
+        deg.append(this_deg)
     return abs(sum(deg)/len(deg))-90
 
 # message_path(cx=-1, cy=-1, area=-1, degree=-999, appear=False):
 
 
 def find_path():
+
+    while img is None and not rospy.is_shutdown():
+        print('img is none.\nPlease check topic name or check camera is running')
     mask = get_obj(img)
     cx, cy, area = get_cx(mask)
     appear = len(cx) > 0
-    publish_result(img,'bgr','/path/img')
-    publish_result(mask,'gray','/path/mask')
+    publish_result(img, 'bgr', '/path/img')
+    publish_result(mask, 'gray', '/path/mask')
     if len(cx) > 0:
         himg, wimg = img.shape[:2]
         return_cx = 1.0*(cx[0] - (himg/2))/(1.0*himg/2)
         return_cy = 1.0*(cy[0] - (wimg/2))/(1.0*wimg/2)
         return_area = (1.0*area*16)/(himg*wimg)
-        cv.circle(img,(cx[0],cy[0]),10,(255,0,0),-1)
+        cv.circle(img, (cx[0], cy[0]), 10, (255, 0, 0), -1)
         if len(cx) > 1:
             degrees = find_angle(cx, cy)
             return message_path(cx=return_cx, cy=return_cy, area=return_area, degrees=degrees, appear=True)
@@ -126,101 +129,3 @@ if __name__ == '__main__':
                   mission_callback)
     print "init_ser"
     rospy.spin()
-# def print_result (msg) :
-#     print ('<-----------') + str(msg) + ('---------->')
-
-# def get_object (img) :
-#     hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
-#     lower_yellow = np.array([19,125,68])
-#     upper_yellow = no.array([32,244,247])
-#     obj = cv.inRange(hsv,lower_yellow,upper_yellow)
-#     return obj
-
-# def remove_noise (mask) :
-#     kernel = get_kernel('rect',(5,9))
-#     erode = cv.erode(mask,kernel)
-
-#     kernel = get_kernel('rect',(5,15))
-#     dilate = cv.dilate(erode,kernel)
-
-#     kernel = get_kernel('rect',(2,19))
-#     erode = cv.erode(dilate,kernel)
-
-#     return erode
-
-# def get_kernel(shape = 'rect',ksize =(5,5)) :
-#     if shape == 'rect' :
-#         return cv.getStructuringElement(cv.MORPH_RECT,ksize)
-
-# def process_gate(frame) :
-#     mask_change_color = prepocessing(frame)
-#     obj = get_object(mask_change_color)
-#     remove = remove_noise(obj)
-#     return remove
-
-# def mission_callback(msg):
-#     print_result('mission_callback')
-
-#     task = msg.task.data
-
-#     print('task:', str(task))
-#     if task == 'path' :
-#         return find_path()
-
-# def publish_result(img, type, topicName):
-#     if img is None:
-#         img = np.zeros((200, 200))
-#         type = "gray"
-#     bridge = CvBridge()
-#     pub = rospy.Publisher(
-#         str(topicName), Image, queue_size=10)
-#     if type == 'gray':
-#         msg = bridge.cv2_to_imgmsg(img, "mono8")
-#     elif type == 'bgr':
-#         msg = bridge.cv2_to_imgmsg(img, "bgr8")
-#     pub.publish(msg)
-
-# def image_callback(msg):
-#     global img, sub_sampling, img_res
-#     arr = np.fromstring(msg.data, np.uint8)
-#     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
-#                      fx=sub_sampling, fy=sub_sampling)
-#     img_res = img.copy()
-
-# def message(cx=0,cy=0,degree=0,appear=False):
-#     global c_img
-#     print(appear,cx,cy,degree)
-#     m = robosub_path_msg()
-#     m.appear = appear
-#     m.cx = x
-#     m.cy = y
-#     m.degree = degree
-#     print(m)
-#     return m
-
-# def img_callback(msg):
-#     global img
-
-#     arr = np.fromstring( msg.data, np.uint8)
-#     img = cv.resize(cv.imdecode(arr, 1), (640, 512))
-
-# def img_bot_callback(msg):
-#     global img_bot, height_bot, width_bot
-#     arr = np.fromstring( msg.data, np.uint8)
-#     img_bot = cv.resize(cv.imdecode(arr, 1), (640, 512))
-#     height_bot, width_bot,_ = img_bot.shape
-
-# def main():
-#     rospy.init_node('vision_path', anonymous=True)
-#     image_topic = "/syrena/front_cam/image_raw/compressed"
-#     # image_topic = "/top/center/image_raw/compressed"
-#     res_topic = "/top/center/res/compressed"
-#     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-#     #abc = rospy.Publisher(res_topic, CompressedImage, queue_size=10)
-#     print "init_pub_sub"
-#     rospy.Service('vision_path', robosub_path_srv (), mission_callback)
-#     print "init_ser"
-#     rospy.spin()
-
-# if __name__ == '__main__':
-#     main()

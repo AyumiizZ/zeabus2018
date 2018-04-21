@@ -44,7 +44,6 @@ def find_gate () :
     right_excess = False
     while img is None and not rospy.is_shutdown() :
         print('img is none.\nPlease check topic name or check camera is running')
-        break
     himg , wimg = img.shape[:2]
     img = cv.medianBlur(img,5)
     mask = get_object(img)
