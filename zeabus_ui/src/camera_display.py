@@ -11,10 +11,10 @@ from tf.transformations import euler_from_quaternion
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import CompressedImage
 
-class draw_flight_display(QtGui.QWidget):
+class draw_picture_camera(QtGui.QWidget):
 	def __init__(self, x , y, mode):
-		super( draw_flight_display , self).__init__()
-#		rospy.init_node('flight_display', anonymous = True)
+		super( draw_picture_camera , self).__init__()
+#		rospy.init_node('camera_display', anonymous = True)
 #self.pixel_? is length in there axis
 		self.pixel_x = x
 		self.pixel_y = y
@@ -26,13 +26,13 @@ class draw_flight_display(QtGui.QWidget):
 	# for center camera
 		self.size_x_top = 1152
 		self.size_y_top = 874
-		self.point_for_center_x_top = 0 - ( ( self.size_x_top / 2 ) - ( self.pixel_y / 2 ) )
+		self.point_for_center_x_top = 0 - ( ( self.size_x_top / 2 ) - ( self.pixel_x / 2 ) )
 		self.point_for_center_y_top = 0 - ( ( self.size_y_top / 2 ) - ( self.pixel_y / 2 ) )
 
 	# for bottom camera
 		self.size_x_bottom = 1936
 		self.size_y_bottom = 1216
-		self.point_for_bottom_x_top = 0 - ( ( self.size_x_top / 2 ) - ( self.pixel_y / 2 ) )
+		self.point_for_bottom_x_top = 0 - ( ( self.size_x_top / 2 ) - ( self.pixel_x / 2 ) )
 		self.point_for_bottom_y_top = 0 - ( ( self.size_y_top / 2 ) - ( self.pixel_y / 2 ) )
 #------------------------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ class draw_flight_display(QtGui.QWidget):
 		self.show_type = 0
 
 # subscribe topic
-		rospy.Subscriber('/auv/state', Odometry, self.get_current_state)
+#		rospy.Subscriber('/auv/state', Odometry, self.get_current_state)
 		if( self.mode_picture == 1):
 			rospy.Subscriber('/top/center/image_raw/compressed', 
 								CompressedImage , self.get_center_image )
@@ -78,41 +78,22 @@ class draw_flight_display(QtGui.QWidget):
 			drawing.drawPixmap( self.point_for_bottom_x_top , self.point_for_bottom_y_top,
 								QtGui.QPixmap( self.bottom_image ))
 
-# fillRect order argument mean start_x , start_y , plus_x , plus_y , color
-#		drawing.fillRect(0,0 , self.pixel_y , self.pixel_y, QtGui.QColor( QtCore.Qt.gray ) )
-		drawing.fillRect(self.pixel_y - 5 , 0 , 5 , self.pixel_y , 
-							QtGui.QColor( QtCore.Qt.red))
-		drawing.fillRect(self.pixel_y , 0 , self.pixel_x , self.pixel_y , 
-							QtGui.QColor( QtCore.Qt.white))
-
 #drawing line order argumment mean start_point_x , stary_point_y , end_point_x , end_point_y	
 		drawing.setPen( self.center_pen )
-		drawing.drawLine(self.pixel_y/2-5 , self.pixel_y/2 , self.pixel_y/2+5 , self.pixel_y/2)
-		drawing.drawLine(self.pixel_y/2 , self.pixel_y/2-5 , self.pixel_y/2 , self.pixel_y/2+5)
+		drawing.drawLine(self.pixel_x/2-10 , self.pixel_y/2 , self.pixel_x/2+10 , self.pixel_y/2)
+		drawing.drawLine(self.pixel_x/2 , self.pixel_y/2-10 , self.pixel_x/2 , self.pixel_y/2+10)
 	# line x axis
-		drawing.drawLine(self.pixel_y/2-60 , self.pixel_y/2 , self.pixel_y/2-50 , self.pixel_y/2 )
-		drawing.drawLine( self.pixel_y/2+50 , self.pixel_y/2 , self.pixel_y/2+60 , self.pixel_y/2 )
+		drawing.drawLine(self.pixel_x/2-60 , self.pixel_y/2 , self.pixel_x/2-40 , self.pixel_y/2 )
+		drawing.drawLine( self.pixel_x/2+50 , self.pixel_y/2 , self.pixel_x/2+70 , self.pixel_y/2 )
 	# line y axis
-		drawing.drawLine(self.pixel_y/2 , self.pixel_y/2-60 , self.pixel_y/2 , self.pixel_y/2-50 )
-		drawing.drawLine( self.pixel_y/2 , self.pixel_y/2+50 , self.pixel_y/2 , self.pixel_y/2+60 )
+		drawing.drawLine(self.pixel_x/2 , self.pixel_y/2-60 , self.pixel_x/2 , self.pixel_y/2-40 )
+		drawing.drawLine( self.pixel_x/2 , self.pixel_y/2+50 , self.pixel_x/2 , self.pixel_y/2+70 )
 
 #drawText order argument mean point_x_left, point_y_bottom , text 
 #	so color is same setPen and font size is same setFont
-		drawing.setPen( self.black_pen )
-		drawing.setFont( QtGui.QFont('Times' , 20))
-		drawing.drawText(self.pixel_y + 20 , 30 , "current_state")
-		drawing.setFont( QtGui.QFont('Times' , 16))
-		drawing.drawText(self.pixel_y + 15 , 80 ,  "X\t= " + str(self.position[0]))
-		drawing.drawText(self.pixel_y + 15 , 110 ,  "Y\t= " + str(self.position[1]))
-		drawing.drawText(self.pixel_y + 15 , 140 , "Z\t= " + str(self.position[2]))
-		drawing.drawText(self.pixel_y + 15 , 200 , "Roll\t= " + str(self.position[3]))
-		drawing.drawText(self.pixel_y + 15 , 230 , "Pitch\t= " + str(self.position[4]))
-		drawing.drawText(self.pixel_y + 15 , 260 , "Yaw\t= " + str(self.position[5]))
-
 		drawing.end()
 
 	def get_center_image(self, message):
-		print("Recieve top image , flight display")
 		temporary = numpy.fromstring( message.data, numpy.uint8)
 		temporary = cv2.imdecode( temporary , 1)
 		self.center_image = QtGui.QImage( temporary , temporary.shape[1],
@@ -123,7 +104,6 @@ class draw_flight_display(QtGui.QWidget):
 		self.update()
 
 	def get_bottom_image(self, message):
-		print("Recieve bottom image , flight display")
 		temporary = numpy.fromstring( message.data, numpy.uint8)
 		temporary = cv2.imdecode( temporary , 1)
 		self.bottom_image = QtGui.QImage( temporary , temporary.shape[1],
@@ -152,4 +132,3 @@ class draw_flight_display(QtGui.QWidget):
 
 		temporary = ang[2]*180/math.pi
 		self.position[5] = min([temporary-360,360-temporary,360+temporary,temporary], key=abs)		
-		self.update()
