@@ -32,7 +32,6 @@
 #include <dynamic_reconfigure/server.h>
 #include <zeabus_controller/PIDConstantConfig.h>
 #include <queue>
-#include <iostream>
 #include <zeabus_controller/drive_x.h>
 #include <modbus_ascii_ros/Switch.h>
 // include head of service
@@ -80,7 +79,7 @@ double bound_force_yaw = 0.2;
 
 //force about x y z roll pitch yaw
 //----------------------------------------
-static std::string tune_file = "in_singapore.yaml";
+static std::string tune_file = "sim_origin.yaml";
 //----------------------------------------
 std::string force_message = "";
 double warning_depth = -0.9;
@@ -110,12 +109,12 @@ geometry_msgs::Twist message_cmd_vel;
 nav_msgs::Odometry current_state;
 //double quaternion[4] = {0,0,0,0};
 //---------------------------------
-int step_work = 8; // 1 go depth : 2 tune z : 3 tune yaw : 4 tune pitch : 5 tune roll : 6 tune x : 7 tune y : 8 normal : 9 don't use 
+int step_work = 10; // 1 go depth : 2 tune z : 3 tune yaw : 4 tune pitch : 5 tune roll : 6 tune x : 7 tune y : 8 normal : 9 don't use 
 //---------------------------------
 // setup tuning z
 bool tune_z = true;
 int count_z = 1;
-double force_z = -0.038;
+double force_z = -0.16;
 double current_force_z = 0.0;
 double previous_force_z = 0.0;
 double previous_velocity_z = 0.0;
@@ -127,7 +126,7 @@ bool already_change = false;
 double output[6] = {0, 0, 0, 0, 0, 0};
 double current_velocity[6] = {0, 0, 0, 0, 0, 0}, target_velocity[6] = {0, 0, 0, 0, 0, 0};
 double current_position[6] = {0, 0, 0, 0, 0, 0} , target_position[6] = {0, 0, target_depth, 0, 0, 0};
-bool want_fix[6] = {false , false , true , false , false , true};
+bool want_fix[6] = {false , false , false , false , false , false};
 bool already_position[6] = {false, false, false, true, true, false};
 double error_position[6] = {0, 0, 0, 0, 0, 0} , error_velocity[6] = {0, 0, 0, 0, 0, 0}, normal_error[6] = {0, 0, 0, 0, 0, 0};
 //double current_pose[7] = {0, 0, 0, 0, 0, 0, 0}, target_pose[7] = {0, 0, 0, 0, 0, 0, 0};
@@ -173,7 +172,7 @@ void listen_imu_data(const sensor_msgs::Imu message);
 
 // setup Dynamic Reconfig
 
-//void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t level);
+void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t level);
 
 // set up function of service
 bool service_target_distance( zeabus_controller::fix_rel_xy::Request &request , zeabus_controller::fix_rel_xy::Response &response);
@@ -251,7 +250,7 @@ int main(int argc, char **argv){
 	ros::Subscriber test_state = nh.subscribe("/test/point" , 1000, &test_current_state);
 	ros::Subscriber test_orientation = nh.subscribe("/test/orientation", 1000, &test_current_orientation);
 // setup listen topic
-	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
+	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);//(topic,number of max input,function's address)
 	ros::Subscriber sub_target_velocity = nh.subscribe("/zeabus/cmd_vel", 1000, &listen_target_velocity);
 	ros::Subscriber sub_target_position = nh.subscribe("/cmd_fix_position", 1000, &listen_target_position);
 	ros::Subscriber sub_controller = nh.subscribe("/zeabus_controller/mode", 1000, &listen_mode);
@@ -277,8 +276,8 @@ int main(int argc, char **argv){
 	ros::Publisher tell_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	
 // setup dynamic configK of PID
-//	dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig> server;
-//	dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig>::CallbackType f;
+	dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig> server;
+	dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig>::CallbackType f;
 
 	special_order special_command;
 
@@ -286,12 +285,12 @@ int main(int argc, char **argv){
 	std::cout << "mass of auv is " << mass << std::endl;
 // 100% copy
 
-//	f = boost::bind(&config_constant_PID, _1, _2);
-//	server.setCallback(f);
+	f = boost::bind(&config_constant_PID, _1, _2);
+	server.setCallback(f);
 	ros::Rate rate(50);
 	ros::Rate sleep(10);
 	while(nh.ok()){
-/*		if(first_time_PID){
+		if(first_time_PID){
 			std::cout << "Before download" << std::endl; 
 			PID_file.load_file("Controller");
 			std::cout << "Finish download" << std::endl;
@@ -299,6 +298,7 @@ int main(int argc, char **argv){
  			sleep.sleep();
 			set_all_PID();
 			reset_all_I();
+            step_work = 8;
 		}
 		else if(change_PID){
 			std::cout << "before save file" << std::endl;
@@ -308,12 +308,12 @@ int main(int argc, char **argv){
 			set_all_PID();
 			reset_all_I();
 		}
-		else{}*/
+		else{}
 		if(step_work == 1){
 		}
 		else if(step_work==8){
 			for(int i = 0; i < 6 ; i++){
-/*		 		if (target_velocity[i] != 0){
+		 		if (target_velocity[i] != 0){
 					if(i == 0 || i == 1){
 		 				target_position[0] = current_position[0];
 						want_fix[0] = false;
@@ -327,7 +327,7 @@ int main(int argc, char **argv){
 					}
 				}
 				else want_fix[i] = true;
-			}*/			
+			}			
 			calculate_out();
 		}
 		else{
@@ -366,9 +366,9 @@ int main(int argc, char **argv){
 			special_command.special_pwm("zero_force");
 		}
 		else{
-            std::cout << "Send message to thruster_mapper" << std::endl;
 			tell_pub.publish(message_cmd_vel);
 		}
+		shutdown_target_velocity();
 		rate.sleep();
 		ros::spinOnce();
 	}
@@ -381,127 +381,37 @@ void calculate_out(){
 	std::cout << "distance xy : " << distance_xy << " yaw : " << distance_yaw << "  diff_yaw : " << diff_yaw << std::endl;
 	for(int check = 0 ; check < 6 ; check++ ){
 		if(want_fix[check]){
-			/*if(check==0){
+			if(check == 0 && check == 1){
 				error_position[0] = distance_xy*cos(diff_yaw);
-				absolute_error = abs(error_position[0]);
-				if(absolute_error < error_x){
-					force_output[0] = 0;
-					reset_I_position(0);
-				}
-				else{
-					force_output[0] = PID_position[0].calculate_PID(error_position[0], current_velocity[0]);
-				}
-				if(not same_direction(error_position[check],force_output[check])){
-					force_output[check] = 0;
-					reset_I_position(0);
-				} 
-				std::cout << "check 0 : " << error_position[0] << " force is : " << force_output[0] << std::endl;
-				if(bound_x){
-					if(force_output[0] < (-1*bound_force_x)) force_output[0] = -1*bound_force_x;
-					else if(force_output[0] > bound_force_x) force_output[0] = bound_force_x;
-					std::cout << "Open bound system" << std::endl;
-				}
-			}
-			else if(check==1){
 				error_position[1] = distance_xy*sin(diff_yaw);
-				absolute_error = abs(error_position[1]);
-				if(absolute_error < error_y){
-					force_output[1] = 0;
-					reset_I_position(1);
-				}
-				else{
-					force_output[1] = PID_position[1].calculate_PID(error_position[1], current_velocity[1]);	
-				}
-				if(not same_direction(error_position[check],force_output[check])){
+				absolute_error = abs(error_position[check]);
+				if(absolute_error < 1){
 					force_output[check] = 0;
-					reset_I_position(1);
-				} 
-				std::cout << "check 1 : " << error_position[1] << " force is : " << force_output[1] << std::endl;
-				if(bound_y){
-					if(force_output[1] < (-1*bound_force_y)) force_output[1] = -1*bound_force_y;
-					else if(force_output[1] > bound_force_y) force_output[1] = bound_force_y;
-					std::cout << "Open bound system" << std::endl;
-				}
-			}*/
-			if(check==2){
-				error_position[2] = target_position[2] - current_position[2];
-				if(error_position[2] > 0 && error_position[2] < 0.5){
-					force_output[2] = 0;
-					reset_I_position(2);
-				}
-				else if(error_position[2] < 0 && error_position[2] > -0.05){
-					force_output[2] = force_z;
-					std::cout << "force_z is " << force_z << std::endl;
-				}
-				else{
-					force_output[2] = PID_position[2].calculate_PID(error_position[2], current_velocity[2]);
-					reset_I_position(2);
-				}
-				std::cout << "check 2 : " << error_position[2] << " force is : " << force_output[2] << std::endl;
-				if(bound_z){
-					if(force_output[2] < -0.6) force_output[2] = -0.6;
-					else if(force_output[2] > 0.6) force_output[2] = 0.6;
-					std::cout << "Open bound system" << std::endl;
+					reset_I_position(check);
+					force_output[check] = PID_position[check].calculate_PID(error_position[check] , current_velocity[check]);
 				}
 			}
-			else if(check==3){
-				error_position[3] = find_min_angular(current_position[3], target_position[3]);
-				absolute_error = abs(error_position[3]);
-				if(absolute_error < error_roll){
-					force_output[3]=0;
-					reset_I_position(3);
-				}
-				else force_output[3] = PID_position[3].calculate_PID(error_position[3], current_velocity[3]);
-				if(not same_direction(error_position[3],force_output[3])) {
+			else if(check == 2){
+				error_position[check] = target_position[check] - current_position[check];
+				absolute_error = abs(error_position[check]);
+				if(absolute_error < 0.3){
 					force_output[check] = 0;
-					reset_I_position(3);
-				} 
-				std::cout << "check "<< check <<" : " << error_position[3] << " force is : " << force_output[check] << std::endl;
-				if(bound_roll){
-					if(force_output[3] < (-1*bound_force_roll)) force_output[3] = -1*bound_force_roll;
-					else if(force_output[3] > bound_force_roll) force_output[3] = bound_force_roll;
-					std::cout << "Open bound system" << std::endl;
-				}
-			}
-			else if(check==4){
-				error_position[4] = find_min_angular(current_position[4], target_position[4]);
-				absolute_error = abs(error_position[4]);
-				if(absolute_error < error_pitch){
-					force_output[4] = 0;
-					reset_I_position(4);
-				}
-				else force_output[4] = PID_position[4].calculate_PID(error_position[4], 0);
-				if(not same_direction(error_position[4],force_output[4])){
-					force_output[4] = 0;
-					reset_I_position(4);
-				} 
-				std::cout << "check "<< check <<" : " << error_position[4] << " force is : " << force_output[4] << std::endl;
-				if(bound_pitch){
-					if(force_output[4] < (-1*bound_force_pitch)) force_output[4] = -1*bound_force_pitch;
-					else if(force_output[4] > bound_force_pitch) force_output[4] = bound_force_pitch;
-					std::cout << "Open bound system" << std::endl;
-				}
-			}
-			else if(check==5){
-				error_position[5] = find_min_angular(current_position[5], target_position[5]);
-				absolute_error = abs(error_position[5]);
-				if(absolute_error< error_yaw){
-					force_output[5]=0;
-					reset_I_position(5);
+					reset_I_position(check);
 				}
 				else{
-					force_output[5] = PID_position[5].calculate_PID(error_position[5], current_velocity[5]);
+					force_output[check] = PID_position[check].calculate_PID(error_position[check] , current_velocity[check]);
 				}
-				if(not same_direction(error_position[check],force_output[5])){
-					force_output[5] = 0; 
-					reset_I_position(5);
+			}
+			else{
+				error_position[check] = find_min_angular(current_position[check] , target_position[check]);
+				std::cout << "calculate angular check : " << check << " error : " << error_position[check];
+				absolute_error = abs(error_position[check]);
+				std::cout << " absolute : " << absolute_error << "\n";
+				if(absolute_error < 0.1){
+					force_output[check] = 0;
+					reset_I_position(check);
 				}
-				std::cout << "check "<< check <<" : " << error_position[5] << " force is : " << force_output[5] << std::endl;
-				if(bound_yaw){
-					if(force_output[5] < (-1*bound_force_yaw)) force_output[5] = -1*bound_force_yaw;
-					else if(force_output[5] > bound_force_yaw) force_output[5] = bound_force_yaw;
-					std::cout << "Open bound system" << std::endl;
-				}
+				else force_output[check] = PID_position[check].calculate_PID(error_position[check], 0);
 			}
 		}
 		else{
@@ -541,7 +451,7 @@ void listen_current_state(const nav_msgs::Odometry message){
 		target_position[2] = message.pose.pose.position.z;
 		target_position[3] = 0.0;
 		target_position[4] = 0.0;
-		target_position[5] = yaw;
+		target_position[5] = check_radian_tan((double)yaw);
 		start_point[0] = message.pose.pose.position.x;
 		start_point[1] = message.pose.pose.position.y;
 		shutdown_force();
@@ -565,10 +475,10 @@ void listen_current_state(const nav_msgs::Odometry message){
 void listen_target_velocity(const geometry_msgs::Twist message){
 	target_velocity[0] = message.linear.x;
 	target_velocity[1] = message.linear.y;
-//	target_velocity[2] = message.linear.z;
+	target_velocity[2] = message.linear.z;
 	target_velocity[3] = message.angular.x;
 	target_velocity[4] = message.angular.y;
-//	target_velocity[5] = message.angular.z;
+	target_velocity[5] = message.angular.z;
 }
 
 void listen_target_position(const geometry_msgs::Point message){
@@ -591,7 +501,7 @@ void listen_absolute_orientation(const zeabus_controller::orientation message){
 }
 
 void listen_absolute_yaw(const std_msgs::Float64 message){
-	target_position[5] = message.data;
+	target_position[5] = message.data;//specific
 }
 
 void listen_absolute_xy(const zeabus_controller::point_xy message){
@@ -604,7 +514,7 @@ void listen_real_yaw(const std_msgs::Float64 message){
 	if(target_position[5] < 0) target_position[5]+=2*PI;
 	else if(target_position[5] > 2*PI) target_position[5]-=2*PI;
 }
-/*
+
 void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t level){
 	ROS_ERROR("!!!--K changed---!!!");
 	Kp_position[0] = config.KPPx;
@@ -662,7 +572,7 @@ void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t 
 		change_PID = true;
 	}
 }
-*/
+
 std_msgs::Bool is_at_fix_position(double error){}
 
 std_msgs::Bool is_at_fix_orientation(double error){}
@@ -834,7 +744,7 @@ bool service_target_y( zeabus_controller::fix_abs_y::Request &request , zeabus_c
 }
 
 bool service_target_yaw( zeabus_controller::fix_abs_yaw::Request &request , zeabus_controller::fix_abs_yaw::Response &response){
-	target_position[5] = request.fix_yaw;
+	target_position[5] = check_radian_tan(request.fix_yaw);
 	want_fix[5] = true;
 	response.success = true;
 	return true;
