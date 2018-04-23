@@ -6,6 +6,7 @@ import rospy
 from PyQt4 import QtGui
 from flight_display import draw_flight_display
 from camera_display import draw_picture_camera
+from call_service import call_control_service
 
 #set window size
 global pixel_x , pixel_y, width, height
@@ -49,43 +50,51 @@ class main_window_ui( QtGui.QMainWindow):
 		self.camera_display.addAction("Bottom")
 		self.camera_display.triggered[QtGui.QAction].connect(self.show_camera_display)
 
-		self.call_service = self.tool_bar.addMenu("service")
+		self.call_service = self.tool_bar.addMenu("Service Display")
+		self.call_service.addAction("Control")
+		self.call_service.triggered[QtGui.QAction].connect(self.show_service_display)
 			
 		self.setGeometry(0, 0, width, height)
 		self.setWindowTitle( "ZEABUS UI 2018")
 #		print( "main_window_ui.count first time is " + str(main_window_ui.count))
 
 	def show_flight_display(self, message):
+		flight_display = QtGui.QMdiSubWindow()
+
 		if( message.text() == "Top"):
-			flight_display = QtGui.QMdiSubWindow()
 			flight_display.setWidget( draw_flight_display(self.x / 2 , self.y / 2 , 1) )
-			flight_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
-			flight_display.setWindowTitle( "flight display window")
-			self.multiple_document_interface.addSubWindow( flight_display )
-			flight_display.show()
 		elif ( message.text() == "Bottom"):
-			flight_display = QtGui.QMdiSubWindow()
 			flight_display.setWidget( draw_flight_display(self.x / 2 , self.y / 2 , 2) )
-			flight_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
-			flight_display.setWindowTitle( "flight display window")
-			self.multiple_document_interface.addSubWindow( flight_display )
-			flight_display.show()
+
+		flight_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
+		flight_display.setWindowTitle( "flight display window")
+		self.multiple_document_interface.addSubWindow( flight_display )
+		flight_display.show()
 
 	def show_camera_display(self, message):
+		camera_display = QtGui.QMdiSubWindow()
+
 		if( message.text() == "Top"):
-			camera_display = QtGui.QMdiSubWindow()
 			camera_display.setWidget( draw_picture_camera(self.x / 2 , self.y / 2 , 1) )
-			camera_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
-			camera_display.setWindowTitle( "camera display window")
-			self.multiple_document_interface.addSubWindow( camera_display )
-			camera_display.show()
 		elif ( message.text() == "Bottom"):
-			camera_display = QtGui.QMdiSubWindow()
 			camera_display.setWidget( draw_picture_camera(self.x / 2 , self.y / 2 , 2) )
-			camera_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
-			camera_display.setWindowTitle( "camera display window")
-			self.multiple_document_interface.addSubWindow( camera_display )
-			camera_display.show()
+
+		camera_display.setGeometry(0 , 0 , self.x / 2, self.y / 2)
+		camera_display.setWindowTitle( "camera display window")
+		self.multiple_document_interface.addSubWindow( camera_display )
+		camera_display.show()
+
+	def show_service_display(self, message):
+		service_display = QtGui.QMdiSubWindow()
+
+		if( message.text() == "Control"):
+			service_display.setWidget( call_control_service(self.x / 2 , self.y / 2))
+			service_display.setWindowTitle( "service control display")
+		
+		service_display.setGeometry(0 , 0 , self.x / 2 , self.y / 2)
+		self.multiple_document_interface.addSubWindow( service_display )
+		service_display.show()
+		
 
 def main():
 	global width, height
