@@ -12,6 +12,7 @@ img_res = None
 sub_sampling = 1
 pub_topic = "/vision/qualifying_gate/"
 
+
 def mission_callback(msg):
     """
         When call service it will run this 
@@ -37,9 +38,8 @@ def image_callback(msg):
                     fx=sub_sampling, fy=sub_sampling)
     img_res = img.copy()
 
-def message(cx=0, pos=0, area=0, appear=False):
-    # global c_img
-    print(cx, pos, area, appear)
+
+def message(cx=-1, pos=-1, area=-1, appear=False):
     m = vision_qualifying_gate()
     m.cx = cx
     m.pos = pos
@@ -47,6 +47,7 @@ def message(cx=0, pos=0, area=0, appear=False):
     m.appear = appear
     print(m)
     return m
+
 
 def get_object():
     """
@@ -71,8 +72,9 @@ def get_object():
     mask = cv.dilate(mask, kernel)
     return mask
 
+
 def get_roi(mask):
-    global img,img_res
+    global img, img_res
     top_excess = False
     bot_excess = False
     left_excess = False
@@ -97,14 +99,16 @@ def get_roi(mask):
                 bot_excess = True
             img = cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 0, 255), 2)
             ROI.append(cnt)
-    return ROI,left_excess,right_excess,top_excess,bot_excess
+    return ROI, left_excess, right_excess, top_excess, bot_excess
+
+
 def find_gate():
     global img, img_res
     while img is None and not rospy.is_shutdown():
         print('img is none.\nPlease check topic name or check camera is running')
-    
+
     mask = get_object()
-    ROI,left_excess,right_excess,top_excess,bot_excess = get_roi(mask)
+    ROI, left_excess, right_excess, top_excess, bot_excess = get_roi(mask)
 
     if len(ROI) == 0:
         mode = 1
@@ -133,7 +137,8 @@ def find_gate():
             publish_result(mask, 'gray', pub_topic + 'mask')
             return message(pos=1, area=area, appear=True)
         elif left_excess is True and right_excess is True:
-            print_result("MODE 2(0): CAN FIND ALL GATE(GATE IS BIGGER THAN FRAME")
+            print_result(
+                "MODE 2(0): CAN FIND ALL GATE(GATE IS BIGGER THAN FRAME")
             cx = wimg/2
             cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
             publish_result(img_res, 'bgr', pub_topic + 'img')
@@ -145,13 +150,14 @@ def find_gate():
             cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
-            return message(cx=cx, pos=0,area=area, appear=True)
+            return message(cx=cx, pos=0, area=area, appear=True)
         else:
-            print_result("MODE 2(-99): CAN FIND PART OF GATE BUT NOT SURE WHICH PART")
+            print_result(
+                "MODE 2(-99): CAN FIND PART OF GATE BUT NOT SURE WHICH PART")
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
-            return message(pos=-99,area=area, appear=True)
-        
+            return message(pos=-99, area=area, appear=True)
+
     if mode == 3:
         cx_horizontal = []
         cx_vertical = []
@@ -163,7 +169,7 @@ def find_gate():
                 cx_horizontal.append(cx)
             else:
                 cx_vertical.append(cx)
-        if len(cx_horizontal) == 2 or len(cx_horizontal) == 1: #found or found(on water)
+        if len(cx_horizontal) == 2 or len(cx_horizontal) == 1:  # found or found(on water)
             print_result("MODE 3(1): CAN FIND HORIZONTAL OF GATE")
             cx = sum(cx_horizontal)/len(cx_horizontal)
         elif len(cx_vertical) == 2:
@@ -171,7 +177,8 @@ def find_gate():
             cx = sum(cx_vertical)/2
         else:
             print_result("MODE 3(3): CAN FIND GATE BUT MAYBE A LOT OF NOISE")
-            cx = (sum(cx_vertical)+(sum(cx_horizontal)*3))/(len(cx_vertical)+len(cx_horizontal)+3)
+            cx = (sum(cx_vertical)+(sum(cx_horizontal)*3)) / \
+                (len(cx_vertical)+len(cx_horizontal)+3)
         cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
         publish_result(img_res, 'bgr', pub_topic + 'img')
         publish_result(mask, 'gray', pub_topic + 'mask')

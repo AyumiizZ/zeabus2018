@@ -45,3 +45,11 @@ def get_color(color, time, mission):
         print "FOUND"
     print(lower, upper)
     return lower, upper
+
+def convert(inp,full):
+    """
+        Convert cx cy to int in range of 0 to 1
+        Returns:
+            float: result
+    """
+    inp = inp

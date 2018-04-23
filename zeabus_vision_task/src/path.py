@@ -1,4 +1,8 @@
 #!/usr/bin/python2.7
+"""
+    To use in simulator please uncomment nextline of # sim and comment nextline of # real world
+    To use in real world please uncomment nextline of # real world and comment nextline of # sim
+"""
 import math
 import rospy
 import cv2 as cv
@@ -64,9 +68,12 @@ def get_object():
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
-    # real world
-    lower = np.array([20, 120, 0], dtype=np.uint8)
-    upper = np.array([62, 255, 255], dtype=np.uint8)
+    # sim
+    lower = np.array([0, 120, 0], dtype=np.uint8)
+    upper = np.array([37, 255, 255], dtype=np.uint8)
+    # # real world
+    # lower = np.array([20, 120, 0], dtype=np.uint8)
+    # upper = np.array([62, 255, 255], dtype=np.uint8)
 
     # lower,upper = get_color('yellow','morning','path')
     mask = cv.inRange(hsv, lower, upper)
@@ -103,7 +110,10 @@ def get_cx(mask):
         if len(cnt) >= 1:
             cnt = max(cnt, key=cv.contourArea)
             this_area = cv.contourArea(cnt)
-            if this_area > 4000:
+            # sim
+            if this_area > 2000:
+            # real world
+            # if this_area > 4000:
                 M = cv.moments(cnt)
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + begin
@@ -209,10 +219,10 @@ if __name__ == '__main__':
     rospy.init_node('vision_path', anonymous=True)
     print_result("INIT NODE")
 
-    # sim topic
-    # TOPIC = "/syrena/front_cam/image_raw/compressed"
-    # zeabus topic
-    TOPIC = "/bottom/left/image_raw/compressed"
+    # sim
+    TOPIC = "/syrena/bottom_cam/image_raw/compressed"
+    # real world
+    # TOPIC = "/bottom/left/image_raw/compressed"
 
     rospy.Subscriber(TOPIC, CompressedImage, image_callback)
     print_result("INIT SUBSCRIBER")
