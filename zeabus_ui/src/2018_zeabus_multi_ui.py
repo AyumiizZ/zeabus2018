@@ -48,6 +48,8 @@ class main_window_ui( QtGui.QMainWindow):
 		self.camera_display.addAction("Top")
 		self.camera_display.addAction("Bottom")
 		self.camera_display.triggered[QtGui.QAction].connect(self.show_camera_display)
+
+		self.call_service = self.tool_bar.addMenu("service")
 			
 		self.setGeometry(0, 0, width, height)
 		self.setWindowTitle( "ZEABUS UI 2018")
