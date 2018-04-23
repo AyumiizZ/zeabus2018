@@ -44,7 +44,6 @@ def find_gate () :
     right_excess = False
     while img is None and not rospy.is_shutdown() :
         print('img is none.\nPlease check topic name or check camera is running')
-        break
     himg , wimg = img.shape[:2]
     img = cv.medianBlur(img,5)
     mask = get_object(img)
@@ -109,17 +108,11 @@ def find_gate () :
     return message(cx,pos,area,appear)
 
 
-def main():
-    rospy.init_node('vision_gate', anonymous=True)
-    # image_topic = "/syrena/front_cam/image_raw/compressed"
+if __name__ == '__main__':
+    rospy.init_node('vision_qualifying', anonymous=True)
     image_topic = "/top/center/image_raw/compressed"
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print "init_pub_sub"
-    rospy.Service('vision_gate', robosub_qualifying_gate_srv (), mission_callback)
+    rospy.Service('vision_qualifying', robosub_qualifying_gate_srv (), mission_callback)
     print "init_ser"
     rospy.spin()
-
-
-
-if __name__ == '__main__':
-    main()

@@ -2,7 +2,6 @@
 import cv2 as cv
 import rospy
 import numpy as np
-#from remove_noise import *
 from sensor_msgs.msg import CompressedImage , Image
 from zeabus_example.msg import robosub_qualifying_marker_msg
 from zeabus_example.srv import robosub_qualifying_marker_srv
@@ -69,17 +68,12 @@ def find_marker():
     publish_result(mask,'gray','/qualify_marker/mask')
     return message_marker(cx_left,cx_right,area,appear)
 
-def main():
-    rospy.init_node('vision_gate', anonymous=True)
+if __name__ == '__main__':
+    rospy.init_node('vision_qualifying', anonymous=True)
     # image_topic = "/syrena/front_cam/image_raw/compressed"
     image_topic = "/top/center/image_raw/compressed"
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print "init_pub_sub"
-    rospy.Service('vision_gate', robosub_qualifying_marker_srv(), mission_callback)
+    rospy.Service('vision_qualifying', robosub_qualifying_marker_srv(), mission_callback)
     print "init_ser"
     rospy.spin()
-
-
-
-if __name__ == '__main__':
-    main()
