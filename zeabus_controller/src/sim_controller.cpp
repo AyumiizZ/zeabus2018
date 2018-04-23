@@ -381,18 +381,22 @@ void calculate_out(){
 	std::cout << "distance xy : " << distance_xy << " yaw : " << distance_yaw << "  diff_yaw : " << diff_yaw << std::endl;
 	for(int check = 0 ; check < 6 ; check++ ){
 		if(want_fix[check]){
-			if(check == 0 && check == 1){
+			if(check == 0 || check == 1){
 				error_position[0] = distance_xy*cos(diff_yaw);
 				error_position[1] = distance_xy*sin(diff_yaw);
+				std::cout << "calculate error check : " << check << " error : " << error_position[check] << "\n";
 				absolute_error = abs(error_position[check]);
-				if(absolute_error < 1){
+				if(absolute_error < 0.3){
 					force_output[check] = 0;
 					reset_I_position(check);
+				}
+				else{
 					force_output[check] = PID_position[check].calculate_PID(error_position[check] , current_velocity[check]);
 				}
 			}
 			else if(check == 2){
 				error_position[check] = target_position[check] - current_position[check];
+				std::cout << "calculate error check : " << check << " error : " << error_position[check] << "\n";
 				absolute_error = abs(error_position[check]);
 				if(absolute_error < 0.3){
 					force_output[check] = 0;
