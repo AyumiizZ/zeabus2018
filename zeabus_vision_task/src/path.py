@@ -197,8 +197,8 @@ def find_path():
     elif mode == 2:
         print_result("MODE 2: CAN FIND 1 CX AND 1 CY")
         himg, wimg = img.shape[:2]
-        return_cx = 1.0*(cx[0] - (wimg/2))/(1.0*wimg/2)
-        return_cy = -1.0*(cy[0] - (himg/2))/(1.0*himg/2)
+        return_cx = convert(cx[0],wimg)
+        return_cy = convert(cy[0],himg)
         return_area = (1.0*area*16)/(himg*wimg)
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')

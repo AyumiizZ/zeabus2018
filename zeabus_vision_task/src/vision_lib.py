@@ -48,8 +48,11 @@ def get_color(color, time, mission):
 
 def convert(inp,full):
     """
-        Convert cx cy to int in range of 0 to 1
+        Convert cx cy to int in range of -1 to 1
         Returns:
             float: result
     """
-    inp = inp
+    inp = float(inp)
+    full = float(full)
+    res = (inp - (full/2.0))/(full/2.0)
+    return res
