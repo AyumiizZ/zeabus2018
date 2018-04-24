@@ -6,7 +6,7 @@ import rospy
 from PyQt4 import QtGui
 from flight_display import draw_flight_display
 from camera_display import draw_picture_camera
-from call_service import call_control_service
+from control_service import call_control_service
 
 #set window size
 global pixel_x , pixel_y, width, height
