@@ -43,7 +43,7 @@ def image_callback(msg):
     img_res = img.copy()
 
 
-def message(cx=-1, cy=-1, area=-1, degrees=-999, appear=False):
+def message(cx=-1, cy=-1, area=-1, degrees=0, appear=False):
     """
         Convert value into a message (from vision_path.msg)
         Returns:
@@ -69,11 +69,11 @@ def get_object():
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
     # sim
-    lower = np.array([0, 120, 0], dtype=np.uint8)
-    upper = np.array([37, 255, 255], dtype=np.uint8)
+    # lower = np.array([0, 120, 0], dtype=np.uint8)
+    # upper = np.array([37, 255, 255], dtype=np.uint8)
     # # real world
-    # lower = np.array([20, 120, 0], dtype=np.uint8)
-    # upper = np.array([62, 255, 255], dtype=np.uint8)
+    lower = np.array([20, 120, 0], dtype=np.uint8)
+    upper = np.array([62, 255, 255], dtype=np.uint8)
 
     # lower,upper = get_color('yellow','morning','path')
     mask = cv.inRange(hsv, lower, upper)
@@ -111,9 +111,9 @@ def get_cx(mask):
             cnt = max(cnt, key=cv.contourArea)
             this_area = cv.contourArea(cnt)
             # sim
-            if this_area > 2000:
+            # if this_area > 2000:
             # real world
-            # if this_area > 4000:
+            if this_area > 4000:
                 M = cv.moments(cnt)
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + begin
@@ -220,9 +220,9 @@ if __name__ == '__main__':
     print_result("INIT NODE")
 
     # sim
-    TOPIC = "/syrena/bottom_cam/image_raw/compressed"
+    # TOPIC = "/syrena/bottom_cam/image_raw/compressed"
     # real world
-    # TOPIC = "/bottom/left/image_raw/compressed"
+    TOPIC = "/bottom/left/image_raw/compressed"
 
     rospy.Subscriber(TOPIC, CompressedImage, image_callback)
     print_result("INIT SUBSCRIBER")
