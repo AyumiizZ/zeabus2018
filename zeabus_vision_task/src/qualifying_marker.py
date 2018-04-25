@@ -1,4 +1,10 @@
 #!/usr/bin/python2.7
+"""
+    To use in simulator please assign world varible (line 20) to 'sim' 
+    # world = 'sim'
+    To use in real world please assign world varible (line 20) to 'real' 
+    # world = 'real'
+"""
 import rospy
 import cv2 as cv
 import numpy as np
@@ -11,7 +17,7 @@ img = None
 img_res = None
 sub_sampling = 1
 pub_topic = "/vision/qualifying_marker/"
-
+world = "real"
 
 def mission_callback(msg):
     """
@@ -64,10 +70,10 @@ def get_object():
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
     # real world
-    lower = np.array([0, 0, 0], dtype=np.uint8)
-    upper = np.array([180, 180, 68], dtype=np.uint8)
+    # lower = np.array([0, 0, 0], dtype=np.uint8)
+    # upper = np.array([180, 180, 68], dtype=np.uint8)
 
-    # lower,upper = get_color('yellow','morning','path')
+    lower,upper = get_color("qualifying","orange",world)
     mask = cv.inRange(hsv, lower, upper)
     kernel = np.ones((5, 5), dtype=np.uint8)
     mask = cv.GaussianBlur(mask, (5, 5), 0)
@@ -113,8 +119,8 @@ def find_marker():
 
     if mode == 1:
         print_result("MODE 1: CANNOT FIND MARKER")
-        publish_result(img, 'bgr', '/qualify_marker/img')
-        publish_result(mask, 'gray', '/qualify_marker/mask')
+        publish_result(img, 'bgr', pub_topic + '/img')
+        publish_result(mask, 'gray', pub_topic + '/mask')
         return message()
     elif mode == 2:
         print_result("MODE 2: CAN FIND MARKER")
@@ -124,22 +130,21 @@ def find_marker():
         cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 3)
         cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
                    [0, 0, 0])
-        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
+        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 3)
         cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
                    [0, 0, 0])
 
         cx_left = convert(cx_left, wimg)
         cx_right = convert(cx_right, wimg)
         area = (1.0*area)/(himg*wimg)
-        publish_result(img, 'bgr', '/qualify_marker/img')
-        publish_result(mask, 'gray', '/qualify_marker/mask')
+        publish_result(img, 'bgr', pub_topic + '/img')
+        publish_result(mask, 'gray', pub_topic + '/mask')
         return message(cx_left=cx_left, cx_right=cx_right, area=area, appear=True)
 
 
 if __name__ == '__main__':
     rospy.init_node('vision_qualifying_marker', anonymous=True)
-    # image_topic = "/syrena/front_cam/image_raw/compressed"
-    image_topic = "/top/center/image_raw/compressed"
+    image_topic = get_topic("front",world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print "init_pub_sub"
     rospy.Service('vision_qualifying_marker',

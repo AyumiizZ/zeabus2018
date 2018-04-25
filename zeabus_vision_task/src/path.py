@@ -1,7 +1,9 @@
 #!/usr/bin/python2.7
 """
-    To use in simulator please uncomment nextline of # sim and comment nextline of # real world
-    To use in real world please uncomment nextline of # real world and comment nextline of # sim
+    To use in simulator please assign world varible (line 18) to 'sim' 
+    # world = 'sim'
+    To use in real world please assign world varible (line 18) to 'real' 
+    # world = 'real'
 """
 import math
 import rospy
@@ -15,6 +17,7 @@ img = None
 img_res = None
 sub_sampling = 1
 pub_topic = "/vision/path/"
+world = "real"
 
 
 def mission_callback(msg):
@@ -72,10 +75,10 @@ def get_object():
     # lower = np.array([0, 120, 0], dtype=np.uint8)
     # upper = np.array([37, 255, 255], dtype=np.uint8)
     # # real world
-    lower = np.array([20, 120, 0], dtype=np.uint8)
-    upper = np.array([62, 255, 255], dtype=np.uint8)
+    # lower = np.array([20, 120, 0], dtype=np.uint8)
+    # upper = np.array([62, 255, 255], dtype=np.uint8)
 
-    # lower,upper = get_color('yellow','morning','path')
+    lower,upper = get_color("path","yellow",world)
     mask = cv.inRange(hsv, lower, upper)
     kernel = np.ones((5, 5), dtype=np.uint8)
     mask = cv.GaussianBlur(mask, (5, 5), 0)
@@ -219,12 +222,8 @@ if __name__ == '__main__':
     rospy.init_node('vision_path', anonymous=True)
     print_result("INIT NODE")
 
-    # sim
-    # TOPIC = "/syrena/bottom_cam/image_raw/compressed"
-    # real world
-    TOPIC = "/bottom/left/image_raw/compressed"
-
-    rospy.Subscriber(TOPIC, CompressedImage, image_callback)
+    image_topic = get_topic("bottom",world)
+    rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print_result("INIT SUBSCRIBER")
 
     rospy.Service('vision_path', vision_srv_path(),
