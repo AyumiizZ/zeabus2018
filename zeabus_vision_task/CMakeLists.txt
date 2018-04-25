@@ -55,6 +55,7 @@ add_message_files(
   vision_path.msg
   vision_qualifying_gate.msg
   vision_qualifying_marker.msg
+  vision_roulette.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -63,6 +64,7 @@ add_service_files(
   vision_srv_path.srv
   vision_srv_qualifying_gate.srv
   vision_srv_qualifying_marker.srv
+  vision_srv_roulette.srv
 )
 
 ## Generate actions in the 'action' folder
