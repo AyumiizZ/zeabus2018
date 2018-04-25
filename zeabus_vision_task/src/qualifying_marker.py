@@ -12,7 +12,13 @@ img_res = None
 sub_sampling = 1
 pub_topic = "/vision/qualifying_marker/"
 
+
 def mission_callback(msg):
+    """
+        When call service it will run this 
+        Returns:
+            a group of process value from this program
+    """
     print_result('mission_callback')
 
     task = msg.task.data
@@ -23,13 +29,22 @@ def mission_callback(msg):
 
 
 def image_callback(msg):
+    """
+        Convert data from camera to image
+    """
     global img, sub_sampling, img_res
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
     img_res = img.copy()
 
+
 def message(cx_left=-1, cx_right=-1, area=-1, appear=False):
+    """
+        Convert value into a message (from vision_path.msg)
+        Returns:
+            vision_marker (message): a group of value from args
+    """
     m = vision_qualifying_marker()
     m.cx_left = cx_left
     m.cx_right = cx_right
@@ -37,6 +52,7 @@ def message(cx_left=-1, cx_right=-1, area=-1, appear=False):
     m.appear = appear
     print(m)
     return m
+
 
 def get_object():
     """
@@ -61,19 +77,25 @@ def get_object():
     mask = cv.dilate(mask, kernel)
     return mask
 
+
 def find_marker():
+    """
+        find marker on the picture draw a line
+        on left side and right side of marker
+
+        Returns:
+            message: (a group of data from vision_path.msg)
+            if cannot find marker:
+                return default value 
+            else if can find marker:
+                return float: cx_left (left side of marker) in range of -1 to 1
+                       float: cx_right (right side of marker) in range of -1 to 1
+                       float: area in range of 0 to 1
+                       bool: appear is true
+    """
     global img, img_res
-    # appear = False
-    # pos = 99
-    # cx_left = -1
-    # cx_right = -1
-    # area = 0
     while img is None and not rospy.is_shutdown():
         print('img is none.\nPlease check topic name or check camera is running')
-        break
-    # img = frame.copy()
-    # cv.imshow('img',img)
-    # img = cv.resize(img, (640, 480))
 
     himg, wimg = img.shape[:2]
     mask = get_object()
@@ -82,7 +104,7 @@ def find_marker():
     if len(contours) == 0:
         mode = 1
     elif len(contours) >= 1:
-        cnt = max(contours,key=cv.contourArea)
+        cnt = max(contours, key=cv.contourArea)
         area = cv.contourArea(cnt)
         if area < 3000:
             mode = 1
@@ -101,34 +123,17 @@ def find_marker():
         cx_right = x+w
         cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 3)
         cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
-                       [0, 0, 0])
+                   [0, 0, 0])
         cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
         cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
-                       [0, 0, 0])
-        
+                   [0, 0, 0])
+
+        cx_left = convert(cx_left, wimg)
+        cx_right = convert(cx_right, wimg)
+        area = (1.0*area)/(himg*wimg)
         publish_result(img, 'bgr', '/qualify_marker/img')
         publish_result(mask, 'gray', '/qualify_marker/mask')
         return message(cx_left=cx_left, cx_right=cx_right, area=area, appear=True)
-
-
-    for cnt in contours:
-        cnt_area = cv.contourArea(cnt)
-        if cnt_area > 1000:
-            appear = True
-            x, y, w, h = cv.boundingRect(cnt)
-            # cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0), 2)
-            cx_left = x
-            cx_right = x+w
-            img = cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 1)
-            cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
-                       [0, 0, 0])
-            img = cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
-            cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
-                       [0, 0, 0])
-    print "appear = " + str(appear)
-    publish_result(img, 'bgr', '/qualify_marker/img')
-    publish_result(mask, 'gray', '/qualify_marker/mask')
-    return message(cx_left, cx_right, area, appear)
 
 
 if __name__ == '__main__':
