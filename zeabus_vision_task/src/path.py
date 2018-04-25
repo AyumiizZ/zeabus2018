@@ -1,8 +1,8 @@
 #!/usr/bin/python2.7
 """
-    To use in simulator please assign world varible (line 18) to 'sim' 
+    To use in simulator please assign world varible (line 20) to 'sim' 
     # world = 'sim'
-    To use in real world please assign world varible (line 18) to 'real' 
+    To use in real world please assign world varible (line 20) to 'real' 
     # world = 'real'
 """
 import math
