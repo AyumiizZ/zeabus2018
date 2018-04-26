@@ -23,7 +23,7 @@ def camera_callback(msg):
 def find_parameter():
     global img
     path = rospkg.RosPack().get_path('zeabus_vision')
-    client_name = '/ueye_cam_nodelet_bottom_left/'
+    client_name = '/ueye_cam_nodelet_top_center/'
     param = 'exposure'
     a = str(raw_input('Press NO. File'))
     f = open(path + "/src/parameter_" + a + ".txt", "a")

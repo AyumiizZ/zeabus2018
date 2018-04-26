@@ -151,28 +151,29 @@ def camera_callback(msg):
         return
     arr = np.fromstring(msg.data, np.uint8)
     img_data = cv2.resize(cv2.imdecode(arr, 1), (imageW, imageH))
-    if cameraPos == 'top':
-        if mission == 'squid':
-            img = preprocess_squid(img_data)
-        elif mission == 'navigate':
-            img = preprocess_navigate(img_data)
-        elif mission == 'bouy':
-            img = preprocess_bouy(img_data)
-        else:
-            img = img_data
-    else:
-        if mission == 'path':
-            img = preprocess_path(img_data)
-        elif mission == 'navigate':
-            img = preprocess_navigate(img_data)
-        elif mission == 'bin':
-            img = preprocess_bin(img_data)
-        elif mission == 'table':
-            img = preprocess_table(img_data)
-        elif mission == 'tower':
-            img = preprocess_tower(img_data)
-        else:
-            img = img_data
+    # if cameraPos == 'top':
+    #     if mission == 'squid':
+    #         img = preprocess_squid(img_data)
+    #     elif mission == 'navigate':
+    #         img = preprocess_navigate(img_data)
+    #     elif mission == 'bouy':
+    #         img = preprocess_bouy(img_data)
+    #     else:
+    #         img = img_data
+    # else:
+    #     if mission == 'path':
+    #         img = preprocess_path(img_data)
+    #     elif mission == 'navigate':
+    #         img = preprocess_navigate(img_data)
+    #     elif mission == 'bin':
+    #         img = preprocess_bin(img_data)
+    #     elif mission == 'table':
+    #         img = preprocess_table(img_data)
+    #     elif mission == 'tower':
+    #         img = preprocess_tower(img_data)
+    #     else:
+    #         img = img_data
+    img = img_data
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 
@@ -222,8 +223,7 @@ def print_result(msg):
 
 def select_color():
     global pixel, img, wait, hsv, click, is_mask, imageH, imageW, screenH, screenW
-    window_name = ['mask', 'red', 'orange',
-                   'white', 'yellow', 'black', 'green']
+    window_name = ['mask', 'red', 'orange','white', 'yellow', 'black', 'green']
 
     cv2.namedWindow('image_bgr', flags=cv2.WINDOW_NORMAL)
     cv2.moveWindow('image_bgr', 400, 400)
