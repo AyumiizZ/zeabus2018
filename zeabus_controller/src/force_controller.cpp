@@ -58,7 +58,12 @@ void listen_real_yaw(const std_msgs::Float64 message);
 void listen_absolute_xy(const zeabus_controller::point_xy message);
 void listen_absolute_orientation(const zeabus_controller::orientation message);
 //setup function of service
-bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response)
+bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
+bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response);
+bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response);
+bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response);
+bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_controller::fix_abs_y::Response &response);
+
 int main(int argc, char **argv){
 //setup ros system(Initialization)
 	ros::init(argc, argv, "force_controller")//Initializing the roscpp Node
@@ -92,6 +97,9 @@ int main(int argc, char **argv){
 
 //void listen_mode_control(const std_msgs::Int16 message){}
 
+double check_radian_tan(double result){
+        if(check < 0)
+}
 void test_current_state(const geometry_msgs::Point message){
 	current_position[0] = message.x;
 	current_position[1] = message.y;
@@ -110,4 +118,31 @@ bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_c
 	response.success = true;
 	return true;
 }
+/*
+bool srrvice_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
+        target_position[0] = request.distance_x*cos(target_position[5]);
+        target_position[1] = request.distance_x*sin(target_position[5]);
+        target_position[0] = request.distance_y*cos(target_position[5] + (2/PI));
+        target_position[1] = request.distance_y*cos(target_position[5] + (2/PI));
+        response.success = true;
+        return true;
+}*/
 
+bool service_target_depth(zeabus_controller::fix_aps_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response){
+        target_position[2] = request.fix_depth;
+        response.success = true;
+        return true;
+}        
+
+bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response){
+        target_position[5] = check_radian_tan(request.fix_yaw);
+        response.success = true;
+        return true;
+}
+bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response){
+        target_position[0] = request.fix_x;
+        response.success = true;
+        return true;
+}
+bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_controller::fix_abs_y::Response &response){
+        target_position[

@@ -519,7 +519,7 @@ void calculate_out(){
 	if(shutdown_force_xy){
 		force_output[1] = 0;
 		force_output[0] = 0;
-		force_output[5] = 0;
+	force_output[5] = 0;
 	}
 	message_cmd_vel = twist_to_message(force_output);	
 }
