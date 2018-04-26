@@ -188,7 +188,7 @@ class call_control_service( QtGui.QWidget ):
 
 		try:
 			print("Call service distance")
-			rospy.wait_for_service( self.topic_servic_distance , timeout = self.time)
+			rospy.wait_for_service( self.topic_service_distance , timeout = self.time)
 			self.status_service_distance = "Available"
 		except:
 			print("Failure")
@@ -217,7 +217,7 @@ class call_control_service( QtGui.QWidget ):
 		self.value_yaw = value
 
 	def update_time(self , value):
-		self.time = value
+		self.time = float(value)
 
 	def call_xy(self):
 		result = "what"
@@ -245,7 +245,7 @@ class call_control_service( QtGui.QWidget ):
 		result = "what"
 		try:
 			print("Call Service distance")
-			result = self.service_depth( float(self.value_distance_x) 
+			result = self.service_distance( float(self.value_distance_x) 
 										, float(self.value_distance_y) )
 			self.status_service_distance = "Success"
 		except:
