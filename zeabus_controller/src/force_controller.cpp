@@ -145,4 +145,7 @@ bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_con
         return true;
 }
 bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_controller::fix_abs_y::Response &response){
-        target_position[
+        target_position[1] = request.fix_y;
+        response.success = true;
+        return = true;
+}
