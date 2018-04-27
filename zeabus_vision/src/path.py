@@ -43,6 +43,11 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
+    size = 500
+    r = 1.0*size / img.shape[1]
+    dim = (size, int(img.shape[0] * r))
+    resized = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    img = resized
     img_res = img.copy()
 
 
@@ -116,12 +121,13 @@ def get_cx(mask):
             # sim
             # if this_area > 2000:
             # real world
-            if this_area > 4000:
+            if this_area > 200:
+                print this_area
                 M = cv.moments(cnt)
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + begin
                 if ROI_cx >= 0.05 * wimg and ROI_cx <= 0.95 * wimg:
-                    cv.circle(img_res, (ROI_cx, ROI_cy), 10, (0, 0, 255), -1)
+                    cv.circle(img_res, (ROI_cx, ROI_cy), 2, (0, 0, 255), -1)
                     cx.append(ROI_cx)
                     cy.append(ROI_cy)
                     sum_area += this_area
@@ -146,7 +152,7 @@ def find_angle(cx, cy):
         rad = math.atan2(cy[i+1]-cy[i], cx[i+1]-cx[i])
         this_deg = math.degrees(rad)
         if len(deg) > 0 and abs(this_deg-deg[-1]) > 5:
-            cv.circle(img_res, (cx[i], cy[i]), 10, (0, 255, 0), -1)
+            cv.circle(img_res, (cx[i], cy[i]), 2, (0, 255, 0), -1)
             break
         deg.append(this_deg)
     degrees = abs(sum(deg)/len(deg))-90
@@ -187,10 +193,10 @@ def find_path():
         mode = 1
     elif len(cx) == 1 and len(cy) == 1:
         mode = 2
-        cv.circle(img_res, (cx[0], cy[0]), 10, (255, 0, 0), -1)
+        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
     elif len(cx) >= 2 and len(cy) >= 2:
         mode = 3
-        cv.circle(img_res, (cx[0], cy[0]), 10, (255, 0, 0), -1)
+        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
 
     if mode == 1:
         print_result("MODE 1: CANNOT FIND PATH")

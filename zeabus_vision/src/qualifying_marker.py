@@ -42,6 +42,11 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
+    size = 500
+    r = 1.0*size / img.shape[1]
+    dim = (size, int(img.shape[0] * r))
+    resized = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    img = resized
     img_res = img.copy()
 
 
@@ -104,6 +109,7 @@ def find_marker():
         print('img is none.\nPlease check topic name or check camera is running')
 
     himg, wimg = img.shape[:2]
+    print (himg,wimg)
     mask = get_object()
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
@@ -119,26 +125,26 @@ def find_marker():
 
     if mode == 1:
         print_result("MODE 1: CANNOT FIND MARKER")
-        publish_result(img, 'bgr', pub_topic + '/img')
-        publish_result(mask, 'gray', pub_topic + '/mask')
+        publish_result(img, 'bgr', pub_topic + 'img')
+        publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
     elif mode == 2:
         print_result("MODE 2: CAN FIND MARKER")
         x, y, w, h = cv.boundingRect(cnt)
         cx_left = x
         cx_right = x+w
-        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 3)
-        cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
+        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 1)
+        cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
-        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 3)
-        cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_TRIPLEX, 1,
+        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
+        cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
 
         cx_left = convert(cx_left, wimg)
         cx_right = convert(cx_right, wimg)
         area = (1.0*area)/(himg*wimg)
-        publish_result(img, 'bgr', pub_topic + '/img')
-        publish_result(mask, 'gray', pub_topic + '/mask')
+        publish_result(img, 'bgr', pub_topic + 'img')
+        publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx_left=cx_left, cx_right=cx_right, area=area, appear=True)
 
 

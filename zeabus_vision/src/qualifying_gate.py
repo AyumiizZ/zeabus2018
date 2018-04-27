@@ -42,6 +42,11 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
+    size = 500
+    r = 1.0*size / img.shape[1]
+    dim = (size, int(img.shape[0] * r))
+    resized = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    img = resized
     img_res = img.copy()
 
 
@@ -106,7 +111,7 @@ def get_roi(mask):
 
     for cnt in contours:
         cnt_area = cv.contourArea(cnt)
-        if cnt_area > 5000:
+        if cnt_area > 1000:
             appear = True
             x, y, w, h = cv.boundingRect(cnt)
             if(x < 0.05*wimg):
@@ -117,7 +122,7 @@ def get_roi(mask):
                 top_excess = True
             if((y+h) > 0.95*himg):
                 bot_excess = True
-            img = cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            img = cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 0, 255), 1)
             ROI.append(cnt)
     return ROI, left_excess, right_excess, top_excess, bot_excess
 
@@ -182,7 +187,7 @@ def find_gate():
             print_result(
                 "MODE 2(0): CAN FIND ALL GATE(GATE IS BIGGER THAN FRAME)")
             cx = wimg/2
-            cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
+            cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
             return message(cx=cx, pos=0, area=area, appear=True)
@@ -190,7 +195,7 @@ def find_gate():
             print (h,w)
             print_result("MODE 2(0): CAN FIND ALL GATE")
             cx = (2*x+w)/2
-            cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
+            cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
             return message(cx=cx, pos=0, area=area, appear=True)
@@ -223,7 +228,7 @@ def find_gate():
             print_result("MODE 3(3): CAN FIND GATE BUT MAYBE A LOT OF NOISE")
             cx = (sum(cx_vertical)+(sum(cx_horizontal)*3)) / \
                 (len(cx_vertical)+len(cx_horizontal)+3)
-        cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
+        cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
         publish_result(img_res, 'bgr', pub_topic + 'img')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx=cx, pos=0, area=-1, appear=True)
