@@ -1,5 +1,9 @@
 // please :set nu tabstop=4
 
+// ------------------------------------define for debug code -------------------------------- //
+#define	test_01 // test state
+// ------------------------------------------------------------------------------------------ //
+
 // standard include
 #include	<iostream>
 
@@ -15,6 +19,8 @@
 // include message
 #include 	<nav_msgs/Odometry.h> // type message receive current_state , current_velocity
 #include	<geometry_msgs/Twist.h> // type messsage receive target_velocity , out force
+#include	<geometry_msgs/Point message>
+#include	<std_msgs/Bool.h>
 #include	<std_msgs/Float64.h>
 
 // include head of service
@@ -84,5 +90,8 @@ bool service_ok_position(
 		zeabus_controller::ok_position::Response &response
 	); // for get ok position
 
-// function subscribe
-	
+// function subscribe for testing
+#ifdef test_01
+	void test_current_state(const geometry_msgs::Point message);
+	void test_current_orientation(const zeabus_controller::orientation message);
+#endif
