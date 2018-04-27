@@ -1,10 +1,7 @@
 #!/usr/bin/python2.7
 import rospy
-import cv2 as cv
 import numpy as np
-from sensor_msgs.msg import CompressedImage, Image
-from zeabus_vision_task.msg import *
-from zeabus_vision_task.srv import *
+from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
 

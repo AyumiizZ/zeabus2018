@@ -9,8 +9,8 @@ import rospy
 import cv2 as cv
 import numpy as np
 from sensor_msgs.msg import CompressedImage, Image
-from zeabus_vision_task.msg import vision_qualifying_gate
-from zeabus_vision_task.srv import vision_srv_qualifying_gate
+from zeabus_vision.msg import vision_qualifying_gate
+from zeabus_vision.srv import vision_srv_qualifying_gate
 from cv_bridge import CvBridge, CvBridgeError
 from vision_lib import *
 img = None
@@ -187,6 +187,7 @@ def find_gate():
             publish_result(mask, 'gray', pub_topic + 'mask')
             return message(cx=cx, pos=0, area=area, appear=True)
         elif h < 4*w:
+            print (h,w)
             print_result("MODE 2(0): CAN FIND ALL GATE")
             cx = (2*x+w)/2
             cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 5)
@@ -208,7 +209,7 @@ def find_gate():
             x, y, w, h = cv.boundingRect(cnt)
             M = cv.moments(cnt)
             cx = int(M["m10"]/M["m00"])
-            if h > 4 * w:
+            if h < 4 * w:
                 cx_horizontal.append(cx)
             else:
                 cx_vertical.append(cx)

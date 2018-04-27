@@ -9,8 +9,8 @@ import rospy
 import cv2 as cv
 import numpy as np
 from sensor_msgs.msg import CompressedImage, Image
-from zeabus_vision_task.msg import vision_qualifying_marker
-from zeabus_vision_task.srv import vision_srv_qualifying_marker
+from zeabus_vision.msg import vision_qualifying_marker
+from zeabus_vision.srv import vision_srv_qualifying_marker
 from cv_bridge import CvBridge, CvBridgeError
 from vision_lib import *
 img = None

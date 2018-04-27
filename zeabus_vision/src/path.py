@@ -9,9 +9,9 @@ import math
 import rospy
 import cv2 as cv
 import numpy as np
-from sensor_msgs.msg import CompressedImage, Image
-from zeabus_vision_task.msg import vision_path
-from zeabus_vision_task.srv import vision_srv_path
+from sensor_msgs.msg import CompressedImage
+from zeabus_vision.msg import vision_path
+from zeabus_vision.srv import vision_srv_path
 from vision_lib import *
 img = None
 img_res = None

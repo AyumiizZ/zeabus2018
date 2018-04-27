@@ -2,8 +2,8 @@
 import rospy
 import matplotlib as plt
 import cv2 as cv
-from zeabus_vision_task.msg import vision_roulette
-from zeabus_vision_task.srv import vision_srv_roulette
+from zeabus_vision.msg import vision_roulette
+from zeabus_vision.srv import vision_srv_roulette
 from cv_bridge import CvBridge, CvBridgeError
 from vision_lib import *
 from sensor_msgs.msg import CompressedImage, Image
