@@ -18,6 +18,7 @@ find_package(Boost REQUIRED COMPONENTS system thread)
 generate_dynamic_reconfigure_options(
   cfg/PIDConstant.cfg
   cfg/forcePIDConstant.cfg
+  cfg/OffSetConstant.cfg
 )
 
 add_message_files(
@@ -41,6 +42,7 @@ add_service_files(
   fix_abs_yaw.srv
   fix_abs_x.srv
   fix_abs_y.srv
+  change_mode.srv
 )
 #add_action_files(DIRECTORY action FILES BarrelRoll.action)
 generate_messages(DEPENDENCIES std_msgs)

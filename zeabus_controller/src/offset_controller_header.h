@@ -2,6 +2,8 @@
 
 // ------------------------------------define for debug code -------------------------------- //
 #define	test_01 // test state
+#define test_02 // print test
+#define print_data // print data
 // ------------------------------------------------------------------------------------------ //
 
 // standard include
@@ -30,6 +32,10 @@
 #include	<zeabus_controller/ok_position.h>
 #include	<zeabus_controller/fix_abs_yaw.h>
 
+// include part for convert quaternion to roll pitch yaw
+#include 	<tf/transform_datatypes.h>
+#include	<tf/transform_listener.h>
+
 // assign the constant value
 #define PI 3.14159265
 #define epsilon 1.0e-7 // this define I think it mean error by double type when value is 0
@@ -45,12 +51,20 @@ double*	sum_force = new double[6]; // sum force of 2 part
 double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
 double	Ki_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
 double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
+double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0}
+double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0}
+double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0}
+double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
 
-// for find error [ x , y , z , roll , pitch , yaw]
+// for these variable [ x , y , z , roll , pitch , yaw]
+double	bound_force[6] = { 4, 4, 8, 2, 2, 2};
 double*	current_velocity = new double[6];
 double*	target_velocity = new double[6]; // this part will use check want to fix position or not?
 double*	current_position = new double[6];
 double* target_position = new double[6];
+double* world_error = new double[6]; // this part will calculate error from sensor
+double* robot_error = new double[6]; // this part will use to calculate force and calculate form
+									 // world_error
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
@@ -59,9 +73,10 @@ bool already_position[6] = {false , false , false , false , false, false}; // Ok
 // this part use to think about should reset target and save new state to target_position
 ros::Time last_target_velocity = 0;
 ros::Time current_time = 0;
-double diff_time = 1; 
+double diff_time = 1; // this variable 
 
 bool start_run = true; // this tell to save target state in first time
+bool reset_position = true;
 bool first_time_tune = true; // this use load constant of tune value
 bool change_tune = false; // this use check when to save tune value
 
@@ -69,8 +84,12 @@ bool change_tune = false; // this use check when to save tune value
 void listen_current_state( const nav_msgs::Odometry message);
 void listen_target_velocity( const geometry_msgs::Twist message);
 
-// function for Dynamic Reconfig
+// function for Dynamic Reconfig and function about dynamic reconfig
 void config_constant_PID(zeabus_controller::OffSetConstantConfig &config, uint32_t level);
+void reset_all_I();
+void set_all_tunning();
+void reset_specific_position( int number);
+void reset_specific_position( int)
 
 // function for service
 bool service_target_distance(
@@ -89,9 +108,19 @@ bool service_ok_position(
 		zeabus_controller::ok_position::Request &request ,
 		zeabus_controller::ok_position::Response &response
 	); // for get ok position
+bool service_change_mode(
+		zeabus_controller::change_mode::Request &request , 
+		zeabus_controller::change_mode::Response &response
+	); // for get mode
 
 // function subscribe for testing
 #ifdef test_01
 	void test_current_state(const geometry_msgs::Point message);
 	void test_current_orientation(const zeabus_controller::orientation message);
 #endif
+
+// declare variable from code
+find_velocity::second_case *PID_position; // use to calculate force
+manage_PID_file PID_file(tune_file); // use to save or download
+
+double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
