@@ -221,3 +221,17 @@ double absolute( double problem){
 	if(problem < 0) return -1*problem;
 	else return problem;
 }
+
+#ifdef test_01
+	void test_current_state( const geometry_msgs::Point message){
+		current_position[0] = message.x;
+		current_position[1] = message.y;
+		current_position[2] = message.z;
+}
+
+	void test_current_orientation( const zeabus_conntroller::orientation message){
+		current_position[3] = message.roll;
+		current_position[4] = message.pitch;
+		current_position[5] = message.yaw;
+}
+#endif

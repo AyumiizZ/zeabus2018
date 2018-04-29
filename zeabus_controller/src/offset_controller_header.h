@@ -131,3 +131,5 @@ manage_PID_file PID_file(tune_file); // use to save or download
 
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
 double bound_value_radian( double problem);// bound value to in [0 , 2PI]
+
+double absolute( double problem);
