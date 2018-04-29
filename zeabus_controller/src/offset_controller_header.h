@@ -36,6 +36,9 @@
 #include 	<tf/transform_datatypes.h>
 #include	<tf/transform_listener.h>
 
+// include part for dynamic reconfigure
+#include 	<dynamic_reconfigure/server.h>
+
 // assign the constant value
 #define PI 3.14159265
 #define epsilon 1.0e-7 // this define I think it mean error by double type when value is 0
