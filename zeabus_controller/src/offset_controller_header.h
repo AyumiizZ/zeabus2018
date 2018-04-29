@@ -65,6 +65,7 @@ double* target_position = new double[6];
 double* world_error = new double[6]; // this part will calculate error from sensor
 double* robot_error = new double[6]; // this part will use to calculate force and calculate form
 									 // world_error
+double ok_error = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate error you ok
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
@@ -89,7 +90,11 @@ void config_constant_PID(zeabus_controller::OffSetConstantConfig &config, uint32
 void reset_all_I();
 void set_all_tunning();
 void reset_specific_position( int number);
-void reset_specific_position( int)
+void reset_specific_velocity( int number);
+
+// about how to tuning
+int mode_control = 1; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitch 
+					  // 5 load PID in normal situation 6 common
 
 // function for service
 bool service_target_distance(
@@ -121,6 +126,8 @@ bool service_change_mode(
 
 // declare variable from code
 find_velocity::second_case *PID_position; // use to calculate force
+find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
 
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
+double bound_value_radian( double problem);// bound value to in [0 , 2PI]

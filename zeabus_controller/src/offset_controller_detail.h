@@ -12,16 +12,16 @@ void listen_current_state( const nav_msgs::Odometry message){
 		target_position[2] = message.pose.pose.position.z;
 		target_position[3] = 0.0;
 		target_position[4] = 0.0;
-		target_position[5] = check_radian_tan( (double) yaw);
+		target_position[5] = check_radian_tan( bound_value_radian((double) yaw));
 		start_run = false;
 		reset_position = false;
 	}
 	current_position[0] = message.pose.pose.position.x;
 	current_position[1] = message.pose.pose.position.y;
 	current_position[2] = message.pose.pose.position.z;
-	current_position[3] = check_radian_tan( (double) roll);
-	current_position[4] = check_radian_tan( (double) pitch);
-	current_position[5] = check_radian_tan( (double) yaw);
+	current_position[3] = check_radian_tan( bound_value_radian((double) roll));
+	current_position[4] = check_radian_tan( bound_value_radian((double) pitch));
+	current_position[5] = check_radian_tan( bound_value_radian((double) yaw));
 	current_velocity[0] = message.twist.twist.linear.x;
 	current_velocity[1] = message.twist.twist.linear.y;
 	current_velocity[2] = message.twist.twist.linear.z;
@@ -42,6 +42,17 @@ void listen_target_velocity( const geometry_msgs::Twist message){
 double convert_range_radian( double problem){
 	if( problem < 0 ) return problem + 2*PI;
 	else return problem;
+}
+
+double bound_value_radian( double problem){
+	for( ; not ( 0 <= problem && 2*PI <= problem );){
+		#ifdef test_02
+			std::cout << "bound radian now is " << problem << "\n";
+		#endif
+		if( problem < 0) problem += 2*PI;
+		else if(problem > 2*PI) problem -= 2*PI;;
+	}
+	return problem;
 }
 
 void config_constant_PID( zeabus_controller::OffsetConstantConfig &config,	uint32_t level){
@@ -102,3 +113,111 @@ void config_constant_PID( zeabus_controller::OffsetConstantConfig &config,	uint3
 	}
 }
 
+// ------------------------------- this part about service ------------------------------------
+
+bool service_target_distance(
+		zeabus_controller::fix_rel_xy::Request &request , 
+		zeabus_controller::fix_rel_xy::Response &response){
+	target_position[0] += request.distance_x * cos( target_position[5]);
+	target_position[1] += request.distance_y * sin( target_position[5]);
+	target_position[0] += request.distance_x * cos( target_position[5] + PI/2);
+	target_position[1] += request.distance_y * sin( target_position[5] + PI/2);
+	response.success = true;
+	return true;
+}
+
+bool service_target_yaw(
+		zeabus_controller::fix_abs_yaw::Request &request ,
+		zeabus_controller::fix_abs_yaw::Response &response){
+	target_position[5] = check_radian_tan( request.fix_yaw );
+	response.success = true;
+	return true;
+}
+
+bool service_target_depth(
+		zeabus_controller::fix_abs_depth::Request &request , 
+		zeabus_controller::fix_abs_depth::Response &response){
+	target_position[2] = request.fix_depth;
+	response.success = true;
+	return true;
+}
+
+bool service_change_mode(
+		zeabus_controller::change_mode::Request &request , 
+		zeabus_controller::change_mode::Response &response){
+	mode_control = request.mode;
+	#ifdef test_02
+		std::cout << "change mode" << "\n";
+	#endif
+	response.success = true;
+	return true;
+}
+
+bool service_ok_position(
+		zeabus_controller::ok_position::Request &request ,
+		zeabus_controller::ok_position::Response &response){
+	#ifdef test_02
+	    std::cout << "service check " << request.type.data 
+					<< "and use adding is " << request.adding << std::endl;
+	#endif
+    if(request.type.data == "xy"){
+        if( absolute(robot_error[0]) < ok_error[0] + request.adding 
+			&& absolute(robot_error[1]) < ok_error[1] + request.adding) response.ok = true;
+        else response.ok = false;
+    }
+    else if(request.type.data == "z"){
+        if( absolute(robot_error[1]) < ok_error[2] + request.adding) response.ok = true;
+        else response.ok = false;
+    }
+	else if(request.type.data == "xyz"){
+		if( absolute(robot_error[0]) < ok_error[0] + request.adding
+			&& absolute(robot_error[1]) < ok_error[1] + request.adding
+			&& absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
+		else response.ok = false;
+	}
+	else if(request.type.data == "yaw"){
+		if( absolute(robot_error[5]) < ok_error[5] + request.adding) response.ok = true;
+		else response.ok = false;
+	}
+    else response.ok = false;
+	#ifdef test_02
+    	std::cout << "Result is " << response.ok << std::endl;
+	#endif
+    return true;
+	
+}
+// ------------------------------------- end part ---------------------------------------------
+
+// --------------- this part will control about value of tunning except offset ----------------
+void reset_all_I(){
+	for(int count = 0 ; count < 6 ; count++){
+		PID_position[count].reset();
+		PID_velocity[count].reset();	
+	}
+}
+
+void set_all_tunning(){
+	for(int count = 0 ; count < 6 ; count++){
+		PID_position[count].set_constant( 	Kp_position[count][0],
+											Kp_position[count][1],
+											Kp_position[count][2]);
+		PID_velocity[count].set_constant(	Kv_position[count][0],
+											Kv_position[count][1],
+											Kv_position[count][2]);
+	}
+}
+
+void reset_specific_position( int number){
+	PID_position[ number ].reset();
+}
+
+void reset_specific_velocity( int nummber){
+	PID_velocity[ number ].reset();
+}
+
+// -------------------------------------- end part --------------------------------------------
+
+double absolute( double problem){
+	if(problem < 0) return -1*problem;
+	else return problem;
+}
