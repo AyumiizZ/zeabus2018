@@ -51,16 +51,16 @@ double* offset_force = new double[6]; // force output part 02 have offset {tunin
 double*	sum_force = new double[6]; // sum force of 2 part
 
 // for tuning pid calculate
-double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
-double	Ki_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
-double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
-double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0}
-double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0}
-double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0}
-double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0}
+double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double	Ki_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0};
+double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 4, 4, 8, 2, 2, 2};
+double	bound_force[6] = { 4, 4, 6, 1, 1, 1};
 double*	current_velocity = new double[6];
 double*	target_velocity = new double[6]; // this part will use check want to fix position or not?
 double*	current_position = new double[6];
@@ -73,6 +73,11 @@ double ok_error = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate erro
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
 bool already_position[6] = {false , false , false , false , false, false}; // Ok this position?
+
+// about calculate
+double world_distance = 0;
+double world_yaw = 0;
+double diff_yaw = 0;
 
 // this part use to think about should reset target and save new state to target_position
 ros::Time last_target_velocity = 0;
@@ -97,7 +102,7 @@ void reset_specific_velocity( int number);
 
 // about how to tuning
 int mode_control = 1; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitch 
-					  // 5 load PID in normal situation 6 common
+					  // 5 tune PID in normal situation
 
 // function for service
 bool service_target_distance(
@@ -132,7 +137,9 @@ find_velocity::second_case *PID_position; // use to calculate force
 find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
 
+double convert_min_radian( double problem); // convert to [ -PI , PI]
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
 double bound_value_radian( double problem);// bound value to in [0 , 2PI]
 
 double absolute( double problem);
+geometry_msgs::Twist create_msg_force();

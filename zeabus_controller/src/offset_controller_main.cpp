@@ -96,5 +96,117 @@ int main(int argc , char **argv){
 			set_all_tunning();
 			reset_all_I();
 		}
+		else{}
+		if( mode_control == 1 ){
+			#ifdef print_data
+				std::cout << "mode control is 1 : test offset z : " << offset_force << "\n"; 
+				std::cout << "value of depth is " << current_position[2] << "\n"
+			#endif // this part will allow force of z in about offset only
+			sum_force[0] = 0;
+			sum_force[1] = 0;
+			sum_force[2] = offset_force[2];
+			sum_force[3] = 0;
+			sum_force[4] = 0;
+			sum_force[5] = 0;
+			tell_force.publish( create_msg_force() );	
+		}
+		else if( mode_control == 2){
+			world_error = target_position[2] - current_position[2];
+			robot_error = world_error;
+			sum_force[2] = PID_position[2].calculate_velocity( robot_error ) + offset_force[2];
+			#ifdef print_data
+				std::cout << "mode control is 2 : open z : " << sum_force[2] << "\n";
+				std::cout << "value of depth is " << std::setprecision(3) 
+							<< current_force[2] << "\n";
+			#endif
+			sum_force[0] = 0;
+			sum_force[1] = 0;
+			sum_force[3] = 0;
+			sum_force[4] = 0;
+			sum_force[5] = 0;
+			tell_force.publish( create_msg_force() );	
+		}
+		else if( mode_control == 3){
+			#ifdef print_data
+				std::cout << "mode control is 3 : test offset 3 : " << offset_force[3] << "\n"; 
+				std::cout << "value of roll is " << std::setprecision(3) 
+							<< current_force[3] << "\n";
+			#endif // this part will allow force of roll in about offset only
+			sum_force[0] = 0;
+			sum_force[1] = 0;
+			sum_force[2] = offset_force[2];
+			sum_force[3] = offset_force[3];
+			sum_force[4] = 4;
+			sum_force[5] = 5;
+			tell_force.publish( create_msg_force() );	
+		}
+		else if( mode_control == 4){
+			#ifdef print_data
+				std::cout << "mode control is 4 : test offset 4 : " << offset_force[4] << "\n"; 
+				std::cout << "value of pitch is " << std::setprecision(3) 
+							<< current_force[4] << "\n";
+			#endif // this part will allow force of roll and pitch in about offset only
+			sum_force[0] = 0;
+			sum_force[1] = 0;
+			sum_force[2] = offset_force[2];
+			sum_force[3] = offset_force[3];
+			sum_force[4] = offset_force[4];
+			sum_force[5] = 5;
+			tell_force.publish( create_msg_force() );	
+		}
+		else if( mode_control == 5){
+			#ifdef test_02
+				std::cout << "----------------- now you are mode 5 -------------------\n";
+			#endif	
+			for( int count = 0 ; count < 6 ; count++){
+				world_error[count] = target_position[count] - current_position[count];
+			}
+			// calculate error of world
+			world_distance = sqrt( pow(world_error[0] , 2)
+								   pow(world_error[1] , 2));
+			world_yaw = check_radian_tan( atan2( world_error[1], world_error[0]));
+			diff_yaw = current_position[5] - world_yaw;
+			// calculate error of robot
+			robot_error[0] = world_distance * cos( diff_yaw );
+			robot_error[1] = world_distance * sin( diff_yaw );
+			robot_error[2] = target_position[2] - current_position[2];
+			robot_error[3] = bound_value_radian( target_position[3] - current_position[3]);
+			robot_error[4] = bound_value_radian( target_position[4] - current_position[4]);
+			robot_error[5] = bound_value_radian( target_position[5] - current_position[5]);
+			for( int count = 0 ; count < 6 ; count++){
+				if( can_fix[ count ] && want_fix[ count ]){
+					if( absolute(robot_error[count]) < error_ok[count]) 
+						sum_force[count] = offset_force[count];
+					else
+						sum_force[ count ] = 
+							PID_position[ count ].calculate_velocity( robot_error[ count])
+							+ offset_force[count];
+				}
+				else{
+					if( count < 3) sum_force[count] = pow( K_velocity[count] , 2) 
+														* target_position[ count];
+					else sum_force[count] = PID_velocity[count].calculate_velocity(
+											target_velocity[count] - current_velocity[count]);
+				}
+			}
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) => bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
+				}
+			}
+			tell_force.publish( create_msg_force() );
+		}
+		rate.sleep();
+		current_time = ros::Time::now();
+		if( (last_time_velocity - current_time).toSec() < diff_time){
+			#ifdef test_02
+				std::cout << "Min than " << diff_time << " second form last time to get "
+							<< "target velocity " << "reset now \n"; 
+			#endif
+			reset_position = true;
+		}
+		ros::spinOnce();
 	}
 }

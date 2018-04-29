@@ -37,6 +37,18 @@ void listen_target_velocity( const geometry_msgs::Twist message){
 	target_velocity[3] = message.angular.x;
 	target_velocity[4] = message.angular.y;
 	target_velocity[5] = message.angular.z;
+	last_target_velocity = ros::Time::now();
+}
+
+double convert_min_radian( double problem){
+	for( ; not ( -1*PI <= problem && PI <= problem) ;){
+		#ifdef test_02
+			std::cout << "find min radian now is " << problem << "\n";
+		#endif
+		if( problem > PI) problem -= 2*PI;
+		else if(problem < -1*PI) problem += 2*PI;
+	}
+	return problem;
 }
 
 double convert_range_radian( double problem){
@@ -161,21 +173,51 @@ bool service_ok_position(
 					<< "and use adding is " << request.adding << std::endl;
 	#endif
     if(request.type.data == "xy"){
+		#ifdef print_data
+			std::cout 	<< "------------------ check position "
+		 				<< "want to know ok xy--------------\n";
+			std::cout 	<< "for x : robot " << robot_error[0]
+						<< " ok_error + adding " << ok_error[0] + request.adding << "\n";
+			std::cout 	<< "for y : robot " << robot_error[1]
+						<< " ok_error + adding " << ok_error[1] + request.adding << "\n";
+		#endif
         if( absolute(robot_error[0]) < ok_error[0] + request.adding 
 			&& absolute(robot_error[1]) < ok_error[1] + request.adding) response.ok = true;
         else response.ok = false;
     }
     else if(request.type.data == "z"){
+		#ifdef print_data
+			std::cout 	<< "------------------ check position "
+		 				<< "want to know ok z--------------\n";
+			std::cout 	<< "for z : robot " << robot_error[2]
+						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
+		#endif
         if( absolute(robot_error[1]) < ok_error[2] + request.adding) response.ok = true;
         else response.ok = false;
     }
 	else if(request.type.data == "xyz"){
+		#ifdef print_data
+			std::cout 	<< "------------------ check position "
+		 				<< "want to know ok xyz--------------\n";
+			std::cout 	<< "for x : robot " << robot_error[0]
+						<< " ok_error + adding " << ok_error[0] + request.adding << "\n";
+			std::cout 	<< "for y : robot " << robot_error[1]
+						<< " ok_error + adding " << ok_error[1] + request.adding << "\n";
+			std::cout 	<< "for z : robot " << robot_error[2]
+						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
+		#endif
 		if( absolute(robot_error[0]) < ok_error[0] + request.adding
 			&& absolute(robot_error[1]) < ok_error[1] + request.adding
 			&& absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
 		else response.ok = false;
 	}
 	else if(request.type.data == "yaw"){
+		#ifdef print_data
+			std::cout 	<< "------------------ check position "
+		 				<< "want to know ok yaw--------------\n";
+			std::cout 	<< "for z : robot " << robot_error[5]
+						<< " ok_error + adding " << ok_error[5] + request.adding << "\n";
+		#endif
 		if( absolute(robot_error[5]) < ok_error[5] + request.adding) response.ok = true;
 		else response.ok = false;
 	}
@@ -220,6 +262,18 @@ void reset_specific_velocity( int nummber){
 double absolute( double problem){
 	if(problem < 0) return -1*problem;
 	else return problem;
+}
+
+geometry_msgs::Twist create_msg_force(){
+	geometry_mmsgs::Twist message;
+	message.linear.x = sum_force[0];
+	message.linear.y = sum_force[1];
+	message.linear.z = sum_force[2];
+	message.angular.x = sum_force[3];
+	message.angular.y = sum_force[4];
+	message.angular.z = sum_force[5];
+	return message;
+	
 }
 
 #ifdef test_01
