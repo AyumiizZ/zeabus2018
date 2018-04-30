@@ -118,14 +118,23 @@ void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint3
 	Kd_position[4] = config.KDPpitch;
 	Kd_position[5] = config.KDPyaw;
 
+	Kp_velocity[0] = config.KPVx;
+	Kp_velocity[1] = config.KPVy;
+	Kp_velocity[2] = config.KPVz;
 	Kp_velocity[3] = config.KPVroll;
 	Kp_velocity[4] = config.KPVpitch;
 	Kp_velocity[5] = config.KPVyaw;
 
+	Ki_velocity[0] = config.KIVx;
+	Ki_velocity[1] = config.KIVy;
+	Ki_velocity[2] = config.KIVz;
 	Ki_velocity[3] = config.KIVroll;
 	Ki_velocity[4] = config.KIVpitch;
 	Ki_velocity[5] = config.KIVyaw;
 
+	Kd_velocity[0] = config.KDVx;
+	Kd_velocity[1] = config.KDVy;
+	Kd_velocity[2] = config.KDVz;
 	Kd_velocity[3] = config.KDVroll;
 	Kd_velocity[4] = config.KDVpitch;
 	Kd_velocity[5] = config.KDVyaw;

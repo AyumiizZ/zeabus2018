@@ -227,8 +227,8 @@ int main(int argc , char **argv){
 					#ifdef test_02
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
-					if( count < 3) sum_force[count] = pow( K_velocity[count] , 2) 
-														* target_position[ count];
+					if( count < 3 && use_K_velocity) 
+						sum_force[count] = pow( K_velocity[count] , 2) * target_position[ count];
 					else sum_force[count] = PID_velocity[count].calculate_velocity(
 											target_velocity[count] - current_velocity[count]);
 				}

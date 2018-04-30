@@ -62,6 +62,7 @@ double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0};
 double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
 double	bound_force[6] = { 4, 4, 6, 1, 1, 1};
