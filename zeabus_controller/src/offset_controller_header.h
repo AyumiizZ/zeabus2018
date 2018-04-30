@@ -87,6 +87,7 @@ double diff_yaw = 0;
 ros::Time last_target_velocity;
 ros::Time current_time;
 double diff_time = 1; // this variable 
+void reset_want_fix();
 
 bool start_run = true; // this tell to save target state in first time
 bool reset_position = true;
@@ -105,7 +106,7 @@ void reset_specific_position( int number);
 void reset_specific_velocity( int number);
 
 // about how to tuning
-int mode_control = 1; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitch 
+int mode_control = 5; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitch 
 					  // 5 tune PID in normal situation
 
 // function for service

@@ -7,12 +7,22 @@ void listen_current_state( const nav_msgs::Odometry message){
 	tfScalar roll, pitch, yaw;
 	tf::Matrix3x3(quaternion).getRPY( roll, pitch, yaw);
 	if( start_run || reset_position ){
-		target_position[0] = message.pose.pose.position.x;
-		target_position[1] = message.pose.pose.position.y;
-		target_position[2] = message.pose.pose.position.z;
-		target_position[3] = 0.0;
-		target_position[4] = 0.0;
-		target_position[5] = convert_range_radian( bound_value_radian((double) yaw));
+		if( not ( want_fix[0] && want_fix[1] ) || start_run ){
+			target_position[0] = message.pose.pose.position.x;
+			target_position[1] = message.pose.pose.position.y;
+		}
+		if( ( not want_fix[2] ) || start_run ){
+			target_position[2] = message.pose.pose.position.z;
+		}
+		if( ( not want_fix[3] )){
+			target_position[3] = 0.0;
+		}
+		if( ( not want_fix[4] )){
+			target_position[4] = 0.0;
+		}
+		if( ( not want_fix[5] ) || start_run ){
+			target_position[5] = convert_range_radian( bound_value_radian((double) yaw));
+		}
 		start_run = false;
 		reset_position = false;
 	}
@@ -38,16 +48,28 @@ void listen_target_velocity( const geometry_msgs::Twist message){
 	target_velocity[4] = message.angular.y;
 	target_velocity[5] = message.angular.z;
 	last_target_velocity = ros::Time::now();
+	for(int count = 0 ; count < 6 ; count++){
+		if( absolute( target_velocity[ count ] )> epsilon){
+			#ifdef test_02
+				std::cout << "want fix of " << count << " will false\n";
+			#endif
+			want_fix[count] = false;
+		}
+	}
 }
 
 double convert_min_radian( double problem){
-	for( ; not ( -1*PI <= problem && PI <= problem) ;){
+	for( ; ;){
 		#ifdef test_02
 			std::cout << "find min radian now is " << problem << "\n";
 		#endif
 		if( problem > PI) problem -= 2*PI;
 		else if(problem < -1*PI) problem += 2*PI;
+		else break;
 	}
+	#ifdef test_02
+		std::cout << "result is " << problem << "\n";
+	#endif
 	return problem;
 }
 
@@ -65,6 +87,9 @@ double bound_value_radian( double problem){
 		else if(problem > 2*PI) problem -= 2*PI;
 		else break;
 	}
+	#ifdef test_02
+		std::cout << "result is " << problem << "\n";
+	#endif
 	return problem;
 }
 
@@ -274,6 +299,10 @@ geometry_msgs::Twist create_msg_force(){
 	message.angular.z = sum_force[5];
 	return message;
 	
+}
+
+void reset_want_fix(){
+	for(int count = 0 ; count < 6 ; count++) want_fix[count] = true;
 }
 
 #ifdef test_01

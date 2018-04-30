@@ -109,6 +109,13 @@ int main(int argc , char **argv){
 			sum_force[3] = 0;
 			sum_force[4] = 0;
 			sum_force[5] = 0;
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) >= bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
+				}
+			}
 			tell_force.publish( create_msg_force() );	
 		}
 		else if( mode_control == 2){
@@ -126,6 +133,13 @@ int main(int argc , char **argv){
 			sum_force[3] = 0;
 			sum_force[4] = 0;
 			sum_force[5] = 0;
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) >= bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
+				}
+			}
 			tell_force.publish( create_msg_force() );	
 		}
 		else if( mode_control == 3){
@@ -140,6 +154,13 @@ int main(int argc , char **argv){
 			sum_force[3] = offset_force[3];
 			sum_force[4] = 4;
 			sum_force[5] = 5;
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) >= bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
+				}
+			}
 			tell_force.publish( create_msg_force() );	
 		}
 		else if( mode_control == 4){
@@ -154,6 +175,13 @@ int main(int argc , char **argv){
 			sum_force[3] = offset_force[3];
 			sum_force[4] = offset_force[4];
 			sum_force[5] = 5;
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) >= bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
+				}
+			}
 			tell_force.publish( create_msg_force() );	
 		}
 		else if( mode_control == 5){
@@ -167,16 +195,24 @@ int main(int argc , char **argv){
 			world_distance = sqrt( pow(world_error[0] , 2) +
 								   pow(world_error[1] , 2));
 			world_yaw = convert_range_radian( atan2( world_error[1], world_error[0]));
-			diff_yaw = current_position[5] - world_yaw;
+			diff_yaw = convert_min_radian ( current_position[5] - world_yaw );
+			#ifdef print_data
+				std::cout << "World Distance : " << world_distance << "\n";
+				std::cout << "World Yaw : " << world_yaw << "\n";
+				std::cout << "Diff Yaw : " << diff_yaw << "\n";
+			#endif
 			// calculate error of robot
 			robot_error[0] = world_distance * cos( diff_yaw );
 			robot_error[1] = world_distance * sin( diff_yaw );
 			robot_error[2] = target_position[2] - current_position[2];
-			robot_error[3] = bound_value_radian( target_position[3] - current_position[3]);
-			robot_error[4] = bound_value_radian( target_position[4] - current_position[4]);
-			robot_error[5] = bound_value_radian( target_position[5] - current_position[5]);
+			robot_error[3] = convert_min_radian( target_position[3] - current_position[3]);
+			robot_error[4] = convert_min_radian( target_position[4] - current_position[4]);
+			robot_error[5] = convert_min_radian( target_position[5] - current_position[5]);
 			for( int count = 0 ; count < 6 ; count++){
 				if( can_fix[ count ] && want_fix[ count ]){
+					#ifdef test_02
+						std::cout << "Count is " << count << " use pid\n";
+					#endif
 					if( absolute(robot_error[count]) < ok_error[count]) 
 						sum_force[count] = offset_force[count];
 					else{
@@ -188,10 +224,20 @@ int main(int argc , char **argv){
 					}
 				}
 				else{
+					#ifdef test_02
+						std::cout << "Count is " << count << " use velocity\n";
+					#endif
 					if( count < 3) sum_force[count] = pow( K_velocity[count] , 2) 
 														* target_position[ count];
 					else sum_force[count] = PID_velocity[count].calculate_velocity(
 											target_velocity[count] - current_velocity[count]);
+				}
+			}
+			for( int count = 0 ; count < 6 ; count++){
+				if( absolute( sum_force[count]) >= bound_force[count]){
+					ROS_FATAL("Controller force over bound warning : %d" , count);
+					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
+					else sum_force[count] = -1*bound_force[count];
 				}
 			}
 			tell_force.publish( create_msg_force() );
@@ -233,21 +279,15 @@ int main(int argc , char **argv){
 						current_velocity[3] , current_velocity[4] , current_velocity[5]);
 			ROS_INFO("----------------------------end print-----------------------------");
 		#endif
-		for( int count = 0 ; count < 6 ; count++){
-			if( absolute( sum_force[count]) >= bound_force[count]){
-				ROS_FATAL("Controller force over bound warning : %d" , count);
-				if( sum_force[count] > 0) sum_force[count] = bound_force[count];
-				else sum_force[count] = -1*bound_force[count];
-			}
-		}
 		current_time = ros::Time::now();
-		if( (last_target_velocity - current_time).toSec() < diff_time){
+		if( (current_time - last_target_velocity).toSec() < diff_time){
 			#ifdef test_02
 				std::cout << "Min than " << diff_time << " second form last time to get "
 							<< "target velocity " << "reset now \n"; 
 			#endif
 			reset_position = true;
 		}
+		else reset_want_fix();
 		rate.sleep();
 		ros::spinOnce();
 	}
