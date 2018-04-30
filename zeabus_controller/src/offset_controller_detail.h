@@ -12,16 +12,16 @@ void listen_current_state( const nav_msgs::Odometry message){
 		target_position[2] = message.pose.pose.position.z;
 		target_position[3] = 0.0;
 		target_position[4] = 0.0;
-		target_position[5] = check_radian_tan( bound_value_radian((double) yaw));
+		target_position[5] = convert_range_radian( bound_value_radian((double) yaw));
 		start_run = false;
 		reset_position = false;
 	}
 	current_position[0] = message.pose.pose.position.x;
 	current_position[1] = message.pose.pose.position.y;
 	current_position[2] = message.pose.pose.position.z;
-	current_position[3] = check_radian_tan( bound_value_radian((double) roll));
-	current_position[4] = check_radian_tan( bound_value_radian((double) pitch));
-	current_position[5] = check_radian_tan( bound_value_radian((double) yaw));
+	current_position[3] = convert_range_radian( bound_value_radian((double) roll));
+	current_position[4] = convert_range_radian( bound_value_radian((double) pitch));
+	current_position[5] = convert_range_radian( bound_value_radian((double) yaw));
 	current_velocity[0] = message.twist.twist.linear.x;
 	current_velocity[1] = message.twist.twist.linear.y;
 	current_velocity[2] = message.twist.twist.linear.z;
@@ -67,7 +67,7 @@ double bound_value_radian( double problem){
 	return problem;
 }
 
-void config_constant_PID( zeabus_controller::OffsetConstantConfig &config,	uint32_t level){
+void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint32_t level){
 	#ifdef print_data
 		ROS_DEBUG("!!!---tunnig change---!!!");
 	#endif
@@ -109,7 +109,7 @@ void config_constant_PID( zeabus_controller::OffsetConstantConfig &config,	uint3
 	K_velocity[2] = config.KVz;
 
 	offset_force[0] = config.OFFSETx;
-	offset_force[1] = config.OFFSETw;
+	offset_force[1] = config.OFFSETy;
 	offset_force[2] = config.OFFSETz;
 	offset_force[3] = config.OFFSETroll;
 	offset_force[4] = config.OFFSETpitch;
@@ -119,7 +119,7 @@ void config_constant_PID( zeabus_controller::OffsetConstantConfig &config,	uint3
 		ROS_DEBUG("!!!--- Change tune value ---!!!");
 		ROS_DEBUG("--- Offset of z %.4lf", offset_force[2]);
 	#endif
-	set_all_tuning();
+	set_all_tunning();
 	if( not first_time_tune){
 		change_tune = true;
 	}
@@ -141,7 +141,7 @@ bool service_target_distance(
 bool service_target_yaw(
 		zeabus_controller::fix_abs_yaw::Request &request ,
 		zeabus_controller::fix_abs_yaw::Response &response){
-	target_position[5] = check_radian_tan( request.fix_yaw );
+	target_position[5] = convert_range_radian( request.fix_yaw );
 	response.success = true;
 	return true;
 }
@@ -157,11 +157,11 @@ bool service_target_depth(
 bool service_change_mode(
 		zeabus_controller::change_mode::Request &request , 
 		zeabus_controller::change_mode::Response &response){
-	mode_control = request.mode;
+	mode_control = request.mode.data;
 	#ifdef test_02
 		std::cout << "change mode" << "\n";
 	#endif
-	response.success = true;
+	response.success.data = true;
 	return true;
 }
 
@@ -240,12 +240,12 @@ void reset_all_I(){
 
 void set_all_tunning(){
 	for(int count = 0 ; count < 6 ; count++){
-		PID_position[count].set_constant( 	Kp_position[count][0],
-											Kp_position[count][1],
-											Kp_position[count][2]);
-		PID_velocity[count].set_constant(	Kv_position[count][0],
-											Kv_position[count][1],
-											Kv_position[count][2]);
+		PID_position[count].set_constant( 	Kp_position[count],
+											Ki_position[count],
+											Kd_position[count]);
+		PID_velocity[count].set_constant(	Kp_velocity[count],
+											Ki_velocity[count],
+											Kd_velocity[count]);
 	}
 }
 
@@ -253,7 +253,7 @@ void reset_specific_position( int number){
 	PID_position[ number ].reset();
 }
 
-void reset_specific_velocity( int nummber){
+void reset_specific_velocity( int number){
 	PID_velocity[ number ].reset();
 }
 
@@ -265,7 +265,7 @@ double absolute( double problem){
 }
 
 geometry_msgs::Twist create_msg_force(){
-	geometry_mmsgs::Twist message;
+	geometry_msgs::Twist message;
 	message.linear.x = sum_force[0];
 	message.linear.y = sum_force[1];
 	message.linear.z = sum_force[2];
@@ -283,7 +283,7 @@ geometry_msgs::Twist create_msg_force(){
 		current_position[2] = message.z;
 }
 
-	void test_current_orientation( const zeabus_conntroller::orientation message){
+	void test_current_orientation( const zeabus_controller::orientation message){
 		current_position[3] = message.roll;
 		current_position[4] = message.pitch;
 		current_position[5] = message.yaw;

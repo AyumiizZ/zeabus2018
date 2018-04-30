@@ -21,9 +21,11 @@
 // include message
 #include 	<nav_msgs/Odometry.h> // type message receive current_state , current_velocity
 #include	<geometry_msgs/Twist.h> // type messsage receive target_velocity , out force
-#include	<geometry_msgs/Point message>
+#include	<geometry_msgs/Point.h>
 #include	<std_msgs/Bool.h>
 #include	<std_msgs/Float64.h>
+#include	<std_msgs/Int64.h>
+#include	<zeabus_controller/orientation.h>
 
 // include head of service
 #include	<zeabus_controller/fix_abs_xy.h>
@@ -31,6 +33,7 @@
 #include 	<zeabus_controller/fix_abs_depth.h>
 #include	<zeabus_controller/ok_position.h>
 #include	<zeabus_controller/fix_abs_yaw.h>
+#include	<zeabus_controller/change_mode.h>
 
 // include part for convert quaternion to roll pitch yaw
 #include 	<tf/transform_datatypes.h>
@@ -38,6 +41,7 @@
 
 // include part for dynamic reconfigure
 #include 	<dynamic_reconfigure/server.h>
+#include	<zeabus_controller/OffSetConstantConfig.h>
 
 // assign the constant value
 #define PI 3.14159265
@@ -57,7 +61,7 @@ double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0};
 double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 
 // for these variable [ x , y , z , roll , pitch , yaw]
 double	bound_force[6] = { 4, 4, 6, 1, 1, 1};
@@ -68,7 +72,7 @@ double* target_position = new double[6];
 double* world_error = new double[6]; // this part will calculate error from sensor
 double* robot_error = new double[6]; // this part will use to calculate force and calculate form
 									 // world_error
-double ok_error = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate error you ok
+double ok_error[6] = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate error you ok
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
@@ -80,8 +84,8 @@ double world_yaw = 0;
 double diff_yaw = 0;
 
 // this part use to think about should reset target and save new state to target_position
-ros::Time last_target_velocity = 0;
-ros::Time current_time = 0;
+ros::Time last_target_velocity;
+ros::Time current_time;
 double diff_time = 1; // this variable 
 
 bool start_run = true; // this tell to save target state in first time

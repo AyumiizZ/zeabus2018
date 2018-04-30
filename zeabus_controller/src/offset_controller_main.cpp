@@ -9,11 +9,11 @@ void init(){
 	#ifdef test_02
 		std::cout << "welocome to init file\n";
 	#endif
-	PID_position = ( find_velocity::second_case)calloc 
+	PID_position = ( find_velocity::second_case*)calloc 
 						(6 , sizeof( find_velocity::second_case));
-	PID_velocity = ( find_velocity::second_case)calloc
+	PID_velocity = ( find_velocity::second_case*)calloc
 						(6 , sizeof( find_velocity::second_case));
-	for(int count = 0 ; count < 6 count++){
+	for(int count = 0 ; count < 6 ; count++){
 		PID_position[count].set_constant(0 ,0 ,0);
 		PID_velocity[count].set_constant(0 ,0 ,0);
 	}
@@ -33,7 +33,7 @@ int main(int argc , char **argv){
 
 // ---------------------------------- part of service -----------------------------------------
 	ros::ServiceServer ser_cli_target_distance = // listen target of xy
-		nh.advertiseService("/fix_rel_xy", service_target_xy);
+		nh.advertiseService("/fix_rel_xy", service_target_distance);
 	ros::ServiceServer ser_cli_target_yaw = // listen target of yaw
 		nh.advertiseService("/fix_abs_yaw", service_target_yaw);
 	ros::ServiceServer ser_cli_target_depth = // listen target of depth
@@ -47,9 +47,9 @@ int main(int argc , char **argv){
 // ------------------------------------ test state --------------------------------------------
 	#ifdef test_01
 		ros::Subscriber sub_test_state = // listen test state
-			nh.Subscriber( "/test/auv/state" , 1000 , &test_current_state);
+			nh.subscribe( "/test/auv/state" , 1000 , &test_current_state);
 		ros::Subscriber sub_test_orientation = // listen test orientation
-			nh.Subscriber( "/test/auv/orientation" , 1000 , &test_current_orientation);
+			nh.subscribe( "/test/auv/orientation" , 1000 , &test_current_orientation);
 	#endif 
 // ------------------------------------- end part ---------------------------------------------
 
@@ -65,7 +65,7 @@ int main(int argc , char **argv){
 	init();
 
 // ---------------------------------- again about dynamic -------------------------------------
-	tunning = boost::bing(&config_constant_PID, _1 , _2);
+	tunning = boost::bind(&config_constant_PID, _1 , _2);
 	server.setCallback( tunning );
 // -------------------------------------- end part --------------------------------------------
 
@@ -100,7 +100,7 @@ int main(int argc , char **argv){
 		if( mode_control == 1 ){
 			#ifdef print_data
 				std::cout << "mode control is 1 : test offset z : " << offset_force << "\n"; 
-				std::cout << "value of depth is " << current_position[2] << "\n"
+				std::cout << "value of depth is " << current_position[2] << "\n";
 			#endif // this part will allow force of z in about offset only
 			sum_force[0] = 0;
 			sum_force[1] = 0;
@@ -111,13 +111,13 @@ int main(int argc , char **argv){
 			tell_force.publish( create_msg_force() );	
 		}
 		else if( mode_control == 2){
-			world_error = target_position[2] - current_position[2];
-			robot_error = world_error;
-			sum_force[2] = PID_position[2].calculate_velocity( robot_error ) + offset_force[2];
+			world_error[2] = target_position[2] - current_position[2];
+			robot_error[2] = world_error[2];
+			sum_force[2] = PID_position[2].calculate_velocity( robot_error[2] ) + offset_force[2];
 			#ifdef print_data
 				std::cout << "mode control is 2 : open z : " << sum_force[2] << "\n";
 				std::cout << "value of depth is " << std::setprecision(3) 
-							<< current_force[2] << "\n";
+							<< current_position[2] << "\n";
 			#endif
 			sum_force[0] = 0;
 			sum_force[1] = 0;
@@ -130,7 +130,7 @@ int main(int argc , char **argv){
 			#ifdef print_data
 				std::cout << "mode control is 3 : test offset 3 : " << offset_force[3] << "\n"; 
 				std::cout << "value of roll is " << std::setprecision(3) 
-							<< current_force[3] << "\n";
+							<< current_position[3] << "\n";
 			#endif // this part will allow force of roll in about offset only
 			sum_force[0] = 0;
 			sum_force[1] = 0;
@@ -144,7 +144,7 @@ int main(int argc , char **argv){
 			#ifdef print_data
 				std::cout << "mode control is 4 : test offset 4 : " << offset_force[4] << "\n"; 
 				std::cout << "value of pitch is " << std::setprecision(3) 
-							<< current_force[4] << "\n";
+							<< current_position[4] << "\n";
 			#endif // this part will allow force of roll and pitch in about offset only
 			sum_force[0] = 0;
 			sum_force[1] = 0;
@@ -162,9 +162,9 @@ int main(int argc , char **argv){
 				world_error[count] = target_position[count] - current_position[count];
 			}
 			// calculate error of world
-			world_distance = sqrt( pow(world_error[0] , 2)
+			world_distance = sqrt( pow(world_error[0] , 2) +
 								   pow(world_error[1] , 2));
-			world_yaw = check_radian_tan( atan2( world_error[1], world_error[0]));
+			world_yaw = convert_range_radian( atan2( world_error[1], world_error[0]));
 			diff_yaw = current_position[5] - world_yaw;
 			// calculate error of robot
 			robot_error[0] = world_distance * cos( diff_yaw );
@@ -175,7 +175,7 @@ int main(int argc , char **argv){
 			robot_error[5] = bound_value_radian( target_position[5] - current_position[5]);
 			for( int count = 0 ; count < 6 ; count++){
 				if( can_fix[ count ] && want_fix[ count ]){
-					if( absolute(robot_error[count]) < error_ok[count]) 
+					if( absolute(robot_error[count]) < ok_error[count]) 
 						sum_force[count] = offset_force[count];
 					else
 						sum_force[ count ] = 
@@ -190,7 +190,7 @@ int main(int argc , char **argv){
 				}
 			}
 			for( int count = 0 ; count < 6 ; count++){
-				if( absolute( sum_force[count]) => bound_force[count]){
+				if( absolute( sum_force[count]) >= bound_force[count]){
 					ROS_FATAL("Controller force over bound warning : %d" , count);
 					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
 					else sum_force[count] = -1*bound_force[count];
@@ -200,7 +200,7 @@ int main(int argc , char **argv){
 		}
 		rate.sleep();
 		current_time = ros::Time::now();
-		if( (last_time_velocity - current_time).toSec() < diff_time){
+		if( (last_target_velocity - current_time).toSec() < diff_time){
 			#ifdef test_02
 				std::cout << "Min than " << diff_time << " second form last time to get "
 							<< "target velocity " << "reset now \n"; 
