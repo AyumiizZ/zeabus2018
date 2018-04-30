@@ -57,19 +57,20 @@ double convert_range_radian( double problem){
 }
 
 double bound_value_radian( double problem){
-	for( ; not ( 0 <= problem && 2*PI <= problem );){
+	for( ; ;){
 		#ifdef test_02
 			std::cout << "bound radian now is " << problem << "\n";
 		#endif
 		if( problem < 0) problem += 2*PI;
-		else if(problem > 2*PI) problem -= 2*PI;;
+		else if(problem > 2*PI) problem -= 2*PI;
+		else break;
 	}
 	return problem;
 }
 
 void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint32_t level){
 	#ifdef print_data
-		ROS_DEBUG("!!!---tunnig change---!!!");
+		ROS_INFO("!!!---tunnig change---!!!");
 	#endif
 	Kp_position[0] = config.KPPx;
 	Kp_position[1] = config.KPPy;
@@ -115,11 +116,10 @@ void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint3
 	offset_force[4] = config.OFFSETpitch;
 	offset_force[5] = config.OFFSETyaw;
 
-	#ifdef print_test
-		ROS_DEBUG("!!!--- Change tune value ---!!!");
-		ROS_DEBUG("--- Offset of z %.4lf", offset_force[2]);
+	#ifdef test_02
+		ROS_INFO("!!!--- Change tune value ---!!!");
+		ROS_INFO("--- Offset of z %.4lf", offset_force[2]);
 	#endif
-	set_all_tunning();
 	if( not first_time_tune){
 		change_tune = true;
 	}

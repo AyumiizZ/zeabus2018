@@ -50,9 +50,9 @@
 static	std::string tune_file = "offset_ku.yaml"; // this for save and load tune file
 // **-------------------------------------------------------------------------------**
 
-double*	pid_force = new double[6]; // force output part 01 have calculate by pid
-double* offset_force = new double[6]; // force output part 02 have offset {tuning}
-double*	sum_force = new double[6]; // sum force of 2 part
+double	pid_force[6] = {0, 0, 0, 0, 0, 0}; // force output part 01 have calculate by pid
+double 	offset_force[6] = {0, 0, 0, 0, 0, 0}; // force output part 02 have offset {tuning}
+double	sum_force[6] = {0, 0, 0, 0, 0, 0}; // sum force of 2 part
 
 // for tuning pid calculate
 double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
@@ -65,12 +65,12 @@ double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 
 // for these variable [ x , y , z , roll , pitch , yaw]
 double	bound_force[6] = { 4, 4, 6, 1, 1, 1};
-double*	current_velocity = new double[6];
-double*	target_velocity = new double[6]; // this part will use check want to fix position or not?
-double*	current_position = new double[6];
-double* target_position = new double[6];
-double* world_error = new double[6]; // this part will calculate error from sensor
-double* robot_error = new double[6]; // this part will use to calculate force and calculate form
+double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
+double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
+double	current_position[6] = {0, 0, 0, 0, 0, 0};
+double	target_position[6] = {0, 0, 0, 0, 0, 0};
+double	world_error[6] = {0, 0, 0, 0, 0, 0}; // this part will calculate error from sensor
+double	robot_error[6] = {0, 0, 0, 0, 0, 0}; // this part will use to calculate force and calculate form
 									 // world_error
 double ok_error[6] = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate error you ok
 
@@ -90,7 +90,7 @@ double diff_time = 1; // this variable
 
 bool start_run = true; // this tell to save target state in first time
 bool reset_position = true;
-bool first_time_tune = false; // this use load constant of tune value
+bool first_time_tune = true; // this use load constant of tune value
 bool change_tune = false; // this use check when to save tune value
 
 // function for Subscribe ros
