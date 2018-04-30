@@ -70,7 +70,7 @@ int main(int argc , char **argv){
 // -------------------------------------- end part --------------------------------------------
 
 	ros::Rate rate(50);
-	while(nh.ok()){
+	while(nh.ok()){/*
 		if(first_time_tune){
 			#ifdef test_02
 				std::cout << "Before download\n";
@@ -96,10 +96,10 @@ int main(int argc , char **argv){
 			set_all_tunning();
 			reset_all_I();
 		}
-		else{}
+		else{}*/
 		if( mode_control == 1 ){
 			#ifdef print_data
-				std::cout << "mode control is 1 : test offset z : " << offset_force << "\n"; 
+				std::cout << "mode control is 1 : test offset z : " << offset_force[2] << "\n"; 
 				std::cout << "value of depth is " << current_position[2] << "\n";
 			#endif // this part will allow force of z in about offset only
 			sum_force[0] = 0;
@@ -177,10 +177,13 @@ int main(int argc , char **argv){
 				if( can_fix[ count ] && want_fix[ count ]){
 					if( absolute(robot_error[count]) < ok_error[count]) 
 						sum_force[count] = offset_force[count];
-					else
+					else{
+						pid_force[count] = 
+							PID_position[ count ].calculate_velocity( robot_error[ count]);
 						sum_force[ count ] = 
 							PID_position[ count ].calculate_velocity( robot_error[ count])
 							+ offset_force[count];
+					}
 				}
 				else{
 					if( count < 3) sum_force[count] = pow( K_velocity[count] , 2) 
@@ -196,6 +199,43 @@ int main(int argc , char **argv){
 					else sum_force[count] = -1*bound_force[count];
 				}
 			}
+			#ifdef print_data
+				ROS_INFO("-------------------------- print data -----------------------------");
+				ROS_FATAL("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							target_position[0] , target_position[1] , target_position[2],
+							target_position[3] , target_position[4] , target_position[5]);
+				ROS_FATAL("current_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							current_position[0] , current_position[1] , current_position[2],
+							current_position[3] , current_position[4] , current_position[5]);
+				ROS_FATAL("world_error:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							world_error[0] , world_error[1] , world_error[2],
+							world_error[3] , world_error[4] , world_error[5]);
+				ROS_FATAL("robot_error:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							robot_error[0] , robot_error[1] , robot_error[2],
+							robot_error[3] , robot_error[4] , robot_error[5]);
+				ROS_FATAL("offset_force:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							offset_force[0] , offset_force[1] , offset_force[2],
+							offset_force[3] , offset_force[4] , offset_force[5]);
+				ROS_FATAL("pid_force:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							pid_force[0] , pid_force[1] , pid_force[2],
+							pid_force[3] , pid_force[4] , pid_force[5]);
+				ROS_FATAL("sum_force:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							sum_force[0] , sum_force[1] , sum_force[2],
+							sum_force[3] , sum_force[4] , sum_force[5]);
+				ROS_FATAL("can_fix:\t%d\t%d\t%d\t%d\t%d\t%d" ,
+							can_fix[0] , can_fix[1] , can_fix[2],
+							can_fix[3] , can_fix[4] , can_fix[5]);
+				ROS_FATAL("want_fix:\t%d\t%d\t%d\t%d\t%d\t%d" ,
+							want_fix[0] , want_fix[1] , want_fix[2],
+							want_fix[3] , want_fix[4] , want_fix[5]);
+				ROS_FATAL("target_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							target_velocity[0] , target_velocity[1] , target_velocity[2],
+							target_velocity[3] , target_velocity[4] , target_velocity[5]);
+				ROS_FATAL("current_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+							current_velocity[0] , current_velocity[1] , current_velocity[2],
+							current_velocity[3] , current_velocity[4] , current_velocity[5]);
+				ROS_INFO("----------------------------end print-----------------------------");
+			#endif
 			tell_force.publish( create_msg_force() );
 		}
 		rate.sleep();

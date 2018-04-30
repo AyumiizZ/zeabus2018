@@ -90,7 +90,7 @@ double diff_time = 1; // this variable
 
 bool start_run = true; // this tell to save target state in first time
 bool reset_position = true;
-bool first_time_tune = true; // this use load constant of tune value
+bool first_time_tune = false; // this use load constant of tune value
 bool change_tune = false; // this use check when to save tune value
 
 // function for Subscribe ros
