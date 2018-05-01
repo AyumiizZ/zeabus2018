@@ -11,9 +11,12 @@ void listen_current_state( const nav_msgs::Odometry message){
 			target_position[0] = message.pose.pose.position.x;
 			target_position[1] = message.pose.pose.position.y;
 		}
-		if( ( not want_fix[2] ) || start_run ){
+		if( ( not want_fix[2] ) || reset_position ){
 			target_position[2] = message.pose.pose.position.z;
 		}
+        if( start_run ){
+			target_position[2] = -2;
+        }
 		if( ( not want_fix[3] )){
 			target_position[3] = 0.0;
 		}

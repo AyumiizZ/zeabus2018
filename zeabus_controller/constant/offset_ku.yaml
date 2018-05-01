@@ -5,7 +5,7 @@ dictitems:
   KDPx: 0.0
   KDPy: 0.0
   KDPyaw: 0.0
-  KDPz: 0.0
+  KDPz: 0.01
   KDVpitch: 0.0
   KDVroll: 0.0
   KDVx: 0.0
@@ -29,22 +29,22 @@ dictitems:
   KPPx: 0.0
   KPPy: 0.0
   KPPyaw: 0.0
-  KPPz: 0.0
+  KPPz: 1.0
   KPVpitch: 0.0
   KPVroll: 0.0
   KPVx: 0.0
   KPVy: 0.0
   KPVyaw: 0.0
   KPVz: 0.0
-  KVx: 0.0
-  KVy: 0.0
+  KVx: 0.5
+  KVy: 0.5
   KVz: 0.0
   OFFSETpitch: 0.0
   OFFSETroll: 0.0
   OFFSETx: 0.0
   OFFSETy: 0.0
   OFFSETyaw: 0.0
-  OFFSETz: 0.0
+  OFFSETz: -1.4
   groups: !!python/object/new:dynamic_reconfigure.encoding.Config
     dictitems:
       KDPpitch: 0.0
@@ -52,7 +52,7 @@ dictitems:
       KDPx: 0.0
       KDPy: 0.0
       KDPyaw: 0.0
-      KDPz: 0.0
+      KDPz: 0.01
       KDVpitch: 0.0
       KDVroll: 0.0
       KDVx: 0.0
@@ -76,22 +76,22 @@ dictitems:
       KPPx: 0.0
       KPPy: 0.0
       KPPyaw: 0.0
-      KPPz: 0.0
+      KPPz: 1.0
       KPVpitch: 0.0
       KPVroll: 0.0
       KPVx: 0.0
       KPVy: 0.0
       KPVyaw: 0.0
       KPVz: 0.0
-      KVx: 0.0
-      KVy: 0.0
+      KVx: 0.5
+      KVy: 0.5
       KVz: 0.0
       OFFSETpitch: 0.0
       OFFSETroll: 0.0
       OFFSETx: 0.0
       OFFSETy: 0.0
       OFFSETyaw: 0.0
-      OFFSETz: 0.0
+      OFFSETz: -1.4
       groups: !!python/object/new:dynamic_reconfigure.encoding.Config
         state: []
       id: 0

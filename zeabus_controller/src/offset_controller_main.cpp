@@ -220,9 +220,7 @@ int main(int argc , char **argv){
 					else{
 						pid_force[count] = 
 							PID_position[ count ].calculate_velocity( robot_error[ count]);
-						sum_force[ count ] = 
-							PID_position[ count ].calculate_velocity( robot_error[ count])
-							+ offset_force[count];
+						sum_force[ count ] = pid_force[count] + offset_force[count];
 					}
 				}
 				else{
@@ -230,9 +228,12 @@ int main(int argc , char **argv){
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
 					if( count < 3 && use_K_velocity) 
-						sum_force[count] = pow( K_velocity[count] , 2) * target_position[ count];
-					else sum_force[count] = PID_velocity[count].calculate_velocity(
-											target_velocity[count] - current_velocity[count]);
+						//sum_force[count] = K_velocity[count] * 
+												//pow (target_velocity[count] , 2);
+                        sum_force[count] = target_velocity[ count ];
+					else //sum_force[count] = PID_velocity[count].calculate_velocity(
+						//					target_velocity[count] - current_velocity[count]);
+                        sum_force[count] = target_velocity[ count ];
 				}
 			}
 			for( int count = 0 ; count < 6 ; count++){
@@ -290,7 +291,7 @@ int main(int argc , char **argv){
 			reset_position = true;
 		}
 		else reset_want_fix();
-		rate.sleep();
 		ros::spinOnce();
+		rate.sleep();
 	}
 }

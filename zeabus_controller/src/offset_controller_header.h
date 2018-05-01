@@ -65,7 +65,7 @@ double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 4, 4, 6, 1, 1, 1};
+double	bound_force[6] = { 4, 4, 8, 1.5, 1.5, 1};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};
