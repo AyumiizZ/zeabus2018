@@ -161,6 +161,15 @@ void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint3
 
 // ------------------------------- this part about service ------------------------------------
 
+bool service_target_xy(
+		zeabus_controller::fix_abs_xy::Request &request ,
+		zeabus_controller::fix_abs_xy::Response &response){
+	target_position[0] += request.x;
+	target_position[1] += request.y;
+	response.success = true;
+	return true;
+}
+
 bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
 		zeabus_controller::fix_rel_xy::Response &response){

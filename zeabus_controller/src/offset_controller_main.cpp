@@ -32,6 +32,8 @@ int main(int argc , char **argv){
 // ------------------------------------- end part ---------------------------------------------
 
 // ---------------------------------- part of service -----------------------------------------
+	ros::ServiceServer ser_cli_target_xy = // listen target of xy
+		nh.advertiseService("/fix_abs_xy", service_target_xy);
 	ros::ServiceServer ser_cli_target_distance = // listen target of xy
 		nh.advertiseService("/fix_rel_xy", service_target_distance);
 	ros::ServiceServer ser_cli_target_yaw = // listen target of yaw

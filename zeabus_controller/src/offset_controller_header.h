@@ -111,6 +111,10 @@ int mode_control = 5; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitc
 					  // 5 tune PID in normal situation
 
 // function for service
+bool service_target_xy(
+		zeabus_controller::fix_abs_xy::Request &request , 
+		zeabus_controller::fix_abs_xy::Response &response
+	); // for get want assign target position number 0 1
 bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
 		zeabus_controller::fix_rel_xy::Response &response
