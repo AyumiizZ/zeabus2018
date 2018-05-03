@@ -18,20 +18,22 @@ class call_vision_service( QtGui.QWidget ):
 
 		self.tine = 2.0
 
-		self.topic_service_qualifying_gate = 'vision_srv_qualifying_gate'
+		self.topic_service_qualifying_gate = '/vision_srv_qualifying_gate'
 		self.value_qualifying_gate = ""
 		self.result_service_qualifying_gate = vision_qualifying_gate() 
 		self.botton_service_qualifying_gate = QtGui.QPushButton("Call")
 		self.value_service_qualifying_gate = QtGui.QLineEdit( str(self.value_qualifying_gate) )
 
-		self.topic_service_qualifying_marker = 'vision_srv_qualifying_marker'
+		self.topic_service_qualifying_marker = '/vision_srv_qualifying_marker'
 		self.value_qualifying_marker = ""	
 		self.result_service_qualifying_marker = vision_qualifying_marker()
 		self.botton_service_qualifying_marker = QtGui.QPushButton("Call")
+		self.value_service_qualifying_marker = QtGui.QLineEdit( str(self.value_qualifying_marker) )
 
-		self.topic_service_path = 'vision_srv_path'
+		self.topic_service_path = '/vision_srv_path'
 		self.value_path = ""
 		self.result_service_path = vision_path()
 		self.botton_service_path = QtGui.QPushButton("Call")
+		self.value_service_pate = QtGui.QLineEdit( str(self.value_path) )
 
-		
+			
