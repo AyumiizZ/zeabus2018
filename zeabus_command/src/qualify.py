@@ -22,6 +22,6 @@ class Qualify(object):
         auv.depthAbs(-0.2)
 
 if __name__=='__main__':
-    rospy.init_node('qualify_node')
+    rospy.init_node('qualify_node', anonymous=False)
     qualify = Qualify()
     qualify.run()

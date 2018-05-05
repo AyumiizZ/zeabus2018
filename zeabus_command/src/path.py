@@ -161,6 +161,4 @@ class Path(object) :
         print 'Path completed'
 
 if __name__=='__main__':
-    rospy.init_node('path_node')
-
-
+    rospy.init_node('path_node', anonymous=False)

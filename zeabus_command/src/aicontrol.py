@@ -19,9 +19,9 @@ class AIControl:
         self.auv_state = [0, 0, 0, 0, 0, 0]
         rospy.Subscriber('/auv/state', Odometry, self.getState)
         # real
-        #self.pub_vel = rospy.Publisher('/zeabus/cmd_vel', Twist, queue_size=10)
+        self.pub_vel = rospy.Publisher('/zeabus/cmd_vel', Twist, queue_size=10)
         # sim
-        self.pub_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        #self.pub_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
         self.pub_position = rospy.Publisher('/cmd_fix_position', Point, queue_size=10)
         self.pub_xy = rospy.Publisher('/fix/abs/xy', point_xy, queue_size=10)
@@ -214,4 +214,11 @@ class AIControl:
         self.auv_state[5] = euler_angular[2]
 
 if __name__=='__main__':
-    rospy.init_node('aicontrol_node')
+    rospy.init_node('aicontrol_node', anonymous=True)
+    aicontrol = AIControl()
+    aicontrol.move('forward', 1)
+    rospy.sleep(5)
+    aicontrol.stop()
+    aicontrol.turnRelative(60, 5)
+    aicontrol.moveX(3)
+    aicontrol.moveY(3)
