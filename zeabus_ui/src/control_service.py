@@ -156,6 +156,9 @@ class call_control_service( QtGui.QWidget ):
 
 		self.setLayout( self.all_vertically )
 
+# ------------------------------------------- test -------------------------------------------
+		print("Hello I'm test code in main of control service")
+
 	def update_service(self):
 		print("Welcome to test service")
 		
