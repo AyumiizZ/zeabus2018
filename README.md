@@ -11,6 +11,12 @@
 * MATLAB
 * Arduino IDE
 
+## Libraries 
+
+* OpenCV
+* Numpy
+* Matplot
+
 ## Camera calibration
     
 * Prepare chessboard where one side contains an even number of squares, both black and white, and the other contains an odd number of squares and define size of square that use for calibration.  
