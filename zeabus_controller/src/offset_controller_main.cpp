@@ -51,7 +51,7 @@ int main(int argc , char **argv){
 		ros::Subscriber sub_test_state = // listen test state
 			nh.subscribe( "/test/auv/state" , 1000 , &test_current_state);
 		ros::Subscriber sub_test_orientation = // listen test orientation
-			nh.subscribe( "/test/auv/orientation" , 1000 , &test_current_orientation);
+			nh.subscribe( "/test/orientation" , 1000 , &test_current_orientation);
 	#endif 
 // ------------------------------------- end part ---------------------------------------------
 
@@ -228,12 +228,12 @@ int main(int argc , char **argv){
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
 					if( count < 3 && use_K_velocity) 
-						//sum_force[count] = K_velocity[count] * 
-												//pow (target_velocity[count] , 2);
-                        sum_force[count] = target_velocity[ count ];
-					else //sum_force[count] = PID_velocity[count].calculate_velocity(
-						//					target_velocity[count] - current_velocity[count]);
-                        sum_force[count] = target_velocity[ count ];
+						sum_force[count] = K_velocity[count] * 
+												pow (target_velocity[count] , 2);
+                        //sum_force[count] = target_velocity[ count ];
+					else sum_force[count] = PID_velocity[count].calculate_velocity(
+											target_velocity[count] - current_velocity[count]);
+                        //sum_force[count] = target_velocity[ count ];
 				}
 			}
 			for( int count = 0 ; count < 6 ; count++){
@@ -246,6 +246,7 @@ int main(int argc , char **argv){
 			tell_force.publish( create_msg_force() );
 		}
 		#ifdef print_data
+			PID_file.clear();
 			ROS_INFO("-------------------------- print data -----------------------------");
 			ROS_FATAL("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
 						target_position[0] , target_position[1] , target_position[2],
