@@ -7,11 +7,13 @@
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
 
+
 ## Hardware
 
 * uEye Industrial Cameras [**UI-3260CP Rev.2**](https://en.ids-imaging.com/store/ui-3260cp-rev-2.html)
 * Kowa C-Mount 6mm
 * Arduino Nano
+
 
 ## Software
 
@@ -19,11 +21,13 @@
 * MATLAB
 * Arduino IDE
 
+
 ## Libraries 
 
 * OpenCV
 * Numpy
 * Matplot
+
 
 ## Camera calibration
     
@@ -32,8 +36,10 @@
 * Set up stereo camera have a same clock for capture the images that use arduino send the trigger to two cameras.
     
 * You have 2 ways to calibration
+
     
 1. The first way is collect 10 - 20 images for accurate calibration in MATLAB, After you have cameraParameters to remove lens distortion from the image. 
+
    
 2. (Recommanded) The second way is ROS stereo camera calibration [**camera_calibration**](https://wiki.ros.org/camera_calibration/)
     
@@ -53,6 +59,7 @@
         ```
     * Move `*.ini` into directory `camera_conf/`
     
+    
 3. Create `.launch` file for open stereo camera.
 
     * Use stereo_image_proc pacakge
@@ -64,19 +71,23 @@
 
 ## Description
 
-#### Focal length
+#### Focal length in millimeter
 
 * Focal length of Kowa is 6 mm 
 * Focal length have influence to *Field of view (FOV)*
 * If number of Focal length is a low, number of FOV is high
-	
+* **Ps. In intrinic camera matrix use Focal length in pixel unit not mm unit.** 
+
+
 #### Optical center or Principal point
 
-* description
+* Opitcal center is the central of a lens. It's represented *O* in physics.
+
 	
 #### Skew coefficient
 
-* description
+* Skew coefficient is non-zero if the image axes are not perpendiuclar *(From MATLAB)*.
+
 
 #### Field of view (FOV)
 
@@ -88,5 +99,5 @@
 
 ### Intrinic camera
 
-* description
+* Intrinic camera is a 3x3 matrix that used to map between coordinates in the image to physical world coordinates.
 	
