@@ -34,5 +34,21 @@
         ```
         rosrun camera_calibration cameracalibrator.py --size 8x7 --approximate=0.01 --square 0.90 right:=/my_stereo/right/image_raw left:=/my_stereo/left/image_raw right_camera:=/my_stereo/right left_camera:=/my_stereo/left _approximate_sync:=True _queue_size:=1
         ```
-    * After calibration use have two file `left.yaml` and `right.yaml`
+    * After finished the calibration, click `SAVE`. The images and calibration parameter are compressed and save to  `/tmp/calibrationdata.tar.gz`.
+ 
+    * Then extract `calibrationdata.tar.gz` that have `left.yaml` and `right.yaml`, copy them into directory `camera_info/` in your camera parameter directory (e.g. zeabus_vision/camera_info)
     
+    * Convert file `.yaml` to `.ini` by
+        
+        ```
+        rosrun camera_calibration_parsers convert *.yaml *.ini
+        ```
+    * Move `*.ini` into directory `camera_conf/`
+    
+3. Create `.launch` file for open stereo camera.
+
+    * Use stereo_image_proc pacakge
+    
+    ```
+    <node pkg="stereo_image_proc" name="stereo_image_proc" type="stereo_image_proc" output="screen" ns="stereo" args="_approximate_sync:=True _queue_size:=10"></node>
+    ```
