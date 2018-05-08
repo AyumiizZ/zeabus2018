@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 '''
     File name: zeabus_handle_node.py
     Author: zeabus2018
@@ -7,14 +7,15 @@
 '''
 import rospy
 import rosnode
+import rospkg
 import os
 import sys
 from PyQt4 import QtGui, QtCore
-
-import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-
+import csv
+import os
+import subprocess
 
 class NodeHandle(QtGui.QWidget):
     def __init__(self):
@@ -50,19 +51,14 @@ class NodeHandle(QtGui.QWidget):
             return False
 
 
-class myListWidget(QListWidget):
+class NodeListWidget(QListWidget):
     def __init__(self):
-        super(myListWidget, self).__init__()
-        self.setWindowTitle('ZEABUS HANDLE NODES')
+        super(NodeListWidget, self).__init__()
         self.itemClicked.connect(self.Clicked)
         self.nh = NodeHandle()
         self.fetch_node2list()
-        self.resize(500, 500)
 
-        self.btn = QPushButton('refresh', self)
-        self.btn.move(200, 450)
-        self.btn.clicked.connect(self.refresh_on_click)
-
+        
     def Clicked(self, item):
         msg = QMessageBox()
         node_name = item.text()
@@ -70,7 +66,7 @@ class myListWidget(QListWidget):
         msg.setText("Do u want to kill node: " + node_name)
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         retval = msg.exec_()
-        print(retval)
+        
         if retval == 1024:
             res = self.nh.kill_node(node_name)
             print("Result: ", res)
@@ -90,12 +86,76 @@ class myListWidget(QListWidget):
         self.fetch_node2list()
 
 
+class CommandWidget(QWidget):
+    def __init__(self):
+        super(CommandWidget, self).__init__()
+      
+        self.path = rospkg.RosPack().get_path('zeabus_ui')
+        self.aliases = []
+        self.command = []
+        self.button = []
+        self.button_status = []
+        self.get_command()
+        self.display()
+        
+    def get_command(self):
+        with open(self.path+'/src/command.csv','r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                self.aliases.append(str(row[0]))
+                self.command.append(str(row[1]))
+    
+
+    def display(self):
+        glayout = QGridLayout()
+        row = 0 
+        for alias in self.aliases:
+            self.button.append(QPushButton(alias))
+            self.button[row].setCheckable(True)
+            self.button[row].toggle()
+            self.button_status.append(False)
+            self.button[row].clicked.connect(self.command_sending)
+            glayout.addWidget(self.button[row], row, 0)            
+            row += 1
+
+        self.setLayout(glayout)
+
+
+    def command_sending(self):
+        length = len(self.button)
+        for i in range(length):
+            # print(btn.text(),btn.isChecked())
+            print(self.button_status[i])
+            if self.button[i].isChecked() == self.button_status[i]:
+                print str(self.button[i].text())+' is pressed'
+                self.button_status[i] = not self.button_status[i]
+                subprocess.Popen(self.command[i], shell=True)
+                # btn.setCheckable(False)
+                
 def main():
     app = QApplication(sys.argv)
+    
+    # window
+    window = QWidget()
+    window.setWindowTitle("ZEABUS UI")
+    # window.resize(1000,500)
 
-    listWidget = myListWidget()
-    listWidget.show()
+    # List of Nodes
+    listWidget = NodeListWidget()
+    btn = QPushButton('refresh')
+    btn.clicked.connect(listWidget.refresh_on_click)
+    
+    # Command button
+    btnCommand = CommandWidget()
 
+    # Grid layout
+    glayout = QGridLayout()
+    glayout.addWidget(btn, 0, 0)
+    glayout.addWidget(btnCommand, 0, 1)
+    glayout.addWidget(listWidget, 1, 0)
+    
+    window.setLayout(glayout)
+    window.show()
     sys.exit(app.exec_())
 
 
