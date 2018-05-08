@@ -130,3 +130,15 @@
 * R is rectification matrix or rotation matrix.
 
 * P is projection matrix or camera matrix. 
+
+## References
+
+[**[1] ROS Camera calibration**](http://wiki.ros.org/camera_calibration)
+
+[**[2] ROS CameraInfo**](http://docs.ros.org/api/sensor_msgs/html/msg/CameraInfo.html)
+
+[**[3] MATLAB Camera calibration**](https://www.mathworks.com/help/vision/ug/camera-calibration.html)
+
+[**[4] MATLAB Stereo Camera calibrator**](https://www.mathworks.com/help/vision/ug/stereo-camera-calibrator-app.html)
+
+[**[5] how-to-photograpy-6-focal-length**](http://www.tamemo.com/post/116/how-to-photograpy-6-focal-length/)
