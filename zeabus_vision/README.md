@@ -1,8 +1,16 @@
 # zeabus vision 2018
 
+## Table of Contents
+**[Hardware](#hardware)**<br>
+**[Software](#software)**<br>
+**[Libraries](#libraries)**<br>
+**[Camera calibration](#camera-calibration)**<br>
+**[Description](#description)**<br>
+
 ## Hardware
 
 * uEye Industrial Cameras [**UI-3260CP Rev.2**](https://en.ids-imaging.com/store/ui-3260cp-rev-2.html)
+* Kowa C-Mount 6mm
 * Arduino Nano
 
 ## Software
@@ -53,4 +61,32 @@
     <node pkg="stereo_image_proc" name="stereo_image_proc" type="stereo_image_proc" output="screen" ns="stereo" args="_approximate_sync:=True _queue_size:=10"></node>
     ```
 
+
+## Description
+
+#### Focal length
+
+* Focal length of Kowa is 6 mm 
+* Focal length have influence to *Field of view (FOV)*
+* If number of Focal length is a low, number of FOV is high
+	
+#### Optical center or Principal point
+
+* description
+	
+#### Skew coefficient
+
+* description
+
+#### Field of view (FOV)
+
+* FOV *(HxV)* of Kowa is 96.8° x 79.4°
+* FOV have vertical and horizontal FOV, that I use vFOV and hFOV instead of them.
+	* vFOV = *2 * arctan( height of image [px] / (2 * working distance [mm])*
+	* hFOV = *2 * arctan( width of image [px] / (2 * working distance [mm])*
+
+
+### Intrinic camera
+
+* description
 	
