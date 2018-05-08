@@ -6,7 +6,7 @@
 **[Libraries](#libraries)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
-
+**[CameraInfo Message](#camerainfo-message)**<br>
 
 ## Hardware
 
@@ -81,7 +81,7 @@
 
 #### Optical center or Principal point
 
-* Opitcal center is the central of a lens. It's represented *O* in physics.
+* Optical center is the central of a lens. It's represented *O* in physics.
 
 	
 #### Skew coefficient
@@ -101,3 +101,32 @@
 
 * Intrinic camera is a 3x3 matrix that used to map between coordinates in the image to physical world coordinates.
 	
+	
+### CameraInfo Message
+
+* sensor_msgs/CameraInfo.msg is the message of ROS ,contains information about *calibration parameter* that requires D, K, R, and P
+
+* D is distortion parameters.
+
+```
+	D = [k1, k2, t1, t2, k3]
+```
+	* k1, k2 and k3 are radial distortion coeffients.
+	* t1 and t2 are tangenial distortion coefficients.
+	
+	
+* K is intrinsic camera metrix.
+
+```
+	    [Fx  0   Cx]
+	K = [S   Fy  Cy]	
+	    [0   0   1 ]
+```
+
+	* Fx, Fy are Focal length in px.
+	* Cx, Cy are Optical center.
+	* S is skew coefficient.
+
+* R is rectification matrix or rotation matrix.
+
+* P is projection matrix or camera matrix. 
