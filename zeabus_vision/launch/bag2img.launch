@@ -1,0 +1,9 @@
+<launch>
+  	<node pkg="rosbag" type="play" name="rosbag" args="/home/skconan/calibrate.bag"/>
+
+  	<node name="extract" pkg="image_view" type="extract_images" respawn="false" output="screen" cwd="node">
+    	<remap from="image" to="/my_stereo/left/image_raw"/>
+    	<param name="filename_format" value="/home/skconan/stereo/left/left%03i.jpg"/>
+  	</node>
+
+</launch>
