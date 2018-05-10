@@ -1,1 +1,6 @@
-open_camera_top, roslaunch zeabus_vision top.launch
+minimal, roslaunch zeabus_bringup minimal.launch
+localization_no_switch, roslaunch zeabus_bringup zeabus_dvl_localize.launch
+thruster, rosrun zeabus_controller pure_thrust_mapper.py
+controller, rosrun zeabus_controller offset_control
+open_camera, roslaunch zeabus_vision stereo.launch
+flight_display, rosrun zeabus_ui flight_display_old.py
