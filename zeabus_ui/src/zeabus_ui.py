@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-    File name: zeabus_handle_node.py
+    File name: zeabus_ui.py
     Author: zeabus2018
     Date created: 2018/04/26
     Python Version: 2.7
@@ -15,9 +15,9 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import csv
 import os
-import subprocess
-import gtk
-from VirtualTerminal import VirtualTerminal
+import pyautogui
+import time
+
 
 class NodeHandle(QtGui.QWidget):
     def __init__(self):
@@ -60,7 +60,6 @@ class NodeListWidget(QListWidget):
         self.nh = NodeHandle()
         self.fetch_node2list()
 
-        
     def Clicked(self, item):
         msg = QMessageBox()
         node_name = item.text()
@@ -68,7 +67,7 @@ class NodeListWidget(QListWidget):
         msg.setText("Do u want to kill node: " + node_name)
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         retval = msg.exec_()
-        
+
         if retval == 1024:
             res = self.nh.kill_node(node_name)
             print("Result: ", res)
@@ -79,7 +78,8 @@ class NodeListWidget(QListWidget):
 
     def fetch_node2list(self):
         self.clear()
-        nodes = self.nh.get_node()
+        for i in range(10):
+            nodes = self.nh.get_node()
         if nodes is not None:
             for n in nodes:
                 self.addItem(n)
@@ -89,9 +89,9 @@ class NodeListWidget(QListWidget):
 
 
 class CommandWidget(QWidget):
-    def __init__(self):
+    def __init__(self, NodeListWidget):
         super(CommandWidget, self).__init__()
-      
+        self.node_list_widget = NodeListWidget
         self.path = rospkg.RosPack().get_path('zeabus_ui')
         self.aliases = []
         self.command = []
@@ -99,81 +99,78 @@ class CommandWidget(QWidget):
         self.button_status = []
         self.get_command()
         self.display()
-        
+
+    def key(self, event):
+        print "pressed", repr(event.char)
+
     def get_command(self):
-        with open(self.path+'/src/command.csv','r') as f:
+        with open(self.path + '/src/command.csv', 'r') as f:
             reader = csv.reader(f)
             for row in reader:
                 self.aliases.append(str(row[0]))
                 self.command.append(str(row[1]))
-    
 
     def display(self):
         glayout = QGridLayout()
-        row = 0 
+        row = 0
         for alias in self.aliases:
             self.button.append(QPushButton(alias))
+            self.button[row].setFixedWidth(200)
+            self.button[row].setFixedHeight(50)
             self.button[row].setCheckable(True)
             self.button[row].toggle()
             self.button_status.append(False)
             self.button[row].clicked.connect(self.command_sending)
-            glayout.addWidget(self.button[row], row, 0)            
+            glayout.addWidget(self.button[row], row, 0)
             row += 1
 
         self.setLayout(glayout)
 
-
     def command_sending(self):
         length = len(self.button)
         for i in range(length):
-            # print(btn.text(),btn.isChecked())
             print(self.button_status[i])
             if self.button[i].isChecked() == self.button_status[i]:
-                print str(self.button[i].text())+' is pressed'
+                print(str(self.button[i].text()) + ' is pressed')
                 self.button_status[i] = not self.button_status[i]
-                # w = gtk.Window()
-                # t = VirtualTerminal()
-                # t.run_command(self.command[i])
-                # w.add(t)
-                # w.show_all()
-                subprocess.Popen(self.command[i], shell=True)
-                # btn.setCheckable(False)
-                print(rosnode.rosnode_info('/rosout'))
-# class terminal(gtk.Window):
-#     def __init__(self):
-#         gtk.Window.__init__(self)
-#         #self.set_title(self.settings.application_name)
-#         self.connect('destroy', lambda w: gtk.main_quit())
- 
-#         self.terminal = 
- 
-#         #self.child_pid = self.terminal.fork_command()
- 
-#         self.add(self.terminal)
-#         self.show_all()
+
+                pyautogui.hotkey('alt', 'tab')
+                pyautogui.keyDown('F2')
+                pyautogui.keyUp('F2')
+                pyautogui.typewrite(self.command[i])
+                pyautogui.keyDown('return')
+                pyautogui.keyUp('return')
+                pyautogui.hotkey('alt', 'tab')
+                # wait new node(s)
+                time.sleep(1)
+                self.node_list_widget.fetch_node2list()
+
 
 def main():
     app = QApplication(sys.argv)
-    
-    # window
+
+    screen_resolution = app.desktop().screenGeometry()
+    width, height = screen_resolution.width(), screen_resolution.height()
+    app_width, app_height = int(width / 2), int(height / 2)
+
     window = QWidget()
     window.setWindowTitle("ZEABUS UI")
-    # window.resize(1000,500)
+    window.setGeometry(app_width, app_height, app_width, app_height)
 
     # List of Nodes
     listWidget = NodeListWidget()
     btn = QPushButton('refresh')
     btn.clicked.connect(listWidget.refresh_on_click)
-    
+
     # Command button
-    btnCommand = CommandWidget()
+    btnCommand = CommandWidget(listWidget)
 
     # Grid layout
     glayout = QGridLayout()
     glayout.addWidget(btn, 0, 0)
-    glayout.addWidget(btnCommand, 0, 1)
+    glayout.addWidget(btnCommand, 1, 1)
     glayout.addWidget(listWidget, 1, 0)
-    
+
     window.setLayout(glayout)
     window.show()
     sys.exit(app.exec_())
