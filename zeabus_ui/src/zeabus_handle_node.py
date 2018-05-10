@@ -16,6 +16,8 @@ from PyQt4.QtCore import *
 import csv
 import os
 import subprocess
+import gtk
+from VirtualTerminal import VirtualTerminal
 
 class NodeHandle(QtGui.QWidget):
     def __init__(self):
@@ -129,9 +131,27 @@ class CommandWidget(QWidget):
             if self.button[i].isChecked() == self.button_status[i]:
                 print str(self.button[i].text())+' is pressed'
                 self.button_status[i] = not self.button_status[i]
+                # w = gtk.Window()
+                # t = VirtualTerminal()
+                # t.run_command(self.command[i])
+                # w.add(t)
+                # w.show_all()
                 subprocess.Popen(self.command[i], shell=True)
                 # btn.setCheckable(False)
-                
+                print(rosnode.rosnode_info('/rosout'))
+# class terminal(gtk.Window):
+#     def __init__(self):
+#         gtk.Window.__init__(self)
+#         #self.set_title(self.settings.application_name)
+#         self.connect('destroy', lambda w: gtk.main_quit())
+ 
+#         self.terminal = 
+ 
+#         #self.child_pid = self.terminal.fork_command()
+ 
+#         self.add(self.terminal)
+#         self.show_all()
+
 def main():
     app = QApplication(sys.argv)
     
