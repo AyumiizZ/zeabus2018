@@ -1,48 +1,51 @@
-#include	<ros/ros.h> // Use ros system
-#include	<ros/time.h> // Use time by ros system
+#include <ros/ros.h> // Use ros system
+#include <ros/time.h> // Use time by ros system
 
-#include 	<iostream> // Base of CPP Language
-#include 	<stdlib.h> 
-#include 	<vector>
-#include	<cmath>
-#include	<string>
-#include	<Vector3>
-#include	<queue> 
+#include <iostream> // Base of CPP Language
+#include <stdlib.h> 
+#include <vector>
+#include <cmath>
+#include <string>
+#include <Vector3>
+#include <queue> 
 
-#include 	"manage_file.cpp" // Use Load or Save dynamic value
-#include 	"calculate_force.cpp" // Use calculate force form acceleration
+#include "manage_file.cpp" // Use Load or Save dynamic value
+#include "calculate_force.cpp" // Use calculate force form acceleration
+#include "PID_2018.cpp"
 
 // 2 line will use between quaternion with roll pitch yaw
-#include 	<tf/transform_datatypes.h>
-#include 	<tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
+#include <tf/transform_listener.h>
 
-#include	<nav_msgs/Odometry.h> // Include message for receive auv_state
-#include 	<geometry_msgs/Twist.h> // Include message for send to thruster_mapper
-#include 	<geometry_msgs/Point.h> 
-#include 	<geometry_msgs/Pose.h> 
-#include 	<std_msgs/Float64.h> // Include message for receive or send variable type float 64
-#include 	<std_msgs/Float32.h> // Include message for receive or send variable type float 32
-#include 	<std_msgs/Int16.h> // Include message for receive type int
-#include 	<std_msgs/String.h> // Include message for receive type string
-#include 	<std_msgs/Bool.h> // Include message for receive type bool
-#include	<math.h>
-#include	<nav_msgs/Odometry.h>
-#include	<sensor_msgs/Imu.h>
-#include	<zeabus_controller/point_xy.h>
-#include	<zeabus_controller/orientation.h>
-#include	<modbus_ascii_ros/Switch.h>
-#include	<dynamic_reconfigure/server.h>
-#include	<zeabus_controller/PIDConstantConfig.h>
+#include <nav_msgs/Odometry.h> // Include message for receive auv_state
+#include <geometry_msgs/Twist.h> // Include message for send to thruster_mapper
+#include <geometry_msgs/Point.h> 
+#include <geometry_msgs/Pose.h> 
+#include <std_msgs/Float64.h> // Include message for receive or send variable type float 64
+#include <std_msgs/Float32.h> // Include message for receive or send variable type float 32
+#include <std_msgs/Int16.h> // Include message for receive type int
+#include <std_msgs/String.h> // Include message for receive type string
+#include <std_msgs/Bool.h> // Include message for receive type bool
+#include <math.h>
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
+#include <zeabus_controller/point_xy.h>
+#include <zeabus_controller/orientation.h>
+#include <modbus_ascii_ros/Switch.h>
+#include <dynamic_reconfigure/server.h>
+#include <zeabus_controller/PIDConstantConfig.h>
 
-//#include	<zeabus_controller/drive_x.h> //unused in code
-#include	<zeabus_controller/message_service.h>
-#include	<zeabus_controller/fix_abs_xy.h>
-#include	<zeabus_controller/fix_abs_x.h>
-#include	<zeabus_controller/fix_abs_y.h>
-#include	<zeabus_controller/fix_abs_depth.h>
-#include	<zeabus_controller/fix_abs_yaw.h>
-#include	<zeabus_controller/fix_rel_xy.h>
-#include	<zeabus_controller/ok_position.h>
+//#include <zeabus_controller/drive_x.h> //unused in code
+#include <zeabus_controller/message_service.h>
+#include <zeabus_controller/fix_abs_xy.h>
+#include <zeabus_controller/fix_abs_x.h>
+#include <zeabus_controller/fix_abs_y.h>
+#include <zeabus_controller/fix_abs_depth.h>
+#include <zeabus_controller/fix_abs_yaw.h>
+#include <zeabus_controller/fix_rel_xy.h>
+#include <zeabus_controller/ok_position.h>
+
+#define PI 3.1415926535
 
 //void listen_mode_control(const std_msgs::Int16 message);
 //for testing
@@ -58,11 +61,14 @@ void listen_real_yaw(const std_msgs::Float64 message);
 void listen_absolute_xy(const zeabus_controller::point_xy message);
 void listen_absolute_orientation(const zeabus_controller::orientation message);
 //setup function of service
-bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
+bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response);
+bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
 bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response);
 bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response);
 bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response);
 bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_controller::fix_abs_y::Response &response);
+//bool service_target_function(zeabus_controller::message_service::Request &request, zeabus_controller::message_service::Response &response);
+//bool service_ok_position(zeabus_controller::ok_position::Request &request, zeabus_controller::ok_position::Response &response);
 
 int main(int argc, char **argv){
 //setup ros system(Initialization)
@@ -98,8 +104,13 @@ int main(int argc, char **argv){
 //void listen_mode_control(const std_msgs::Int16 message){}
 
 double check_radian_tan(double result){
-        if(check < 0)
+        double check = result 
+        if(check < 0) return result + 2*PI;
+        else return result; 
 }
+
+void listen_current_state(const nav_msgs::Odometry message);
+
 void test_current_state(const geometry_msgs::Point message){
 	current_position[0] = message.x;
 	current_position[1] = message.y;
@@ -118,15 +129,15 @@ bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_c
 	response.success = true;
 	return true;
 }
-/*
-bool srrvice_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
+
+bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
         target_position[0] = request.distance_x*cos(target_position[5]);
         target_position[1] = request.distance_x*sin(target_position[5]);
         target_position[0] = request.distance_y*cos(target_position[5] + (2/PI));
         target_position[1] = request.distance_y*cos(target_position[5] + (2/PI));
         response.success = true;
         return true;
-}*/
+}
 
 bool service_target_depth(zeabus_controller::fix_aps_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response){
         target_position[2] = request.fix_depth;

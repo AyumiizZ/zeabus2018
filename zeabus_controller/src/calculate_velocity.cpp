@@ -32,7 +32,7 @@ namespace find_velocity{
 //												v	= e^(distance/k) / v{final}
 //	so v{final} is should equal 0 but we will use 0.01 for estimate that
 //  k is constant
-
+/*
 	class first_case{
 		protected:
 			double constant;
@@ -40,7 +40,7 @@ namespace find_velocity{
 		public:
 			first_case(double constant , double final_velocity);
 			double calculate_velocity(double error_distance);
-			void set_constant(double constant)
+			void set_constant(double constant);
 	}
 // declare detail of init class or object
 // You must to declare about constant and final_velocity already
@@ -60,7 +60,7 @@ namespace find_velocity{
 // set up new constant k of this object
 	void first_case::set_constant(double constant){
 		this->constant = constant;
-	}
+	}*/
 // --------------------------------------------------------------------------------------- //
 
 // this second case I will use tuning to find velocity
@@ -71,6 +71,7 @@ namespace find_velocity{
 		private:
 			ros::Time previous_time;
 			double sum_error;
+			double diff_error;
 			double previous_error;
 			double diff_time;
 			double ttl;
@@ -110,14 +111,15 @@ namespace find_velocity{
 // reset value Integral
 	void second_case::reset(){
 		this->sum_error = 0;
-		this->previous_error = ros::Time::now();
+		this->previous_error = 0;
+		this->previous_time = ros::Time::now();
 		this->ttl = 0;
 	}
 
 // calculate velocity by use PID
 	double second_case::calculate_velocity(double error_distance){
 		check_ttl();
-		ros::Time current_time = ros::Time::now()
+		ros::Time current_time = ros::Time::now();
 // We must to find different time in second unit
 		this->diff_time = current_time.toSec() - this->previous_time.toSec();
 		this->diff_error = error_distance - this->previous_error;
