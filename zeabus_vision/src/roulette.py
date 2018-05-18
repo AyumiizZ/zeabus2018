@@ -18,7 +18,7 @@ def mission_callback(msg):
 
     task = msg.task.data
     req = msg.req.data
-    color = ['red','green','black','yellow']
+    color = ['red','green','black']
     print('task: ', str (task),'req: ',str(req))
     if task == 'roulette' and req in color:
         return find_roulette(req)
@@ -30,12 +30,10 @@ def image_callback(msg):
                     fx=sub_sampling, fy=sub_sampling)
     img_res = img.copy()
 
-def message(cx1=-1, cx2=-1, cy1=-1, cy2=-1,appear = False):
+def message(cx1=-1, cy1=-1,appear = False):
     m = vision_roulette()
     m.cx1 = cx1
-    m.cx2 = cx2
     m.cy1 = cy1
-    m.cy2 = cy2
     m.appear = appear
     print(m)
     return m
@@ -59,9 +57,9 @@ def get_object(color):
     elif color == 'black' :
         lower = np.array([0, 120, 0], dtype=np.uint8)
         upper = np.array([37, 255, 255], dtype=np.uint8)
-    elif color == 'yellow' :
-        lower = np.array([20, 120, 0], dtype=np.uint8)
-        upper = np.array([62, 255, 255], dtype=np.uint8)
+    # elif color == 'yellow' :
+    #     lower = np.array([20, 120, 0], dtype=np.uint8)
+    #     upper = np.array([62, 255, 255], dtype=np.uint8)
     # # real world
     # lower = np.array([20, 120, 0], dtype=np.uint8)
     # upper = np.array([62, 255, 255], dtype=np.uint8)
@@ -87,14 +85,14 @@ def get_cx(mask):
     sum_area = 0
     count = 0
     cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
-    if len(cnt) == 1:
-            # cnt = max(cnt, key=cv.contourArea)
+    if len(cnt) >= 2 :
+    cnt = sorted(cnt,key=cv.contourArea)[:2]
+        # cv.imshow('cnt',bo2)
+    # cv.imshow('cnt',hsv)
+    if len(cnt) == 1 :
         appear = True
-        this_area = cv.contourArea(cnt[0])
-            # sim
-        if this_area > 2000:
-            # real world
-            # if this_area > 4000:
+        area = cv.contourArea(cnt[0])
+        if area > 1000:
             M = cv.moments(cnt[0])
             ROI_cx1 = int(M["m10"]/M["m00"])
             ROI_cy1 = int(M['m01']/M['m00']) 
@@ -102,43 +100,48 @@ def get_cx(mask):
                 cv.circle(img_res, (ROI_cx1, ROI_cy1), 10, (0, 0, 255), -1)
                 cx1.append(ROI_cx1)
                 cy1.append(ROI_cy1)
-                sum_area += this_area
-                count += 1
+                # sum_area += tarea
+                # count += 1
         # avg_area = 0 if count == 0 else sum_area/count
         cx1 = cx1[::-1]
         cy1 = cy1[::-1]
-        return cx1, cy1 ,cx2 ,cy2 ,appear
-    elif len(cnt) == 2 :
+        return cx1, cy1 ,appear
+    elif len(cnt) == 2 :    
         appear = True
         area_1 = cv.contourArea(cnt[0])
         area_2 = cv.contourArea(cnt[1])
-        if area_1 > 2000 and area_2 >2000 :
+        if area_1 > 1000 and area_2 > 1000 :
             M_1= cv.moments(cnt[0])
             ROI_cx1 = int(M_1["m10"]/M_1["m00"])
-            ROI_cy2 = int(M_1['m01']/M_1['m00']) 
+            ROI_cy1 = int(M_1['m01']/M_1['m00']) 
             if ROI_cx1 >= 0.05 * wimg and ROI_cx1 <= 0.95 * wimg:
-                cv.circle(img_res, (ROI_cx1, ROI_cy1), 10, (0, 0, 255), -1)
-                cx.append(ROI_cx1)
-                cy.append(ROI_cy1)
-                sum_area += area_1
-                count += 1
+                # cv.circle(img_res, (ROI_cx1, ROI_cy1), 3, (0, 0, 255), -1)
+                cx1.append(ROI_cx1)
+                cy1.append(ROI_cy1)
+                # sum_area += area_1
+                # count += 1
         # avg_area = 0 if count == 0 else sum_area/count
                 cx1 = cx1[::-1]
                 cy1 = cy1[::-1]
                 M_2 = cv.moments(cnt[1])
                 ROI_cx2 = int(M_2["m10"]/M_2["m00"])
-                ROI_cy2 = int(M_2['m01']/M_2['m00']) 
+                ROI_cy2 = int(M_2['m01']/M_2['m00'])
+                if abs(ROI_cx1) < abs(ROI_cx2) :
+                    ROI_cx2 = ROI_cx1 
+                    ROI_cy2 = ROI_cy1
+                # if abs(ROI_cy1) < abs(ROI_cy2) :
+                #     ROI_cy2 = ROI_cy1
                 if ROI_cx2 >= 0.05 * wimg and ROI_cx2 <= 0.95 * wimg:
-                    cv.circle(img_res, (ROI_cx2, ROI_cy2), 10, (0, 0, 255), -1)
+                    cv.circle(img_res, (ROI_cx2, ROI_cy2), 3, (0, 0, 255), -1)
                     cx2.append(ROI_cx2)
                     cy2.append(ROI_cy2)
-                    sum_area += area_2
-                    count += 1
+                    # sum_area += area_2
+                    # count += 1
         # avg_area = 0 if count == 0 else sum_area/count
                     cx2 = cx2[::-1]
                     cy2 = cy2[::-1]
-        return cx1, cy1 , cx2 , cy2 ,appear
-    return cx1, cy1,cx2,cy2,appear
+                return cx2,cy2,appear
+    return cx2,cy2,appear
 
 
 def find_roulette(color) :
@@ -147,16 +150,12 @@ def find_roulette(color) :
         print('img is none.\nPlease check topic name or check camera is running')
     
     mask = get_object(color)
-    cx1, cy1, cx2, cy2, appear = get_cx(mask)
-    if cx1 == [] and cy1 == [] and cy2 ==[] and cx2 == []:
+    cx1, cy1, appear = get_cx(mask)
+    if cx1 == [] and cy1 == [] :
         mode = 1
-    elif len(cx1) == 1 and len(cy1) == 1 and cx2 == [] and cy2 == []:
+    elif len(cx1) == 1 and len(cy1) == 1 :
         mode = 2
         cv.circle(img_res, (cx1[0], cy1[0]), 10, (255, 0, 0), -1)
-    elif len(cx1) ==1 and len(cy1) == 1 and len(cy2) == 1 and len(cx2) == 1:
-        mode = 3
-        cv.circle(img_res, (cx1[0], cy1[0]), 10, (255, 0, 0), -1)
-        cv.circle(img_res, (cx2[0] ,cy2[0]), 10, (255, 0, 0), -1)
     if mode == 1:
         print_result("MODE 1: CANNOT FIND ROULETTE")
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
@@ -171,20 +170,6 @@ def find_roulette(color) :
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx1=return_cx1, cy1=return_cy1, appear=True)
-    elif mode == 3:
-        print_result("MODE 3: CAN FIND 2 CX AND 2 CY")
-        himg, wimg = img.shape[:2]
-        return_cx1 = 1.0*(cx1[0] - (wimg/2))/(1.0*wimg/2)
-        return_cy1 = -1.0*(cy1[0] - (himg/2))/(1.0*himg/2)
-        return_cx2 = 1.0*(cx2[0] - (wimg/2))/(1.0*wimg/2)
-        return_cy2 = -1.0*(cy2[0] - (himg/2))/(1.0*himg/2)
-        
-        # return_area = (1.0*area*16)/(himg*wimg)
-        # return_degrees = find_angle(cx, cy)
-        publish_result(img_res, 'bgr', pub_topic + 'img_res')
-        publish_result(mask, 'gray', pub_topic + 'mask')
-        return message(cx1=return_cx1, cy1=return_cy1, cx2 = return_cx2, cy2 = return_cy2, appear=True)
-
 
 if __name__ == '__main__':
     rospy.init_node('vision_roulette', anonymous=True)
