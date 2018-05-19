@@ -8,11 +8,11 @@ project(zeabus_sensor_fusion)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp message_filters sensor_msgs geometry_msgs nav_msgs
+  roscpp message_filters sensor_msgs geometry_msgs nav_msgs tf
 )
 
 ## System dependencies are found with CMake's conventions
- find_package(Boost REQUIRED COMPONENTS system)
+ find_package(Boost REQUIRED COMPONENTS system thread)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -103,8 +103,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES zeabus_sensor_fusion
-  CATKIN_DEPENDS roscpp
-  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs nav_msgs
+  DEPENDS 
 )
 
 ###########
