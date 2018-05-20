@@ -52,7 +52,7 @@
 void test_current_state(const geometry_msgs::Point message);
 void test_current_orientation(const zeabus_controller::orientation message);
 
-//setuo subscribe
+//setup subscribe
 void listen_current_state(const nav_msgs::Odometry message);
 void listen_target_velocity(const geometry_msgs::Twist message);
 void listen_target_position(const geometry_msgs::Point message);
@@ -74,6 +74,7 @@ bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_con
 
 //about function in code
 double check_tan_radian(check);
+double change_pi_radian(double value);
 
 //setup bool
 bool start_run = true;
@@ -112,11 +113,15 @@ int main(int argc, char **argv){
 
 //void listen_mode_control(const std_msgs::Int16 message){}
 
-double check_tan_radian(double check){ 
-        if(check < 0) return check + 2*PI;
-        else if(check > 2*PI) return check - 2*PI; 
-        else return check;
+double check_tan_radian(double value){ 
+        if(value < 0) return value + 2*PI;
+        else if(value > 2*PI) return value - 2*PI; 
+        else return value;
 }
+
+double change_pi_radian(double value){
+        if(value > PI) return value - 2*PI;
+        else return value;
 
 void listen_current_state(const nav_msgs::Odometry message){
         tf::Quaternion quaternion(message.pose.pose.orientation.x, message.pose.pose.orientation.y, message.pose.pose.orientation.z, message.pose.pose.orientation.w);
@@ -144,6 +149,15 @@ void listen_current_state(const nav_msgs::Odometry message){
         current_velosity[3] = message.twist.twist.angular.x;
         current_velosity[4] = message.twist.twist.angular.y;
         current_velosity[5] = message.twist.twist.angular.z;
+}
+
+void listen_target_velocity(const geometry_msgs::Twist message){
+        target_velocity[0] = message.linear.x; 
+        target_velocity[1] = message.linear.y; 
+        target_velocity[2] = message.linear.z; 
+        target_velocity[3] = message.angular.x;
+        target_velocity[4] = message.angular.y;
+        target_velocity[5] = message.angular.z;
 }
 
 void test_current_state(const geometry_msgs::Point message){
