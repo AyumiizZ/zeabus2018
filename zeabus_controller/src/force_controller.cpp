@@ -9,7 +9,7 @@
 #include <Vector3>
 #include <queue> 
 
-#include "manage_file.cpp" // Use Load or Save dynamic value
+#include "manage_file.cpp" // Use Load or Save dynamic reconfigure
 #include "calculate_force.cpp" // Use calculate force form acceleration
 #include "PID_2018.cpp"
 
@@ -51,7 +51,8 @@
 //for testing
 void test_current_state(const geometry_msgs::Point message);
 void test_current_orientation(const zeabus_controller::orientation message);
-//setup function of ros
+
+//setuo subscribe
 void listen_current_state(const nav_msgs::Odometry message);
 void listen_target_velocity(const geometry_msgs::Twist message);
 void listen_target_position(const geometry_msgs::Point message);
@@ -60,6 +61,7 @@ void listen_absolute_yaw(const std_msgs::Float64 message);
 void listen_real_yaw(const std_msgs::Float64 message);
 void listen_absolute_xy(const zeabus_controller::point_xy message);
 void listen_absolute_orientation(const zeabus_controller::orientation message);
+
 //setup function of service
 bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response);
 bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
@@ -69,6 +71,13 @@ bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_con
 bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_controller::fix_abs_y::Response &response);
 //bool service_target_function(zeabus_controller::message_service::Request &request, zeabus_controller::message_service::Response &response);
 //bool service_ok_position(zeabus_controller::ok_position::Request &request, zeabus_controller::ok_position::Response &response);
+
+//about function in code
+double check_tan_radian(check);
+
+//setup bool
+bool start_run = true;
+bool reset_position = true;
 
 int main(int argc, char **argv){
 //setup ros system(Initialization)
@@ -103,13 +112,39 @@ int main(int argc, char **argv){
 
 //void listen_mode_control(const std_msgs::Int16 message){}
 
-double check_radian_tan(double result){
-        double check = result 
-        if(check < 0) return result + 2*PI;
-        else return result; 
+double check_tan_radian(double check){ 
+        if(check < 0) return check + 2*PI;
+        else if(check > 2*PI) return check - 2*PI; 
+        else return check;
 }
 
-void listen_current_state(const nav_msgs::Odometry message);
+void listen_current_state(const nav_msgs::Odometry message){
+        tf::Quaternion quaternion(message.pose.pose.orientation.x, message.pose.pose.orientation.y, message.pose.pose.orientation.z, message.pose.pose.orientation.w);
+        tfScalar roll, pitch, yaw;
+        tf::Matrix3x3(quaternion).getPRY(roll, pitch, yaw);
+        if(start_run || reset_position){
+            target_position[0] = message.pose.pose.position.x;
+            target_position[1] = message.pose.pose.position.y;
+            target_position[2] = message.pose.pose.position.z;
+            target_position[3] = 0.0
+            target_position[4] = 0.0
+            target_position[5] = check_tan_radian(double yaw);
+            start_run = false;
+            reset_position = false;
+            }
+        current_position[0] = message.pose.pose.position.x;
+        current_position[1] = message.pose.pose.position.y;
+        current_position[2] = message.pose.pose.position.z;
+        current_position[3] = check_tan_radian(double roll);
+        current_position[4] = check_tan_radian(double pitch);
+        current_position[5] = check_tan_radian(double yaw);
+        current_velosity[0] = message.twist.twist.linear.x;
+        current_velosity[1] = message.twist.twist.linear.y;
+        current_velosity[2] = message.twist.twist.linear.z;
+        current_velosity[3] = message.twist.twist.angular.x;
+        current_velosity[4] = message.twist.twist.angular.y;
+        current_velosity[5] = message.twist.twist.angular.z;
+}
 
 void test_current_state(const geometry_msgs::Point message){
 	current_position[0] = message.x;
@@ -121,6 +156,10 @@ void test_current_orientation(const zeabus_controller::orientation message){
 	current_position[3] = message.roll;
 	current_position[4] = message.pitch;
 	current_position[5] = message.yaw; 
+}
+
+void listen_target_depth(const std_msgs::Float64 message){
+        target_position[2] = message.data;
 }
 
 bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
