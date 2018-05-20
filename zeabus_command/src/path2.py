@@ -16,7 +16,7 @@ class Path(object) :
         rospy.wait_for_service('vision_path')
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
 
-    def detectPath(self, piece) :
+    def detectPath(self) :
         self.data = self.detect_path(String('path'))
         self.data = self.data.data
     def checkCenter(self) :
@@ -26,14 +26,15 @@ class Path(object) :
             centery = 0
             resetx = 0
             resety = 0
+            auv = self.aicontrol
             cx = self.data.cx
             cy = self.data.cy
             self.detectPath()
 
             #check cx's center
-            if cx < 0:
+            if cx > 0:
                 auv.move('left', cons.AUV_M_SPEED*abs(cx))
-            elif cx > 0:
+            elif cx < 0:
                 auv.move('right', cons.AUV_M_SPEED*abs(cx))
 
             #check if auv is centerx of path or not
@@ -81,7 +82,8 @@ class Path(object) :
 
             print '<===DOING PATH===>'
 
-            auv.depthAbs(cons.PATH_DEPTH)
+            #auv.depthAbs(cons.PATH_DEPTH)
+            auv.depthAbs(-2, 0.5)
 
             mode = 0
             count = 0
@@ -89,10 +91,12 @@ class Path(object) :
             while not rospy.is_shutdown() and not mode == -1:
                 #find path
                 self.detectPath()
-                angle = self.data.angle
+                cx = self.data.cx
+                cy = self.data.cy
+                angle = self.data.degrees
+                appear = self.data.appear
                 if mode == 0 :
                     print '<---MODE 0--->'
-                    appear = self.data.appear
                     #check if path appear
                     if appear :
                         count += 1
@@ -119,11 +123,13 @@ class Path(object) :
                     print '<---MODE 1--->'
                     print 'cx: %f'%(cx)
                     print 'cy: %f'%(cy)
-                    if angle >= 15 :
-                        auv.turnRelative(angle)
-                    if checkCenter() :
-                        print 'I\'m going on path'
+                    print 'appear: %s'%(appear)
                     if appear :
+                        if abs(angle) >= 15 :
+                            auv.turnRelative(angle, 1)
+                        if self.checkCenter :
+                            print 'I\'m going on path'
+                            auv.move('forward', cons.AUV_L_SPEED)
                         reset += 1
                         print 'FOUND PATH: %d'%(count)
                     elif not appear:
@@ -143,7 +149,7 @@ class Path(object) :
                         count = 0
                 # exist path yatta!
                 if mode == 2 :
-                    auv.driveX(1) 
+                    auv.driveX(2) 
                     mode = -1
 
             # passed through path
@@ -151,6 +157,6 @@ class Path(object) :
             print 'Path completed'
 
 if __name__=='__main__':
-    rospy.init_node('path_node', anonymous=False)
+    rospy.init_node('path_node')
     path = Path()
     path.run()
