@@ -22,7 +22,7 @@ class roulette(object) :
 
     def pinger(self) :
         self.data = self.pinger(String('roulette'))
-
+        self.data = self.data.data
     def checkCenter(self) :
         x = False
         y = False
