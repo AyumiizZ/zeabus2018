@@ -35,7 +35,7 @@ def image_callback(msg):
     img = resized
     img_res = img.copy()
 
-def message(cx=-1, cy=-1,,area = -1,appear = False):
+def message(cx=-1, cy=-1,area = -1,appear = False):
     m = vision_roulette()
     m.cx = cx
     m.cy = cy
@@ -92,7 +92,7 @@ def get_cx(mask):
     count = 0
     cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     if len(cnt) >= 2 :
-    cnt = sorted(cnt,key=cv.contourArea)[:2]
+        cnt = sorted(cnt,key=cv.contourArea)[:2]
         # cv.imshow('cnt',bo2)
     # cv.imshow('cnt',hsv)
     if len(cnt) == 1 :
@@ -112,7 +112,7 @@ def get_cx(mask):
         # avg_area = 0 if count == 0 else sum_area/count
         area = area/(wimg*himg)
         cx1 = cx1[::-1]
-        cy1 = cy1[::-1]x
+        cy1 = cy1[::-1]
         return cx1, cy1 , area ,appear
     elif len(cnt) == 2 :    
         # appear = True
