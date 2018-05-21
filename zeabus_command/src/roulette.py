@@ -22,6 +22,7 @@ class roulette(object) :
 
     def pinger(self) :
         self.data = self.pinger(String('roulette'))
+
     def checkCenter(self) :
         x = False
         y = False
@@ -32,7 +33,7 @@ class roulette(object) :
         auv = self.aicontrol
         cx = self.data.cx
         cy = self.data.cy
-        self.detectPath()
+        self.detectBin()
 
         #check cx's center
         if cx > 0:
@@ -40,11 +41,13 @@ class roulette(object) :
         elif cx < 0:
             auv.move('right', cons.AUV_M_SPEED*abs(cx))
 
-        #check if auv is centerx of path or not
-        if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+
+        #check if auv is centerx of bin or not
+
+        if -cons.VISION_ROULETTE_ERROR <= cx <= cons.VISION_ROULETTE_ERROR:
             print '<<<CENTERX>>>'
             centerx += 1
-        elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+        elif -cons.VISION_ROULETTE_ERROR > cx > cons.VISION_ROULETTE_ERROR:
             resetx += 1
 
         #check centerx's counter
@@ -60,11 +63,11 @@ class roulette(object) :
         elif cy > 0:
             auv.move('backward', cons.AUV_M_SPEED*abs(cy))
 
-        #check if auv is centery of path or not
-        if -cons.VISION_PATH_ERROR <= cy <= cons.VISION_PATH_ERROR:
+        #check if auv is centery of bin or not
+        if -cons.VISION_ROULETTE_ERROR <= cy <= cons.VISION_ROULETTE_ERROR:
             print '<<<CENTERY>>>'
             centery += 1
-        elif -cons.VISION_PATH_ERROR > cy > cons.VISION_PATH_ERROR:
+        elif -cons.VISION_ROULETTE_ERROR > cy > cons.VISION_ROULETTE_ERROR:
             resety += 1
 
         #check center's counter
