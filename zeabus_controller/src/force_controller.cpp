@@ -11,7 +11,7 @@
 
 #include "manage_file.cpp" // Use Load or Save dynamic reconfigure
 #include "calculate_force.cpp" // Use calculate force form acceleration
-#include "PID_2018.cpp"
+#include "new_PID.cpp"
 
 // 2 line will use between quaternion with roll pitch yaw
 #include <tf/transform_datatypes.h>
@@ -62,9 +62,13 @@ void listen_real_yaw(const std_msgs::Float64 message);
 void listen_absolute_xy(const zeabus_controller::point_xy message);
 void listen_absolute_orientation(const zeabus_controller::orientation message);
 
+//about dynamic reconfigure
+void config_constant_PID(zeabus_controller::PIDConstantConfig &config, unit32_t level);
+
 //setup function of service
 bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response);
 bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
+//bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response);
 bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response);
 bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response);
 bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response);
@@ -79,6 +83,19 @@ double change_pi_radian(double value);
 //setup bool
 bool start_run = true;
 bool reset_position = true;
+
+PID *PID_position, *PID_velocity;
+
+void init(){
+        PID_position = (PID*)calloc(6, sizeof(PID));
+        PID_velocity = (PID*)calloc(6, sizeof(PID));
+        for(int num = 0 ; num < 6 ; num ++){ 
+            PID_position[num].set_PID(Kp_position[num], Ki_position[num], Kd_position[num], Kvs_position[num]);
+            PID_velocity[num].set_PID(Kp_velocity[num], Ki_position[num], Kd_position[num], 0); 
+            PID_position.reset_I();
+            PID_position.reset.I();
+    }
+}
 
 int main(int argc, char **argv){
 //setup ros system(Initialization)
@@ -108,7 +125,14 @@ int main(int argc, char **argv){
     	ros::ServiceServer ser_cli_ok_position = nh.advertiseService("/ok_position" , service_ok_position);
 //Pub topic
 	 ros::Publisher tell_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
-}
+//setup PID
+        dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig> server;
+        dynamic_reconfigure::Server<zeabus_controller::PIDConstantConfig>::CallbackType tune;
+        
+        init();
+
+        tune = boost::bind(config_constant_PID, _1, _2);
+        server.setCallback(tune);
 
 
 //void listen_mode_control(const std_msgs::Int16 message){}
@@ -174,6 +198,58 @@ void test_current_orientation(const zeabus_controller::orientation message){
 
 void listen_target_depth(const std_msgs::Float64 message){
         target_position[2] = message.data;
+}
+
+void config_constant_PID(zeabus_controller::PIDConstantConfig &config, unit32_t level){
+        ROS_INFO("!!--------K change--------!!")
+        Kp_position[0] = config.KPPx;
+        Kp_position[1] = config.KPPy;
+        Kp_position[2] = config.KPPz;
+        Kp_position[3] = config.KPProll;
+        Kp_position[4] = config.KPPpitch;
+        Kp_position[5] = config.KPPyaw;
+
+        Ki_position[0] = config.KIPx;
+        Ki_position[1] = config.KIPy;
+        Ki_position[2] = config.KIPz;
+        Ki_position[3] = config.KIProll;
+        Ki_position[4] = config.KIPpitch;
+        Ki_position[5] = config.KIPyaw;
+
+        Kd_position[0] = config.KDPx;
+        Kd_position[1] = config.KDPy;
+        Kd_position[2] = config.KDPz;
+        Kd_position[3] = config.KDProll;
+        Kd_position[4] = config.KDPpitch;
+        Kd_position[5] = config.KDPyoll;
+
+        Kp_velocity[0] = config.KPVx;
+        Kp_velocity[1] = config.KPVy;
+        Kp_velocity[2] = config.KPVz;
+        Kp_velocity[3] = config.KPVroll;
+        Kp_velocity[4] = config.KPVpitch;
+        Kp_velocity[5] = config.KPVyaw;
+
+        Ki_velosity[0] = config.KIVx;
+        Ki_velosity[1] = config.KIVy;
+        Ki_velosity[2] = config.KIVz;
+        Ki_velosity[3] = config.KIVroll;
+        Ki_velosity[4] = config.KIVpitch;
+        Ki_velosity[5] = config.KIVyaw;
+
+        Ki_velosity[0] = config.KDVx;
+        Ki_velosity[1] = config.KDVy;
+        Ki_velosity[2] = config.KDVz;
+        Ki_velosity[3] = config.KDVroll;
+        Ki_velosity[4] = config.KDVpitch;
+        Ki_velosity[5] = config.KDVyaw;
+
+        Kvs_position[0] = config.KVSx;
+        Kvs_position[1] = config.KVSy;
+        Kvs_position[2] = config.KVSz;
+        Kvs_position[3] = config.KVSroll;
+        Kvs_position[4] = config.KVSpitch;
+        Kvs_position[5] = config.KVSyaw;
 }
 
 bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
