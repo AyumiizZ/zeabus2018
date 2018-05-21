@@ -155,7 +155,7 @@ class roulette(object) :
                     auv.move('left', con.AUV_L_SPEED)
         print 'Roulette completed'
 
-if__name__=='__main__' :
+if __name__=='__main__' :
     rospy.init_node('roulette_node')
     roulette = roulette()
     roulette.run()
