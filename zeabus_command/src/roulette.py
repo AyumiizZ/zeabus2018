@@ -99,12 +99,11 @@ class roulette(object) :
                 anglex = self.data.anglex
                 angley = self.data.angley
                 I = self.data.intensity
-                P = self.data.power
                 auv.ternRelative(anglex)
-                auv.depthRelative(angley)
-                auv.driveX(m.sqrt(P/4*m.pi*I))
-                auv.stop()
-                mode = 1
+                if not angley == m.pi/2 :
+                    auv.move('forward', cons.AUV_H_SPEED)
+                    auv.stop()
+                    mode = 1
 
             if mode == 1 : #find green bin
                 print '<---mode 1--->'
@@ -145,14 +144,14 @@ class roulette(object) :
                 #############################
                 if appear :
                     if self.checkCenter :
-                        if area >= 1 :
+                        if area >= 0.8 :
                             print 'let\'s it go!!!'
                             auv.stop()
                             mode = -1
                         elif area < 1 :
                             auv.depthAbs(-0.5, 0.1)
                 elif not appear :
-                    auv.move('left', con.AUV_L_SPEED)
+                    auv.move('left', cons.AUV_L_SPEED)
         print 'Roulette completed'
 
 if __name__=='__main__' :
