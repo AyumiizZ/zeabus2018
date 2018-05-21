@@ -134,6 +134,7 @@ int main(int argc, char **argv){
         tune = boost::bind(config_constant_PID, _1, _2);
         server.setCallback(tune);
 
+        ros::Rate rate(50);
 
 //void listen_mode_control(const std_msgs::Int16 message){}
 
