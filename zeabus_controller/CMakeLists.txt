@@ -18,6 +18,7 @@ find_package(Boost REQUIRED COMPONENTS system thread)
 generate_dynamic_reconfigure_options(
   cfg/PIDConstant.cfg
   cfg/forcePIDConstant.cfg
+  cfg/OffSetConstant.cfg
 )
 
 add_message_files(
@@ -41,6 +42,7 @@ add_service_files(
   fix_abs_yaw.srv
   fix_abs_x.srv
   fix_abs_y.srv
+  change_mode.srv
 )
 #add_action_files(DIRECTORY action FILES BarrelRoll.action)
 generate_messages(DEPENDENCIES std_msgs)
@@ -68,29 +70,26 @@ catkin_package(
 ###########
 
 add_executable(zeabus_controller src/old_code/zeabus_controller.cpp)
-add_executable(sim_control src/old_code/sim_control.cpp)
 add_executable(pwm_test src/test_code/loop_pwm_test.cpp)
-add_executable(force_control src/force_controller.cpp)
 add_executable(origin_control src/new_controller_2018.cpp)
 add_executable(control src/manage_control.cpp)
-add_executable(sim_pid src/sim_pid.cpp)
-#add_executable(not_have_dvl src/do_not_have_dvl.cpp)
+add_executable(offset_control src/offset_controller_main.cpp)
+add_executable(sim_controller src/sim_controller.cpp)
+add_executable(test_force src/calculate_force.cpp)
 add_dependencies(zeabus_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
-add_dependencies(sim_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
+add_dependencies(offset_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
+add_dependencies(sim_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(pwm_test ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
-add_dependencies(force_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(origin_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
-add_dependencies(sim_pid ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
-#add_dependencies(not_have_dvl ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
+add_dependencies(test_force ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 target_link_libraries(zeabus_controller ${catkin_LIBRARIES})
-target_link_libraries(sim_control ${catkin_LIBRARIES})
+target_link_libraries(offset_control ${catkin_LIBRARIES})
+target_link_libraries(sim_controller ${catkin_LIBRARIES})
 target_link_libraries(pwm_test ${catkin_LIBRARIES})
-target_link_libraries(force_control ${catkin_LIBRARIES})
 target_link_libraries(origin_control ${catkin_LIBRARIES})
 target_link_libraries(control ${catkin_LIBRARIES})
-target_link_libraries(sim_pid ${catkin_LIBRARIES})
-#target_link_libraries(not_have_dvl ${catkin_LIBRARIES})
+target_link_libraries(test_force ${catkin_LIBRARIES})
 
 # add_executable(TranformFrameBroadcaster src/tf-broadcaster.cpp)
 # target_link_libraries(TranformFrameBroadcaster ${catkin_LIBRARIES})

@@ -15,6 +15,7 @@ class manage_PID_file{
 		std::string sub_directory;
 		std::string locate_file;
 		manage_PID_file(std::string file_name);
+		void clear();
 };
 
 	manage_PID_file::manage_PID_file(std::string file_name){
@@ -34,5 +35,9 @@ class manage_PID_file{
 		std::string cmd_string = "rosrun dynamic_reconfigure dynparam load /" + node_name +" "+ this->locate_file + " &";
 		std::system( cmd_string.c_str() );
 		std::cout <<  "Load file : " << this->locate_file << std::endl;
+	}
+
+	void manage_PID_file::clear(){
+		std::system( "clear" );
 	}
 
