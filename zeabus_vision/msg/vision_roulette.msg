@@ -1,4 +1,5 @@
-float64 cx1
-float64 cy1
+float64 cx
+float64 cy
+float64 area
 bool appear
 
