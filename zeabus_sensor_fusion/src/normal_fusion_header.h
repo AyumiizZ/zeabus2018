@@ -1,6 +1,8 @@
 #include	<iostream> // include standard cpp
 #include	<math.h> // include math for calculate
 
+#include	<boost/bind.hpp>
+
 #define 	PI 3.14159265
 
 #include	<ros/ros.h> // include standard ros
@@ -8,6 +10,8 @@
 // include message_filter for make sensor fusion
 #include	<message_filters/subscriber.h>
 #include	<message_filters/time_synchronizer.h>
+#include	<message_filters/sync_policies/exact_time.h>
+#include	<message_filters/sync_policies/approximate_time.h>
 
 // include type of any message
 #include	<nav_msgs/Odometry.h>

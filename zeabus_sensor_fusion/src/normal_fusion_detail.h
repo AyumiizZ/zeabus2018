@@ -8,7 +8,8 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 	tfScalar roll , pitch , yaw;
 	tf::Matrix3x3( quaternion ).getRPY( roll , pitch ,yaw);
 
-	current_time = ros::Time::now();
+//	current_time = ros::Time::now();
+	current_time = message_twist.header.stamp;
 
 	#ifdef data_01
 		std::cout << "message_come_form_baro_odom : "
@@ -40,6 +41,7 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 		#ifdef data_01
 			std::cout << "---------------- finish init first time --------------------\n";
 		#endif
+		start_run = false;
 	}
 	else{
 		double diff_time = (current_time - previous_time).toSec();
@@ -53,15 +55,16 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 		world_y += add_world_y;
 		#ifdef data_02
 			ROS_INFO("----------------------------print data-------------------------------\n");
-			ROS_INFO("previous_data:\t%.2lf\t%.2lf\t%.2lf\n" 
+			ROS_INFO("didd_time\t:\t%.2lf" , diff_time);
+			ROS_INFO("previous_data\t:\t%.2lf\t%.2lf\t%.2lf" 
 					 	, msgs_auv_state.pose.pose.position.x 
 						, msgs_auv_state.pose.pose.position.y
 						, msgs_auv_state.pose.pose.position.z);
-			ROS_INFO("adding_robot:\t%.2lf\t%.2lf\n"
+			ROS_INFO("adding_robot\t:\t%.2lf\t%.2lf"
 						, add_robot_x , add_robot_y);	 
-			ROS_INFO("adding_world:\t%.2lf\t%.2lf\n"
+			ROS_INFO("adding_world\t:\t%.2lf\t%.2lf"
 						, add_world_x , add_world_y);	 
-			ROS_INFO("current_pos :\t%.2lf\t%.2lf\n"
+			ROS_INFO("current_pos\t:\t%.2lf\t%.2lf"
 						, world_x , world_y);
 		#endif
 // form dvl and Imu
@@ -81,8 +84,9 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 		msgs_auv_state.twist.twist.angular = message_orientation.angular_velocity;
 		
 		msgs_auv_state.header.stamp = ros::Time::now();
-
+		std::cout << "send auv_state \n";
 		tell_auv_state.publish( msgs_auv_state );
+		previous_time = current_time;
 	}
 	
 }
