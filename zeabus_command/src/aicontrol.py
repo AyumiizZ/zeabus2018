@@ -12,20 +12,12 @@ from std_msgs.msg import String, Float64, Bool
 class AIControl:
 
     def __init__(self):
-        rospy.init_node('aicontrol_node')
         self.vel = Twist()
         self.pose = Pose()
         self.point = Point()
 
         self.auv_state = [0, 0, 0, 0, 0, 0]
-        '''
-        self.at_pos = True
-        self.at_yaw = True
-        '''
-        self.twist = [0, 0, 0, 0, 0, 0]
         rospy.Subscriber('/auv/state', Odometry, self.getState)
-        #rospy.Subscriber('/ok_position', Bool, self.checkPos)
-        #rospy.Subscriber('/ok_yaw', Bool, self.checkYaw)
         # real
         self.pub_vel = rospy.Publisher('/zeabus/cmd_vel', Twist, queue_size=10)
         # sim
@@ -36,8 +28,7 @@ class AIControl:
 
         self.pub_abs_yaw = rospy.Publisher('/fix/abs/yaw', Float64, queue_size=10)
         self.pub_abs_depth = rospy.Publisher('/fix/abs/depth', Float64, queue_size=10)
-        print 'doing something'
-
+        self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
         '''
         rospy.wait_for_service('io_and_pressure/IO_ON')
         print 'IO_ON'
@@ -52,17 +43,20 @@ class AIControl:
         print 'abs_xy'
         rospy.wait_for_service('fix_abs_depth')
         print 'abs_depth'
+        rospy.wait_for_service('fix_rel_depth')
+        print 'rel_depth'
         rospy.wait_for_service('ok_position')
         print 'ok_pos'
         rospy.wait_for_service('fix_service')
         print 'fix_service'
 
-        self.srv_io_on = rospy.ServiceProxy('io_and_pressure/IO_ON', IOCommand)
-        self.srv_io_off = rospy.ServiceProxy('io_and_pressure/IO_OFF', IOCommand)
+        #self.srv_io_on = rospy.ServiceProxy('io_and_pressure/IO_ON', IOCommand)
+        #self.srv_io_off = rospy.ServiceProxy('io_and_pressure/IO_OFF', IOCommand)
         self.srv_abs_yaw = rospy.ServiceProxy('fix_abs_yaw', fix_abs_yaw)
         self.srv_rel_xy = rospy.ServiceProxy('fix_rel_xy', fix_rel_xy)
         self.srv_abs_xy = rospy.ServiceProxy('fix_abs_xy', fix_abs_xy)
         self.srv_abs_depth = rospy.ServiceProxy('fix_abs_depth', fix_abs_depth)
+        self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_rel_depth)
         self.srv_ok_pos = rospy.ServiceProxy('ok_position', ok_position)
         self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
 
@@ -81,7 +75,7 @@ class AIControl:
         print 'Move %s at speed %f m/s'%(direction, speed)
 
         if direction == 'left':
-            self.vel.linear.y = speed
+           self.vel.linear.y = speed
         elif direction == 'right':
             self.vel.linear.y = -speed
         elif direction == 'forward':
@@ -158,10 +152,6 @@ class AIControl:
         degree += old_degree
 
         rand = math.radians(degree)
-        '''
-        for _ in range(30):
-            self.pub_abs_yaw.publish(rand)
-        '''
         self.srv_abs_yaw(rand)
 
         while not rospy.is_shutdown() and not self.srv_ok_pos(String('yaw'), err).ok:
@@ -173,10 +163,6 @@ class AIControl:
         self.stop()
         print 'turning to %f'%(degree)
         rand = math.radians(degree)
-        '''
-        for _ in range(30):
-            self.pub_abs_yaw.publish(rand)
-        '''
         self.srv_abs_yaw(rand)
 
         while not rospy.is_shutdown() and not self.srv_ok_pos(String('yaw'), err).ok:
@@ -197,6 +183,19 @@ class AIControl:
 
         print 'finish depth abs'
 
+    def depthRelative(self, depth, err=0):
+        self.stop()
+        print 'move to depth %f'%(depth)
+        sent = False
+        if not sent:
+            sent = True
+            self.srv_rel_depth(depth)
+
+        while not rospy.is_shutdown() and not self.srv_ok_pos(String('z'), err).ok:
+            rospy.sleep(0.4)
+
+        print'finish depth relative'
+
     def stop(self):
         rospy.sleep(0.1)
         self.vel.linear.x = 0
@@ -209,13 +208,6 @@ class AIControl:
 
         for _ in range(3):
             self.pub_vel.publish(self.vel)
-    '''
-    def checkPos(self, data):
-        self.at_pos = data.data
-
-    def checkYaw(self, data):
-        self.at_yaw = data.data
-    '''
 
     def gripper(self, cmd):
         if cmd == 'on':
@@ -239,5 +231,11 @@ class AIControl:
         self.auv_state[5] = euler_angular[2]
 
 if __name__=='__main__':
+    rospy.init_node('aicontrol_node', anonymous=True)
     aicontrol = AIControl()
-    aicontrol.driveX(0.82)
+    aicontrol.move('forward', 1)
+    rospy.sleep(5)
+    aicontrol.stop()
+    aicontrol.turnRelative(60, 5)
+    aicontrol.moveX(3)
+    aicontrol.moveY(3)

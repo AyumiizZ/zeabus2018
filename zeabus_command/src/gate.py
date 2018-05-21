@@ -144,4 +144,6 @@ class Gate(object):
         print 'Gate completed'
 
 if __name__=='__main__':
-    rospy.init_node('gate_node')
+    rospy.init_node('gate_node', anonymous=False)
+    gate = Gate()
+    gate.run()
