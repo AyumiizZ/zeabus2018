@@ -112,10 +112,10 @@ class roulette(object) :
                 if appear :
                     count += 1
                     reset = 0
-                    print 'FOUND PATH: %d'%(count)
+                    print 'FOUND BIN: %d'%(count)
                 elif not appear:
                     reset += 1
-                    print 'NOT FOUND PATH: %d'%(reset)
+                    print 'NOT FOUND BIN: %d'%(reset)
 
                        # check counter
                 if count >= 5:
