@@ -1,3 +1,29 @@
+<<<<<<< HEAD
+ color_morning:
+  upper_yellow: '179,255,255'
+
+  lower_yellow: '0,234,8'
+
+  upper_black: '0,0,0'
+
+  lower_black: '179,255,255'
+
+  upper_orange: '0,0,0'
+
+  lower_orange: '179,255,255'
+
+  upper_green: '0,0,0'
+
+  lower_green: '179,255,255'
+
+  upper_white: '0,0,0'
+
+  lower_white: '179,255,255'
+
+  upper_red: '176,223,255'
+
+  lower_red: '0,1,135'
+=======
 color_sim:
     upper_orange: '0,0,0'
 
@@ -18,3 +44,4 @@ color_sim:
     upper_black: '0,0,123'
 
     lower_black: '0,0,29'
+>>>>>>> 3f831384f88048a2d829e5630e54528e0e419ed6
