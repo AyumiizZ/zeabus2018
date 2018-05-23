@@ -68,7 +68,7 @@ void config_constant_PID(zeabus_controller::PIDConstantConfig &config, unit32_t 
 //setup function of service
 bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response);
 bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
-//bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response);
+bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response);
 bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response);
 bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response);
 bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response);
@@ -93,7 +93,7 @@ void init(){
             PID_position[num].set_PID(Kp_position[num], Ki_position[num], Kd_position[num], Kvs_position[num]);
             PID_velocity[num].set_PID(Kp_velocity[num], Ki_position[num], Kd_position[num], 0); 
             PID_position.reset_I();
-            PID_position.reset.I();
+            PID_velocity.reset.I();
     }
 }
 
@@ -117,6 +117,7 @@ int main(int argc, char **argv){
 //service topic
 	ros::ServiceServer ser_cli_target_xy = nh.advertiseService("/fix_abs_xy", service_target_xy);
         ros::ServiceServer ser_cli_target_distance = nh.advertiseService("/fix_rel_xy", service_target_distance);
+        ros::ServiceServer ser_cli_target_z = nh.advertiseService("/fix_rel_depth", service_target_z);
         ros::ServiceServer ser_cli_target_depth = nh.advertiseService("/fix_abs_depth", service_target_depth);
         ros::ServiceServer ser_cli_target_yaw = nh.advertiseService("/fix_abs_yaw", service_target_yaw);
         ros::ServiceServer ser_cli_target_x = nh.advertiseService("/fix_abs_x", service_target_x);
@@ -253,7 +254,7 @@ void config_constant_PID(zeabus_controller::PIDConstantConfig &config, unit32_t 
         Kvs_position[5] = config.KVSyaw;
 }
 
-bool service_target_xy(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response){
+bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response){
 	target_position[0] = request.x;
 	target_position[1] = request.y;
 	response.success = true;
@@ -267,6 +268,12 @@ bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, ze
         target_position[1] = request.distance_y*cos(target_position[5] + (2/PI));
         response.success = true;
         return true;
+}
+
+bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response){
+        target_position[2] += request.fix_depth;
+        response.success = true;
+        return True;
 }
 
 bool service_target_depth(zeabus_controller::fix_aps_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response){
