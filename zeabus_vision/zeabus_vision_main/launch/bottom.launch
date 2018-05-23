@@ -12,15 +12,15 @@
 	<!-- =================== SET Argument LEFT CAMERA =================== -->
 	<arg name="ext_trigger_mode" value="False" />
 	<arg name="color_mode" value="bgr8" />
-	<arg name="image_width" value="1936" />
-	<arg name="image_height" value="1216" />
+	<arg name="image_width" value="1800" />
+	<arg name="image_height" value="1100" />
 	<arg name="auto_gain" value="False"/>
 	<arg name="master_gain" value="0" />
 	<arg name="red_gain" value="100" />
 	<arg name="green_gain" value="0" />
 	<arg name="blue_gain" value="25" />
 	<arg name="auto_exposure" value="False"/>
-	<arg name="exposure" value="1"/>
+	<arg name="exposure" value="33"/>
 	<arg name="auto_white_balance" value="False"/>
 	<arg name="auto_frame_rate" value="True"/>
 	<arg name="frame_rate" value="15.0"/>
@@ -77,11 +77,11 @@
 			<param name="flip_lr" type="bool" value="$(arg flip_lr)" />
 		</node>
 	</group>
-	<arg name="imageType" value="image_raw/compressed"/>
+	<!-- <arg name="imageType" value="image_raw/compressed"/>
 	<node pkg="zeabus_vision" name="auto_exposure_bottom" type="auto_exposure_bottom.py" output="screen">
 		<param name="imageTopicL" type="str" value="/bottom/left/$(arg imageType)"/>
 		<param name="imageClientL" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_left)/"/>
 		<param name="imageTopicR" type="str" value="/bottom/right/$(arg imageType)"/>
 		<param name="imageClientR" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_right)/"/>
-	</node>
+	</node> -->
 </launch>
