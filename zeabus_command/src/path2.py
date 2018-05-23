@@ -20,61 +20,62 @@ class Path(object) :
         self.data = self.detect_path(String('path'))
         self.data = self.data.data
     def checkCenter(self) :
-            x = False
-            y = False
+        print 'checking'
+        x = False
+        y = False
+        centerx = 0
+        centery = 0
+        resetx = 0
+        resety = 0
+        auv = self.aicontrol
+        cx = self.data.cx
+        cy = self.data.cy
+        self.detectPath()
+
+        #check cx's center
+        if cx > 0:
+            auv.move('left', cons.AUV_M_SPEED*abs(cx))
+        elif cx < 0:
+            auv.move('right', cons.AUV_M_SPEED*abs(cx))
+
+        #check if auv is centerx of path or not
+        if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+            print '<<<CENTERX>>>'
+            centerx += 1
+        elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+            resetx += 1
+
+        #check centerx's counter
+        if centerx >= 3:
+            x = True
+        elif resetx >= 10:
             centerx = 0
-            centery = 0
             resetx = 0
+
+        #check cy's center
+        if cy < 0:
+            auv.move('forward', cons.AUV_M_SPEED*abs(cy))
+        elif cy > 0:
+            auv.move('backward', cons.AUV_M_SPEED*abs(cy))
+
+        #check if auv is centery of path or not
+        if -cons.VISION_PATH_ERROR <= cy <= cons.VISION_PATH_ERROR:
+            print '<<<CENTERY>>>'
+            centery += 1
+        elif -cons.VISION_PATH_ERROR > cy > cons.VISION_PATH_ERROR:
+            resety += 1
+
+        #check center's counter
+        if centery >= 3:
+            y = True
+        elif resety >= 10:
+            centery = 0
             resety = 0
-            auv = self.aicontrol
-            cx = self.data.cx
-            cy = self.data.cy
-            self.detectPath()
-
-            #check cx's center
-            if cx > 0:
-                auv.move('left', cons.AUV_M_SPEED*abs(cx))
-            elif cx < 0:
-                auv.move('right', cons.AUV_M_SPEED*abs(cx))
-
-            #check if auv is centerx of path or not
-            if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
-                print '<<<CENTERX>>>'
-                centerx += 1
-            elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
-                resetx += 1
-
-            #check centerx's counter
-            if centerx >= 3:
-                x = True
-            elif resetx >= 10:
-                centerx = 0
-                resetx = 0
-
-            #check cy's center
-            if cy < 0:
-                auv.move('forward', cons.AUV_M_SPEED*abs(cy))
-            elif cy > 0:
-                auv.move('backward', cons.AUV_M_SPEED*abs(cy))
-
-            #check if auv is centery of path or not
-            if -cons.VISION_PATH_ERROR <= cy <= cons.VISION_PATH_ERROR:
-                print '<<<CENTERY>>>'
-                centery += 1
-            elif -cons.VISION_PATH_ERROR > cy > cons.VISION_PATH_ERROR:
-                resety += 1
-
-            #check center's counter
-            if centery >= 3:
-                y = True
-            elif resety >= 10:
-                centery = 0
-                resety = 0
-            if x and y :
-                print '<<<CENTER>>>'
-                return True
-            else :
-                return False
+        if x and y :
+            print '<<<CENTER>>>'
+            return True
+        else :
+            return False
 
 
     def run(self) :
@@ -88,7 +89,6 @@ class Path(object) :
             mode = 0
             count = 0
             reset = 0
-            forward = 0
             while not rospy.is_shutdown() and not mode == -1:
                 #find path
                 self.detectPath()
@@ -136,7 +136,6 @@ class Path(object) :
                     elif not appear:
                         reset = 0
                         count += 1
-                        forward += 1
                         print 'NOT FOUND PATH: %d'%(reset)
 
                     # check counter
@@ -149,9 +148,6 @@ class Path(object) :
                     elif reset >= 5:
                         reset = 0
                         count = 0
-                    if forward >=2 :
-                        print 'back to the path'
-                        auv.driveX(0.1)
                 # exist path yatta!
                 if mode == 2 :
                     auv.driveX(2) 
