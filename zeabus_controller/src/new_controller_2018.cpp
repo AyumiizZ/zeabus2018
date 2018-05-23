@@ -32,6 +32,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <zeabus_controller/PIDConstantConfig.h>
 #include <queue>
+#include <iostream>
 #include <zeabus_controller/drive_x.h>
 #include <modbus_ascii_ros/Switch.h>
 // include head of service
@@ -109,12 +110,12 @@ geometry_msgs::Twist message_cmd_vel;
 nav_msgs::Odometry current_state;
 //double quaternion[4] = {0,0,0,0};
 //---------------------------------
-int step_work = 10; // 1 go depth : 2 tune z : 3 tune yaw : 4 tune pitch : 5 tune roll : 6 tune x : 7 tune y : 8 normal : 9 don't use 
+int step_work = 8; // 1 go depth : 2 tune z : 3 tune yaw : 4 tune pitch : 5 tune roll : 6 tune x : 7 tune y : 8 normal : 9 don't use 
 //---------------------------------
 // setup tuning z
 bool tune_z = true;
 int count_z = 1;
-double force_z = -0.16;
+double force_z = -0.038;
 double current_force_z = 0.0;
 double previous_force_z = 0.0;
 double previous_velocity_z = 0.0;
@@ -221,7 +222,7 @@ bool shutdown_force_z = false;
 bool shutdown_force_xy = false;
 
 // print datail from ros log
-bool print_fatal = true;
+bool print_fatal = false;
 
 //pull code from own file
 PID *PID_position, *PID_velocity;
@@ -250,7 +251,7 @@ int main(int argc, char **argv){
 	ros::Subscriber test_state = nh.subscribe("/test/point" , 1000, &test_current_state);
 	ros::Subscriber test_orientation = nh.subscribe("/test/orientation", 1000, &test_current_orientation);
 // setup listen topic
-	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);//(topic,number of max input,function's address)
+	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
 	ros::Subscriber sub_target_velocity = nh.subscribe("/zeabus/cmd_vel", 1000, &listen_target_velocity);
 	ros::Subscriber sub_target_position = nh.subscribe("/cmd_fix_position", 1000, &listen_target_position);
 	ros::Subscriber sub_controller = nh.subscribe("/zeabus_controller/mode", 1000, &listen_mode);
@@ -298,7 +299,6 @@ int main(int argc, char **argv){
  			sleep.sleep();
 			set_all_PID();
 			reset_all_I();
-            step_work = 8;
 		}
 		else if(change_PID){
 			std::cout << "before save file" << std::endl;
@@ -368,7 +368,6 @@ int main(int argc, char **argv){
 		else{
 			tell_pub.publish(message_cmd_vel);
 		}
-		shutdown_target_velocity();
 		rate.sleep();
 		ros::spinOnce();
 	}
@@ -423,21 +422,20 @@ void calculate_out(){
 					std::cout << "Open bound system" << std::endl;
 				}
 			}
-            else if(check==2){
+			else if(check==2){
 				error_position[2] = target_position[2] - current_position[2];
 				if(error_position[2] > 0 && error_position[2] < 0.5){
 					force_output[2] = 0;
 					reset_I_position(2);
 				}
-				else if(error_position[2] < 0 && error_position[2] > -0.1){
+/*				else if(error_position[2] < 0 && error_position[2] > -0.1){
 					force_output[2] = force_z;
 					std::cout << "force_z is " << force_z << std::endl;
-				}
+				}*/
 				else{
 					force_output[2] = PID_position[2].calculate_PID(error_position[2], current_velocity[2]);
 					reset_I_position(2);
 				}
-                if(force_output[2] > 0.1) force_output[2] = 0;
 				std::cout << "check 2 : " << error_position[2] << " force is : " << force_output[2] << std::endl;
 				if(bound_z){
 					if(force_output[2] < -0.6) force_output[2] = -0.6;
@@ -592,7 +590,7 @@ void listen_absolute_orientation(const zeabus_controller::orientation message){
 }
 
 void listen_absolute_yaw(const std_msgs::Float64 message){
-	target_position[5] = message.data;//specific
+	target_position[5] = message.data;
 }
 
 void listen_absolute_xy(const zeabus_controller::point_xy message){
