@@ -83,11 +83,12 @@ class Path(object) :
             print '<===DOING PATH===>'
 
             #auv.depthAbs(cons.PATH_DEPTH)
-            auv.depthAbs(-2, 0.5)
+            auv.depthAbs(-3, 0.5)
 
             mode = 0
             count = 0
             reset = 0
+            forward = 0
             while not rospy.is_shutdown() and not mode == -1:
                 #find path
                 self.detectPath()
@@ -135,6 +136,7 @@ class Path(object) :
                     elif not appear:
                         reset = 0
                         count += 1
+                        forward += 1
                         print 'NOT FOUND PATH: %d'%(reset)
 
                     # check counter
@@ -147,6 +149,9 @@ class Path(object) :
                     elif reset >= 5:
                         reset = 0
                         count = 0
+                    if forward >=2 :
+                        print 'back to the path'
+                        auv.driveX(0.1)
                 # exist path yatta!
                 if mode == 2 :
                     auv.driveX(2) 

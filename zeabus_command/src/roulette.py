@@ -16,8 +16,8 @@ class roulette(object) :
         rospy.wait_for_service('vision_roulette')
         self.detect_roulette = rospy.ServiceProxy('vision_roulette',vision_srv_roulette)
 
-    def detectBin(self) :
-        self.data = self.detect_roulette(String('roulette'))
+    def detectBin(self, req) :
+        self.data = self.detect_roulette(String('roulette'), String('req'))
         self.data = self.data.data
 
     def pinger(self) :
@@ -108,7 +108,7 @@ class roulette(object) :
             if mode == 1 : #find green bin
                 print '<---mode 1--->'
                 auv.depthAbs(-4, 0.5)
-                self.detectBin()
+                self.detectBin('green')
                 if appear :
                     count += 1
                     reset = 0
@@ -132,7 +132,7 @@ class roulette(object) :
             if mode == 2 : #check bin
                 print '<---mode 2--->'
                 #############################
-                self.detectBin()
+                self.detectBin('green')
                 appear = self.data.appear
                 cx = self.data.cx
                 cy = self.data.cy
@@ -148,7 +148,7 @@ class roulette(object) :
                             print 'let\'s it go!!!'
                             auv.stop()
                             mode = -1
-                        elif area < 1 :
+                        elif area < 0.8 :
                             auv.depthAbs(-0.5, 0.1)
                 elif not appear :
                     auv.move('left', cons.AUV_L_SPEED)
