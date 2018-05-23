@@ -122,12 +122,15 @@ include_directories(
 
 add_executable(test_message_filters src/study_message_filter.cpp)
 add_executable(normal_fusion src/normal_fusion_main.cpp)
+add_executable(ex_normal_fusion src/express_normal_main.cpp)
 
 add_dependencies(test_message_filters ${PROJECT_NAME}_gencfg zeabus_sensor_fusion_gencpp)
 add_dependencies(normal_fusion ${PROJECT_NAME}_gencfg zeabus_sensor_fusion_gencpp)
+add_dependencies(ex_normal_fusion ${PROJECT_NAME}_gencfg zeabus_sensor_fusion_gencpp)
 
 target_link_libraries(test_message_filters ${catkin_LIBRARIES})
 target_link_libraries(normal_fusion ${catkin_LIBRARIES})
+target_link_libraries(ex_normal_fusion ${catkin_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

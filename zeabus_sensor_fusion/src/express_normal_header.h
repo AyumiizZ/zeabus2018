@@ -33,10 +33,10 @@
 
 void listen_baro_odom( const nav_msgs::Odometry message_odometry);
 void listen_dvl_data( const geometry_msgs::TwistWithCovarianceStamped message_twist);
-void listen_ime_data( const sensor_msgs::Imu message_orieantation);
+void listen_imu_data( const sensor_msgs::Imu message_orieantation);
 
 // declare velocity form dvl data
-double new_velocity_x , new_velocity_y;
+double current_velocity_x , current_velocity_y , diff_time = 0.1;
 
 // declare for get orientation form imu
 double roll , pitch , yaw;
@@ -46,3 +46,4 @@ bool get_dvl = false, get_imu = false, get_pressure = false;
 
 bool start_run = true;
 
+nav_msgs::Odometry auv_state;
