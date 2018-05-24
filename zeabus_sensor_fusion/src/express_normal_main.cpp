@@ -16,7 +16,7 @@ int main( int argc , char** argv){
 		std::cout << "finish declare message";
 	#endif
 
-	ros::Rate rate(100);
+	ros::Rate rate(70);
 	
 	ros::Time current_time, previous_time;
 
@@ -35,16 +35,16 @@ int main( int argc , char** argv){
 							/ 2 * diff_time * cos( roll );
 			double adding_x = robot_x * cos( yaw ) + robot_y * cos( yaw + PI/2);
 			double adding_y = robot_x * sin( yaw ) + robot_y * sin( yaw + PI/2);
-			auv_state.pose.pose.position.x += adding_x;
-			auv_state.pose.pose.position.y += adding_y;
+            if( absolute_check(adding_x)) auv_state.pose.pose.position.x += adding_x;
+			if( absolute_check(adding_y)) auv_state.pose.pose.position.y += adding_y;
 			#ifdef data_02
 				ROS_INFO("----------------------------print data-------------------------------\n");
 				ROS_INFO("diff_time\t:\t%.2lf" , diff_time);
-				ROS_INFO("adding_robot\t:\t%.2lf\t%.2lf"
+				ROS_INFO("adding_robot\t:\t%.4lf\t%.4lf"
 							, robot_x , robot_y);	 
-				ROS_INFO("adding_world\t:\t%.2lf\t%.2lf"
+				ROS_INFO("adding_world\t:\t%.4lf\t%.4lf"
 							, adding_x , adding_y);	 
-				ROS_INFO("current_pos\t:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf"
+				ROS_INFO("current_pos\t:\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf"
 							, auv_state.pose.pose.position.x , auv_state.pose.pose.position.y 
 							, auv_state.pose.pose.position.z , roll , pitch , yaw);
 			#endif		

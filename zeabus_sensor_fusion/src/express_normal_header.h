@@ -46,4 +46,6 @@ bool get_dvl = false, get_imu = false, get_pressure = false;
 
 bool start_run = true;
 
+bool absolute_check(double problem);
+
 nav_msgs::Odometry auv_state;
