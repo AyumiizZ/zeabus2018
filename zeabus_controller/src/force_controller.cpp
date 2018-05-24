@@ -85,6 +85,7 @@ bool start_run = true;
 bool reset_position = true;
 
 PID *PID_position, *PID_velocity;
+//manage_PID_file PID_file(tune_file);
 
 void init(){
         PID_position = (PID*)calloc(6, sizeof(PID));
@@ -148,7 +149,20 @@ double check_tan_radian(double value){
 double change_pi_radian(double value){
         if(value > PI) return value - 2*PI;
         else return value;
+}
 
+void set_all_pid(){
+        for(int count = 0; count < 6; count++){
+            PID_position[count].set_PID(Kp_position[count], Ki_position[count], Kd_position[count], Kvs_position[count]);
+            PID_velocity[count].set_PID(Kp_velocity[count], Ki_position[count], Kd_position[count], 0);           
+}
+
+void reset_all_I(){
+        for(int count = 0; count < 6; count++){
+            PID_position[count].reset_I();
+            PID_velocity[count].reset_I();
+}
+ 
 void listen_current_state(const nav_msgs::Odometry message){
         tf::Quaternion quaternion(message.pose.pose.orientation.x, message.pose.pose.orientation.y, message.pose.pose.orientation.z, message.pose.pose.orientation.w);
         tfScalar roll, pitch, yaw;
