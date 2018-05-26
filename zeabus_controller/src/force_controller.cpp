@@ -77,15 +77,25 @@ bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_con
 //bool service_ok_position(zeabus_controller::ok_position::Request &request, zeabus_controller::ok_position::Response &response);
 
 //about function in code
-double check_tan_radian(check);
+double check_tan_radian(double check);
 double change_pi_radian(double value);
+double min_angular(double angular);
+
+//about calculate
+void error();
+void calculate_control();
+
+//set value of variables
+double ok_error[6] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05}//metre,radian ||| 0.1 rad ~~ 5.7 deg and 0.05 rad ~~ 2.8 deg
 
 //setup bool
 bool start_run = true;
 bool reset_position = true;
+bool check_bound = true;
 
 PID *PID_position, *PID_velocity;
 //manage_PID_file PID_file(tune_file);
+geometry_msgs::Twist create_msg_force();
 
 void init(){
         PID_position = (PID*)calloc(6, sizeof(PID));
@@ -137,6 +147,8 @@ int main(int argc, char **argv){
         server.setCallback(tune);
 
         ros::Rate rate(50);
+        calculate_control();
+        
 
 //void listen_mode_control(const std_msgs::Int16 message){}
 
@@ -151,6 +163,12 @@ double change_pi_radian(double value){
         else return value;
 }
 
+double min_angular(double angular){
+        if(angular < -PI) return angular + 2*PI;
+        else if(angular > PI) return angular - 2*PI;
+        else return angular;
+}
+
 void set_all_pid(){
         for(int count = 0; count < 6; count++){
             PID_position[count].set_PID(Kp_position[count], Ki_position[count], Kd_position[count], Kvs_position[count]);
@@ -162,7 +180,50 @@ void reset_all_I(){
             PID_position[count].reset_I();
             PID_velocity[count].reset_I();
 }
- 
+
+void error(){
+        for(int count = 0; count <6; count++)
+            error[count] = target_position[count] - current_position[count];
+}
+
+metry_msgs::Twist create_msg_force(){
+    geometry_msgs::Twist message;
+    message.linear.x = force_output[0];
+    message.linear.y = force_output[1];
+    message.linear.z = force_output[2];
+    message.angular.x = force_output[3];
+    message.angular.y = force_output[4];
+    message.angular.z = force_output[5];
+    return message;
+}
+
+void calculate_control(){
+        error();
+        world_distance_xy = sqrt(pow(error[0], 2) + pow(error[1], 2));       
+        world_distance_yaw = check_tan_radian(atan2(error[1], error[0]);//atan2(y,x) == atan(x/y) and graph of control x = y, y = x ||| if you don't under stand,you should draw a triangle 
+        different_yaw = min_angular(current[5] - world_distance_yaw);
+        //calculate by yourself
+        cal_error[0] = world_distance_xy * cos(different_yaw);
+        cal_error[1] = world_distance_xy * sin(different_yaw);
+        cal_error[2] = target_position[2] - current_position[2];
+        cal_error[3] = min_angular(error[3]);
+        cal_error[4] = min_angular(error[4]);
+        cal_error[5] = min_angular(error[5]);
+        for(int count = 0; count < 6; count++){
+            if(abs(cal_error[count]) < ok_error[count]){
+                force_output[count] = 0;
+                reset_all_I(count);
+                }
+            else{   force_output[count] = PID_position[count].calculate_PID(cal_error[count], current_velocity[count]);            
+                    reset_all_I(count);
+                }    
+            if(check_bound){
+                if(force_output[count] < (-1*fix_bound[count])) force_output[count] = -1*fix_bound[count]; 
+                else if(force_output[count] > fix_bound[count]) force_output[count] = fix_bound[count];
+                }
+        tell_force.publish(create_msg_force());
+        }
+}
 void listen_current_state(const nav_msgs::Odometry message){
         tf::Quaternion quaternion(message.pose.pose.orientation.x, message.pose.pose.orientation.y, message.pose.pose.orientation.z, message.pose.pose.orientation.w);
         tfScalar roll, pitch, yaw;
