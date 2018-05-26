@@ -3,8 +3,8 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_example.srv import vision_srv_gate
-from zeabus_example.msg import vision_gate
+from zeabus_vision.srv import vision_srv_gate
+from zeabus_vision.msg import vision_gate
 from std_msgs.msg import String
 
 class Gate(object):
