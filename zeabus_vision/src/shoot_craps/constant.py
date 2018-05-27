@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 '''
     File name: constant.py
     Author: zeabus2018
@@ -28,5 +29,5 @@ EXPECTED_AREA_RATIO = 0.7
 '''
     For Ubuntu
 '''
-ABS_PATH = '/home/skconan/catkin_ws/src/src_code/zeabus_vision/src/dice/'
+ABS_PATH = '/home/skconan/catkin_ws/src/src_code/zeabus_vision/src/shoot_craps/'
 IMG_PATH = ABS_PATH + 'images/'
