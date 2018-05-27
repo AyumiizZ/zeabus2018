@@ -190,6 +190,7 @@ def find_gate():
             cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
+            cx = Aconvert(cx,wimg)
             return message(cx=cx, pos=0, area=area, appear=True)
         elif h < 4*w:
             print (h,w)
@@ -198,6 +199,7 @@ def find_gate():
             cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
             publish_result(img_res, 'bgr', pub_topic + 'img')
             publish_result(mask, 'gray', pub_topic + 'mask')
+            cx = Aconvert(cx,wimg)
             return message(cx=cx, pos=0, area=area, appear=True)
         else:
             print_result(
@@ -231,15 +233,18 @@ def find_gate():
         cv.line(img_res, (cx, 0), (cx, himg), (255, 0, 0), 1)
         publish_result(img_res, 'bgr', pub_topic + 'img')
         publish_result(mask, 'gray', pub_topic + 'mask')
+        cx = Aconvert(cx,wimg)
         return message(cx=cx, pos=0, area=-1, appear=True)
 
 
 if __name__ == '__main__':
     rospy.init_node('vision_qualifying_gate', anonymous=True)
+    print_result("INIT NODE")
     image_topic = get_topic("front",world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    print "init_pub_sub"
+    print_result("INIT SUBSCRIBER")
     rospy.Service('vision_qualifying_gate',
                   vision_srv_qualifying_gate(), mission_callback)
-    print "init_ser"
+    print_result("INIT SERVICE")
     rospy.spin()
+    print_result("END PROGRAM")

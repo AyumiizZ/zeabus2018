@@ -87,7 +87,7 @@ def get_topic(cam,world):
 #     print(lower, upper)
 #     return lower, upper
 
-def convert(inp, full):
+def Aconvert(inp, full):
     """
         Convert cx cy to int in range of -1 to 1
         Returns:

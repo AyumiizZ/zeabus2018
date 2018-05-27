@@ -19,6 +19,7 @@ sub_sampling = 1
 pub_topic = "/vision/qualifying_marker/"
 world = "real"
 
+
 def mission_callback(msg):
     """
         When call service it will run this 
@@ -45,7 +46,7 @@ def image_callback(msg):
     size = 500
     r = 1.0*size / img.shape[1]
     dim = (size, int(img.shape[0] * r))
-    resized = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    resized = cv.resize(img, dim, interpolation=cv.INTER_AREA)
     img = resized
     img_res = img.copy()
 
@@ -78,7 +79,7 @@ def get_object():
     # lower = np.array([0, 0, 0], dtype=np.uint8)
     # upper = np.array([180, 180, 68], dtype=np.uint8)
 
-    lower,upper = get_color("qualifying","orange",world)
+    lower, upper = get_color("qualifying", "orange", world)
     mask = cv.inRange(hsv, lower, upper)
     kernel = np.ones((5, 5), dtype=np.uint8)
     mask = cv.GaussianBlur(mask, (5, 5), 0)
@@ -109,7 +110,7 @@ def find_marker():
         print('img is none.\nPlease check topic name or check camera is running')
 
     himg, wimg = img.shape[:2]
-    print (himg,wimg)
+    print (himg, wimg)
     mask = get_object()
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
@@ -140,8 +141,8 @@ def find_marker():
         cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
 
-        cx_left = convert(cx_left, wimg)
-        cx_right = convert(cx_right, wimg)
+        cx_left = Aconvert(cx_left, wimg)
+        cx_right = Aconvert(cx_right, wimg)
         area = (1.0*area)/(himg*wimg)
         publish_result(img, 'bgr', pub_topic + 'img')
         publish_result(mask, 'gray', pub_topic + 'mask')
@@ -150,10 +151,12 @@ def find_marker():
 
 if __name__ == '__main__':
     rospy.init_node('vision_qualifying_marker', anonymous=True)
-    image_topic = get_topic("front",world)
+    print_result("INIT NODE")
+    image_topic = get_topic("front", world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    print "init_pub_sub"
+    print_result("INIT SUBSCRIBER")
     rospy.Service('vision_qualifying_marker',
                   vision_srv_qualifying_marker(), mission_callback)
-    print "init_ser"
+    print_result("INIT SERVICE")
     rospy.spin()
+    print_result("END PROGRAM")
