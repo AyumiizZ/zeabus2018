@@ -4,6 +4,7 @@
 **[Hardware](#hardware)**<br>
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
+**[Bag2mp4](#bag2mp4)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
 **[CameraInfo Message](#camerainfo-message)**<br>
@@ -27,6 +28,12 @@
 * OpenCV
 * Numpy
 * Matplot
+
+
+## Bag2mp4
+
+* Please `catkin_make` before use it.
+* Command `rosrun zeabus_vision bag2mp4 filename.bag topicname fps output.mp4`
 
 
 ## Camera calibration
