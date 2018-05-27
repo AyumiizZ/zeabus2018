@@ -8,14 +8,14 @@ def main():
     EVdefault = 0.7
 
     subTopicC = rospy.get_param(
-        "/auto_exposure_top/imageTopicC", None)
+        "/auto_exposure_top/topic_right", None)
     clientC = rospy.get_param(
-        "/auto_exposure_top/imageClientC", None)
+        "/auto_exposure_top/client_right", None)
 
     if not subTopicC is None:
         AEC = AutoExposure(subTopicC, clientC, EVdefault, EVmin)
         AEC.adjust_exposure_time()
 
 if __name__ == '__main__':
-    rospy.init_node('Auto_Exposure_Top')
+    rospy.init_node('Auto_Exposure_Front', anonymous=False)
     main()
