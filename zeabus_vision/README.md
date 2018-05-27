@@ -4,7 +4,7 @@
 **[Hardware](#hardware)**<br>
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
-**[Bag2mp4](#Bag2mp4)**<br>
+**[Bag2mp4](#bag2mp4)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
 **[CameraInfo Message](#camerainfo-message)**<br>
