@@ -112,6 +112,8 @@ bool start_run = true;
 bool reset_position = true;
 bool check_bound = true;
 bool print_data = true;
+//bool first_time_tune = true;
+//bool change_tune = true;
 
 PID *PID_position, *PID_velocity;
 //manage_PID_file PID_file(tune_file);
@@ -167,23 +169,43 @@ int main(int argc, char **argv){
         server.setCallback(tune);
 
         ros::Rate rate(50);
-        calculate_control();
-        if(print_data){
-            ROS_INFO("!!!-------------------------- data -----------------------------!!!")
-            ROS_FATAL("current_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", current_position[0], current_position[1], current_position[2],
-                                                                                     current_position[3], current_position[4], current_position[5]);
-            ROS_FATAL("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", target_position[0], target_position[1], target_position[2],
-                                                                                    target_position[3], target_position[4], target_position[5]);
-            ROS_FATAL("error:\t\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", error[0], error[1], error[2], error[3], error[4], error[5]);
-            ROS_FATAL("cal_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", cal_error[0], cal_error[1], cal_error[2], cal_error[3], cal_error[4], cal_error[5]);
-            ROS_FATAL("force_output: \t\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf", force_output[0], force_output[1], force_output[2], 
-                                                                                    force_output[3], force_output[4], force_output[5]); 
-            ROS_FATAL("current_velocity:\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf", current_velocity[0], current_velocity[1], current_velocity[2], 
-                                                                                     current_velocity[3], current_velocity[4], current_velocity[5]);
-            ROS_FATAL("target_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", target_velocity[0], target_velocity[1], target_velocity[2],
-                                                                                    target_velocity[3], target_velocity[4], target_velocity[5]);
-            ROS_INFO("!!!-------------------------- data -----------------------------!!!")
-}
+        while(nh.ok()){
+/*            if(first_time_tune){
+                std::cout << "Before download" << std::endl; 
+                PID_file.load_file("Controller");
+                std::cout << "Finish download" << std::endl;
+                first_time_tune = false;
+                rate.sleep();
+                set_all_PID();
+                reset_all_I();
+        }
+            else if(change_tune){
+                std::cout << "before save file" << std::endl;
+                PID_file.save_file("Controller");
+                std::cout << "finish save file" << std::endl;
+                change_tune = false;
+                set_all_PID();
+                reset_all_I();
+        }
+            else{}
+*/ 
+            calculate_control();
+            if(print_data){
+                ROS_INFO("!!!-------------------------- data -----------------------------!!!")
+                ROS_FATAL("current_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", current_position[0], current_position[1], current_position[2],
+                                                                                         current_position[3], current_position[4], current_position[5]);
+                ROS_FATAL("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", target_position[0], target_position[1], target_position[2],
+                                                                                        target_position[3], target_position[4], target_position[5]);
+                ROS_FATAL("error:\t\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", error[0], error[1], error[2], error[3], error[4], error[5]);
+                ROS_FATAL("cal_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", cal_error[0], cal_error[1], cal_error[2], cal_error[3], cal_error[4], cal_error[5]);
+                ROS_FATAL("force_output: \t\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf", force_output[0], force_output[1], force_output[2], 
+                                                                                        force_output[3], force_output[4], force_output[5]); 
+                ROS_FATAL("current_velocity:\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf\t%.4lf", current_velocity[0], current_velocity[1], current_velocity[2], 
+                                                                                         current_velocity[3], current_velocity[4], current_velocity[5]);
+                ROS_FATAL("target_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf", target_velocity[0], target_velocity[1], target_velocity[2],
+                                                                                        target_velocity[3], target_velocity[4], target_velocity[5]);
+                ROS_INFO("!!!-------------------------- data -----------------------------!!!")
+    }
         ros::spinOnce();
         rate.sleep();
 //void listen_mode_control(const std_msgs::Int16 message){}
