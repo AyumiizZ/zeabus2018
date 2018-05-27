@@ -77,16 +77,35 @@ bool service_target_y(zeabus_controller::fix_abs_y::Request &request, zeabus_con
 //bool service_ok_position(zeabus_controller::ok_position::Request &request, zeabus_controller::ok_position::Response &response);
 
 //about function in code
-double check_tan_radian(double check);
-double change_pi_radian(double value);
-double min_angular(double angular);
+double check_tan_radian(double check);//[0,2*PI]
+double min_angular(double angular);//[-PI,PI]
 
 //about calculate
 void error();
 void calculate_control();
+void set_all_PID();
+void reset_all_I(); 
+double force_output[6] = {0, 0, 0, 0, 0, 0};
+
+//tune pid
+double  Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double  Ki_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double  Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double  Kvs_position[6] = {0, 0, 0, 0, 0, 0};
+double  Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double  Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double  Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+
 
 //set value of variables
 double ok_error[6] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05}//metre,radian ||| 0.1 rad ~~ 5.7 deg and 0.05 rad ~~ 2.8 deg
+//fix_bound
+double  current_velocity[6] = {0, 0, 0, 0, 0, 0};
+double  target_velocity[6] = {0, 0, 0, 0, 0, 0};
+double  current_position[6] = {0, 0, 0, 0, 0, 0};
+double  target_position[6] = {0, 0, 0, 0, 0, 0};
+double  error[6] = {0, 0, 0, 0, 0, 0};
+double  cal_error = {0, 0, 0, 0, 0, 0};
 
 //setup bool
 bool start_run = true;
@@ -165,17 +184,13 @@ int main(int argc, char **argv){
                                                                                     target_velocity[3], target_velocity[4], target_velocity[5]);
             ROS_INFO("!!!-------------------------- data -----------------------------!!!")
 }
-
+        ros::spinOnce();
+        rate.sleep();
 //void listen_mode_control(const std_msgs::Int16 message){}
 
 double check_tan_radian(double value){ 
         if(value < 0) return value + 2*PI;
         else if(value > 2*PI) return value - 2*PI; 
-        else return value;
-}
-
-double change_pi_radian(double value){
-        if(value > PI) return value - 2*PI;
         else return value;
 }
 
