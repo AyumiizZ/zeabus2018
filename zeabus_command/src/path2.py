@@ -84,7 +84,7 @@ class Path(object) :
             print '<===DOING PATH===>'
 
             #auv.depthAbs(cons.PATH_DEPTH)
-            auv.depthAbs(-3, 0.5)
+            #auv.depthAbs(-3, 0.5)
 
             mode = 0
             count = 0
@@ -121,14 +121,18 @@ class Path(object) :
                     auv.move('forward', cons.AUV_M_SPEED)
                 #go on path
                 if mode == 1 :
+                    ###############################
                     print '<---MODE 1--->'
                     print 'cx: %f'%(cx)
                     print 'cy: %f'%(cy)
                     print 'appear: %s'%(appear)
+                    print 'angle: %f'%(angle)
+                    print '---------------------'
+                    ###############################
                     if appear :
                         if abs(angle) >= 15 :
                             auv.turnRelative(angle, 1)
-                        if self.checkCenter :
+                        if self.checkCenter() :
                             print 'I\'m going on path'
                             auv.move('forward', cons.AUV_L_SPEED)
                         reset += 1
@@ -150,7 +154,7 @@ class Path(object) :
                         count = 0
                 # exist path yatta!
                 if mode == 2 :
-                    auv.driveX(2) 
+                    auv.driveX(2)
                     mode = -1
 
             # passed through path
