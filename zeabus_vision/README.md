@@ -33,9 +33,17 @@
 
 ## Auto Exposure
 
-* ZEABUS's auto exposure (*ZEABUS's AE*) changed by mode of V that is channel of HSV Color in frame.
+* ZEABUS's auto exposure (*ZEABUS's AE*) is changed by mode of V that is channel of HSV Color in frame.
 * The main program contain in `auto_exposure.py` that have a `AutoExposure` Class, You can use it with camera which you want to use ZEABUS's AE by create a new file and insert `AutoExposure` Class. See [*auto_exposure_front.py*](https://github.com/zeabusTeam/zeabus2018/blob/vision/zeabus_vision/src/auto_exposure_front.py).
+* ZEABUS's AE is called by `stereo.launch`, If you want to **Disable** please comment code below:
 
+```
+<node pkg="zeabus_vision" name="auto_exposure_front" type="auto_exposure_front.py" output="screen">
+	<param name="topic_right" type="str" value="/stereo/right/image_rect_color/compressed"/>
+	<param name="client_right" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_right)/"/>
+</node>
+```
+* If you want to use `auto exposure` but code be commented, can use command : ```rosrun zeabus_vision auto_exposre_front.py```
 
 ## Bag2mp4
 
