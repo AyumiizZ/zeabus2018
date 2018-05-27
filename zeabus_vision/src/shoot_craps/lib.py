@@ -6,7 +6,7 @@
 '''
 import math
 import cv2 as cv
-import constant as CONST
+import constant_dice as CONST
 
 '''
     Get index of point on dice.
