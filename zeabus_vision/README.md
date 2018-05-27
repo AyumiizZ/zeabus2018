@@ -4,6 +4,7 @@
 **[Hardware](#hardware)**<br>
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
+**[Auto Exposure](#auto-exposure)**<br>
 **[Bag2mp4](#bag2mp4)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
@@ -28,6 +29,12 @@
 * OpenCV
 * Numpy
 * Matplot
+
+
+## Auto Exposure
+
+* ZEABUS's auto exposure (*ZEABUS's AE*) changed by mode of V that is channel of HSV Color in frame.
+* The main program contain in `auto_exposure.py` that have a `AutoExposure` Class, You can use it with camera which you want to use ZEABUS's AE by create a new file and insert `AutoExposure` Class. See [*auto_exposure_front.py*](https://github.com/zeabusTeam/zeabus2018/blob/vision/zeabus_vision/src/auto_exposure_front.py).
 
 
 ## Bag2mp4
