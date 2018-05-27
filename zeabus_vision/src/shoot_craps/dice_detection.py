@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 '''
     File name: dice_detection.py
     Author: zeabus2018
@@ -98,6 +99,7 @@ def get_dice_position(mask, circles, radius_avg):
         x, y, radius = int(x), int(y), int(radius)
         for region in region_list:
             top, left, bottom, right = region
+            center = (int((left+right)/2),int((top+bottom)/2))
             roi = mask.copy()[top:bottom, left:right]
             try:
                 roi = cv.resize(roi, (CONST.DICE_SIZE, CONST.DICE_SIZE))
@@ -110,7 +112,7 @@ def get_dice_position(mask, circles, radius_avg):
             dice = matching(point[:-1])
             if dice is None:
                 continue
-            data_list.append([x, y, radius, dice, point, count])
+            data_list.append([x, y, radius, dice, point, count, center])
     data_dict = remove_redundant_dice(data_list)
     return data_dict
 
@@ -132,8 +134,8 @@ def mask_dice(img, dict):
     for d in dict.keys():
         if dict[d] is None:
             continue
-        x, y, radius, dice, point, count = dict[d]
-        cv.circle(img, (x, y), radius, color[d], -1)
+        x, y, radius, dice, point, count, center = dict[d]
+        cv.circle(img, center, radius, color[d], -1)
     return img
 
 def run(img):

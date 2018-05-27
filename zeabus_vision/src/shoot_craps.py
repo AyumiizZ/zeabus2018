@@ -4,11 +4,11 @@ import math
 import rospy
 import cv2 as cv
 import numpy as np
-from sensor_msgs.msg import CompressedImage
-from zeabus_vision.msg import vision_dice
-from zeabus_vision.srv import vision_srv_dice
 from vision_lib_sk import *
-from dice.dice_detection import *
+from shoot_craps.dice_detection import *
+from zeabus_vision.msg import vision_dice
+from sensor_msgs.msg import CompressedImage
+from zeabus_vision.srv import vision_srv_dice
 
 img = None
 img_res = None
@@ -64,7 +64,7 @@ def find_dice():
 
 
 if __name__ == '__main__':
-    rospy.init_node('vision_dice', anonymous=True)
+    rospy.init_node('vision_dice', anonymous=False)
     print_result("INIT NODE")
 
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
