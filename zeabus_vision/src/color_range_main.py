@@ -226,6 +226,7 @@ def select_color():
     cv.createTrackbar('shoot_x', 'image', 0, image_width, nothing)
     cv.createTrackbar('shoot_y', 'image', 0, image_height, nothing)
     set_trackbar([179, 255, 255], [0, 0, 0])
+    cv.setTrackbarPos('m <-> c', 'image', 1)
     cv.setTrackbarPos('shoot_x', 'image', int(image_width / 2))
     cv.setTrackbarPos('shoot_y', 'image', int(image_height / 2))
     cv.setMouseCallback('image', draw_circle)
