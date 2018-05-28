@@ -50,7 +50,7 @@
 ## Color Range
 
 * Color range have 2 part, Get color value and Use Color value. 
-* The color value is saved `*.yaml` files in `params` directory (folder).
+* The color value is saved `*.yaml` files in `params` directory (folder) in sub directory `1` or `2` or interger for seprerate color range value for each period (morning or noon) .
 
 1. Get color value.
 
