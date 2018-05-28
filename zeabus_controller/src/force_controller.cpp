@@ -46,6 +46,7 @@
 #include <zeabus_controller/ok_position.h>
 
 #define PI 3.1415926535
+static  std::string tune_file = "pid_value.yaml";
 
 //void listen_mode_control(const std_msgs::Int16 message);
 //for testing
@@ -112,11 +113,11 @@ bool start_run = true;
 bool reset_position = true;
 bool check_bound = true;
 bool print_data = true;
-//bool first_time_tune = true;
-//bool change_tune = true;
+bool first_time_tune = true;
+bool change_tune = true;
 
 PID *PID_position, *PID_velocity;
-//manage_PID_file PID_file(tune_file);
+manage_PID_file PID_file(tune_file);
 geometry_msgs::Twist create_msg_force();
 
 void init(){
@@ -170,7 +171,7 @@ int main(int argc, char **argv){
 
         ros::Rate rate(50);
         while(nh.ok()){
-/*            if(first_time_tune){
+            if(first_time_tune){
                 std::cout << "Before download" << std::endl; 
                 PID_file.load_file("Controller");
                 std::cout << "Finish download" << std::endl;
@@ -188,7 +189,6 @@ int main(int argc, char **argv){
                 reset_all_I();
         }
             else{}
-*/ 
             calculate_control();
             if(print_data){
                 ROS_INFO("!!!-------------------------- data -----------------------------!!!")
