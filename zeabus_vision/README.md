@@ -5,6 +5,7 @@
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
 **[Auto Exposure](#auto-exposure)**<br>
+**[Color Range](#color-range)**<br>
 **[Bag2mp4](#bag2mp4)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
@@ -44,6 +45,47 @@
 </node>
 ```
 * If you want to use `auto exposure` but code be commented, can use command : ```rosrun zeabus_vision auto_exposre_front.py```
+
+
+## Color Range
+
+* Color range have 2 part, Get color value and Use Color value. 
+* The color value is saved `*.yaml` files in `params` directory (folder).
+
+1. Get color value.
+
+* In this part have three files are `color_range_main.py`, `color_range_front.launch` and `color_range_bottom.launch`. 
+* *color_range_main.py* use for get color from image's topic (real or bag) then save to `*.yaml` 
+* *color_range_\*.launch* that launch (run) *color_range_main.py* and config parameter for front and bottom cameras. Command is 
+
+```
+roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
+```
+
+
+![alt text](https://raw.githubusercontent.com/zeabusTeam/zeabus2018/vision/zeabus_vision/images/color_range_example.png)
+
+
+* Above image show color range main that launched by color_range_front.launch.
+
+**Manual**
+
+1. Run command for launch `color_range_main.py`
+2. Press <color key> for set color that you want to get color into `mask` window. Please see the `m<->c` status is 0 or m, The m<->c status default is 1.
+3. Now, you can get color by `left click` or slide trackbar. Please see below.
+4. After, you satisfied in color press in *step 2* again for back to `color` window and save (press s), check your terminal show `<------------ save ------------>`  
+5. Then, if you to get other color press <color key> until `m<->c` status is 2 or c, following step 2-4 again.
+	
+*P.S.* get color when `m<->c` status is 0 or m. and save when `m<->c` status is 2 or c.
+
+* In the `image` window represent HSV image after pre_process, current color value, `m<->c` status that show now you choose mask(m or 0) window or color(c or 2) window. 
+* `press <color key>`   <color key> is first letter of colors name. (e.g. red -> r, violet -> v)	
+* `left-click`          click on image window for get color that you want.
+* `press z`             undo
+* `press x`             redo
+* `press s`             save
+* `press c`             clear color value set to lower : 179, 255, 255 and upper 0, 0, 0 
+* `press q`		exit program. if not save cannot exit but you can `Ctrl+C` in termnal for exit.
 
 ## Bag2mp4
 
