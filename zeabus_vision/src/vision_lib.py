@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 import rospy
 import numpy as np
+import constant as CONST
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
@@ -53,7 +54,8 @@ def get_color(task, color, world):
                 upper = np.array([37, 255, 255], dtype=np.uint8)
     return lower, upper
 
-def get_topic(cam,world):
+
+def get_topic(cam, world):
     topic = None
     if cam == "front":
         if world == "real":
@@ -67,25 +69,27 @@ def get_topic(cam,world):
             topic = "/syrena/bottom_cam/image_raw/compressed"
     return topic
 
-# def range_str2array(string):
-#     string = string.split(',')
-#     return np.array([int(string[0]), int(string[1]), int(string[2])], dtype=np.uint8)
+
+def range_str2array(string):
+    string = string.split(',')
+    return np.array([int(string[0]), int(string[1]), int(string[2])], dtype=np.uint8)
 
 
-# def get_color(color, time, mission):
-#     lower = None
-#     upper = None
-#     color_list = ['orange', 'white', 'yellow', 'red', 'black', 'green']
-#     if color in color_list:
-#         lower = rospy.get_param(
-#             '/color_range_' + str(mission) + '/color_' + str(time) + '/lower_' + str(color))
-#         upper = rospy.get_param(
-#             '/color_range_' + str(mission) + '/color_' + str(time) + '/upper_' + str(color))
-#         lower = range_str2array(lower)
-#         upper = range_str2array(upper)
-#         print "FOUND"
-#     print(lower, upper)
-#     return lower, upper
+def get_color_range(color, camera_position, number, mission):
+    lower = None
+    upper = None
+    color_list = CONST.COLOR_LIST
+    if color in color_list:
+        lower = rospy.get_param(
+            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/lower_' + color, '0,0,0')
+        upper = rospy.get_param(
+            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/upper_' + color, '179,255,255')
+        lower = range_str2array(lower)
+        upper = range_str2array(upper)
+        print "FOUND"
+    print(lower, upper)
+    return lower, upper
+
 
 def Aconvert(inp, full):
     """
@@ -95,8 +99,9 @@ def Aconvert(inp, full):
     """
     inp = float(inp)
     full = float(full)
-    res = (inp - (full/2.0))/(full/2.0)
+    res = (inp - (full / 2.0)) / (full / 2.0)
     return res
+
 
 def Oreintation(moment):
     tmp = pow((moment['mu20'] - moment['mu02']), 2)
@@ -154,7 +159,6 @@ def shrinking(img):
     return cv.cvtColor(result, cv.COLOR_HSV2BGR)
 
 
-
 def adjust_gamma(imgBGR=None, gamma=1):
     if imgBGR is None:
         print('given value to imgBGR argument\n' +
@@ -202,6 +206,7 @@ def get_kernel(shape='rect', ksize=(5, 5)):
     else:
         return None
 
+
 def color_mapping(mono):
     '''
         cv.COLORMAP_AUTUMN,
@@ -219,8 +224,6 @@ def color_mapping(mono):
     '''
     bgr = cv.applyColorMap(bin, cv.COLORMAP_HSV)
     return bgr
-
-
 
 
 def crop(imgBGR, outerRow, outerCol):
@@ -420,3 +423,15 @@ def stretching(img):
 
 # def open_morph(imgBin, ker):
 #     return cv.morphologyEx(imgBin, cv.MORPH_OPEN, ker)
+
+def pre_process_dice(img_bgr):
+    return img_bgr
+
+
+def pre_process(img_bgr, mission):
+    if mission == 'shoot_craps':
+        return pre_process_dice(img_bgr)
+    # elif mission == ''
+    #     return pre_process_xxx(img_bgr)
+    else:
+        return img_bgr
