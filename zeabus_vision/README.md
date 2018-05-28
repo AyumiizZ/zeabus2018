@@ -49,17 +49,47 @@
 
 ## Color Range
 
-* Color range have 2 part, Get color value and Use Color value. 
+
+	**(A)** mission.launch ---------_-- run ---> task or mission file.py ----- mission name ----------
+					|								  |------
+	**(B)** color_range_*.launch --| -- run ---> color_range_main.py ---------- mission name ---------	|
+					|									|
+					V									|
+	call color param from param/<interger 1,2,3,...>/\*.yaml **(C)**					|
+														|
+														|
+		-------------------------------------------------------------------------------------------------
+		|
+		V
+	after_preprocess ---> hsv ---> task or mission file.py -----> Can use get_color_range() in vision_lib.py
+			       |
+			       |
+			       V
+			color_range_main.py  ----> You click or slide hsv trackbar for get color  ------
+													|
+													|
+													V
+				set color param <--- save to param in sub directory 1, 2, or ... same **(C)**
+	
+	
+
+* Color range have 2 part, **1. Get color value and 2. Use Color Value**. 
 * The color value is saved `*.yaml` files in `params` directory (folder) in sub directory `1` or `2` or interger for seprerate color range value for each period (morning or noon) .
 
-1. Get color value.
+### 1. Get color value.
 
-* In this part have three files are `color_range_main.py`, `color_range_front.launch` and `color_range_bottom.launch`. 
+* In this part have three files are `color_range_main.py`, `color_range_front.launch` and `color_range_bottom.launch`.
+* Have `pre_process(mission)` function in `vision_lib.py` for preprocess image before convert to hsv and use in your task or mission files when you use color range value. 
+
+		explain 1. You preprocess image before convert to hsv in path.py 
+			2. You get color from hsv in color_range_main.py also you copy code preprocess from path.py into color_range_main.py for hsv color from path.py is equal to hsv color from color_range_main.py
+			3. I will description agian in part 2. Use Color Value
+			
 * *color_range_main.py* use for get color from image's topic (real or bag) then save to `*.yaml` 
 * *color_range_\*.launch* that launch (run) *color_range_main.py* and config parameter for front and bottom cameras. Command is 
 
 ```
-roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
+	roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
 ```
 
 
@@ -86,6 +116,39 @@ roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission 
 * `press s`             save
 * `press c`             clear color value set to lower : 179, 255, 255 and upper 0, 0, 0 
 * `press q`		exit program. if not save cannot exit but you can `Ctrl+C` in termnal for exit.
+
+### 2. Use color Value
+
+* Have three files `mission.launch`(launch file for run task file), `color_front_example_color_range.yaml`(color range value from step 1.) and `example_color_range.py`(task file)
+* Please read `example_color_range.py` file that edit from `roulette.py.py` and search `part of color range` for code about color range, in `line 191` show how to get color range 
+* Run task file by 
+
+```
+	roslaunch zeabus_vision mission.launch mission:='example_color_range' number:='1' camera_position:='front'
+```
+
+### Refer
+
+##### File
+	
+	python: color_range_main.py, task or mission.py and vision_lib.py (pre_process(), get_color_range(), 
+
+	launch: color_range_front.launch, color_range_bottom.launch and mission.launch
+	
+	yaml: params/<1,2,3,...>/ *.yaml
+	
+
+##### Command
+	
+	get color : 
+
+	roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
+	
+	
+	use color (mission) : 
+
+	roslaunch zeabus_vision mission.launch mission:='example_color_range' number:='1' camera_position:='front'
+
 
 ## Bag2mp4
 
