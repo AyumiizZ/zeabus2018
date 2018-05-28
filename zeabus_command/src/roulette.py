@@ -17,13 +17,15 @@ class roulette(object) :
         self.detect_roulette = rospy.ServiceProxy('vision_roulette',vision_srv_roulette)
 
     def detectBin(self, req) :
-        self.data = self.detect_roulette(String('roulette'), String('req'))
+        self.data = self.detect_roulette(String('roulette'), String('green'))
         self.data = self.data.data
 
     def pinger(self) :
         self.data = self.pinger(String('roulette'))
         self.data = self.data.data
+
     def checkCenter(self) :
+        print 'checking'
         x = False
         y = False
         centerx = 0
@@ -33,12 +35,12 @@ class roulette(object) :
         auv = self.aicontrol
         cx = self.data.cx
         cy = self.data.cy
-        self.detectBin()
+        self.detectBin('green')
 
         #check cx's center
-        if cx > 0:
+        if cx < 0:
             auv.move('left', cons.AUV_M_SPEED*abs(cx))
-        elif cx < 0:
+        elif cx > 0:
             auv.move('right', cons.AUV_M_SPEED*abs(cx))
 
 
@@ -58,9 +60,9 @@ class roulette(object) :
             resetx = 0
 
         #check cy's center
-        if cy < 0:
+        if cy > 0:
             auv.move('forward', cons.AUV_M_SPEED*abs(cy))
-        elif cy > 0:
+        elif cy < 0:
             auv.move('backward', cons.AUV_M_SPEED*abs(cy))
 
         #check if auv is centery of bin or not
@@ -141,17 +143,18 @@ class roulette(object) :
                 print 'cx:%f'%(cx)
                 print 'cy:%f'%(cy)
                 print 'appear: %s'%(appear)
+                print 'area: %f'%(area)
                 #############################
                 if appear :
-                    if self.checkCenter :
+                    if self.checkCenter() :
                         if area >= 0.8 :
                             print 'let\'s it go!!!'
                             auv.stop()
                             mode = -1
                         elif area < 0.8 :
-                            auv.depthAbs(-0.5, 0.1)
+                            auv.depthRelative(-0.3, 0.3)
                 elif not appear :
-                    auv.move('left', cons.AUV_L_SPEED)
+                    auv.depthRelative(-0.2, 0.1)
         print 'Roulette completed'
 
 if __name__=='__main__' :
