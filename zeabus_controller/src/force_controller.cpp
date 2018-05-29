@@ -100,7 +100,7 @@ double  Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 
 //set value of variables
 double ok_error[6] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05}//metre,radian ||| 0.1 rad ~~ 5.7 deg and 0.05 rad ~~ 2.8 deg
-//fix_bound
+double fix_bound[6] = {4, 4, 8, 1.5, 1.5, 1};
 double  current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double  target_velocity[6] = {0, 0, 0, 0, 0, 0};
 double  current_position[6] = {0, 0, 0, 0, 0, 0};
