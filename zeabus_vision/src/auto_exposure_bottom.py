@@ -16,11 +16,11 @@ def main():
         "/auto_exposure_bottom/imageClientR", None)
    
     if not subTopicL is None:
-        AEL = AutoExposure(subTopicL, clientL, EVdefault, EVmin)
+        AEL = AutoExposure(subTopicL, clientL, EVdefault, EVmin, 'bottom')
         AEL.adjust_exposure_time()
 
     if not subTopicR is None:
-        AER = AutoExposure(subTopicR, clientR, EVdefault, EVmin)
+        AER = AutoExposure(subTopicR, clientR, EVdefault, EVmin, 'bottom')
         AER.adjust_exposure_time()
 
 
