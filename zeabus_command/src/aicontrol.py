@@ -28,7 +28,7 @@ class AIControl:
 
         self.pub_abs_yaw = rospy.Publisher('/fix/abs/yaw', Float64, queue_size=10)
         self.pub_abs_depth = rospy.Publisher('/fix/abs/depth', Float64, queue_size=10)
-        self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
+        #self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
         '''
         rospy.wait_for_service('io_and_pressure/IO_ON')
         print 'IO_ON'
@@ -43,7 +43,7 @@ class AIControl:
         print 'abs_xy'
         rospy.wait_for_service('fix_abs_depth')
         print 'abs_depth'
-        rospy.wait_for_service('fix_rel_depth')
+        #rospy.wait_for_service('fix_rel_depth')
         print 'rel_depth'
         rospy.wait_for_service('ok_position')
         print 'ok_pos'
@@ -56,7 +56,7 @@ class AIControl:
         self.srv_rel_xy = rospy.ServiceProxy('fix_rel_xy', fix_rel_xy)
         self.srv_abs_xy = rospy.ServiceProxy('fix_abs_xy', fix_abs_xy)
         self.srv_abs_depth = rospy.ServiceProxy('fix_abs_depth', fix_abs_depth)
-        self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_rel_depth)
+        #self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_rel_depth)
         self.srv_ok_pos = rospy.ServiceProxy('ok_position', ok_position)
         self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
 
@@ -173,10 +173,7 @@ class AIControl:
     def depthAbs(self, depth, err=0):
         self.stop()
         print 'move to depth %f'%(depth)
-        sent = False
-        if not sent:
-            sent = True
-            self.srv_abs_depth(depth)
+        self.srv_abs_depth(depth)
 
         while not rospy.is_shutdown() and not self.srv_ok_pos(String('z'), err).ok:
             rospy.sleep(0.4)
@@ -186,10 +183,7 @@ class AIControl:
     def depthRelative(self, depth, err=0):
         self.stop()
         print 'move to depth %f'%(depth)
-        sent = False
-        if not sent:
-            sent = True
-            self.srv_rel_depth(depth)
+        self.srv_rel_depth(depth)
 
         while not rospy.is_shutdown() and not self.srv_ok_pos(String('z'), err).ok:
             rospy.sleep(0.4)
