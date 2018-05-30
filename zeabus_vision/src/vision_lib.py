@@ -12,9 +12,9 @@ from cv_bridge import CvBridge
 def print_result(msg):
     """
         print ('<----------') + str(msg) + ('---------->')
-        #len of <---msg---> = 30
+        #len of <---msg---> = 50
     """
-    print '<{:-^80}>'.format(' '+str(msg)+' ')
+    print '<{:-^50}>'.format(' '+str(msg)+' ')
 
 
 def publish_result(img, type, topicName):
