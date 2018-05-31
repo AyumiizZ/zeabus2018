@@ -24,14 +24,14 @@ class PID{
 };
 	
 	double PID::calculate_PID(double error, double velocity){
-		ros::Time current_time = ros::time::now();
-		this->diff_time = current_time.ToSec() - previous_time.ToSec();//time.ToSec()(change time's unit to sec)
+		ros::Time current_time = ros::Time::now();
+		this->diff_time = current_time.toSec() - previous_time.toSec();//time.ToSec()(change time's unit to sec)
 		this->sum_error += error * diff_time;//sum_error use in Ki
 		this->diff_error = error - previous_error;
-		this->use_ttl = True;
+		this->use_ttl = true;
 		double res = (this->Kp * error)+(this->Ki * sum_error)+((this->Kd * this->diff_error)/this->diff_time)-(this->Kvs * velocity);
 		if(use_ttl){
-			if(this->use_ttl > default_ttl);
+			if(this->use_ttl > default_ttl)
 				reset_I();//I(integrate)
 			else;
 				this->ttl += this->diff_time;//ttl is time
@@ -39,7 +39,7 @@ class PID{
 		return res;
 		}
 	}
-	void set_PID(double Kp, double Ki, double Kd, double Kvs){
+	void PID::set_PID(double Kp, double Ki, double Kd, double Kvs){
 		this->Kp = Kp;
 		this->Ki = Ki;
 		this->Kd = Kd;
@@ -64,7 +64,7 @@ class PID{
 		this->previous_time = ros::Time::now();
 	}
 
-	void reset_I(){//about error(integrate)
+	void PID::reset_I(){//about error(integrate)
 		this->ttl = 0;
 		this->sum_error = 0;
 		this->previous_error = 0;
