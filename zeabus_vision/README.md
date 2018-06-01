@@ -152,7 +152,7 @@
 
 ## Bag2JPG
 
-* roslaunch zeabus_vision bag2img.launch *bag:=<bag path> topic:=<topic name> republish:=<status> out:=<output path>*
+* roslaunch zeabus_vision bag2img.launch *bag:=[bag path] topic:=[topic name] republish:=[status] out:=[output path]*
 
 * `bag` is path of bag file.
 * `topic` is topic that you want convert to `*.JPG` in bag file. Not include `/Compressed`.
