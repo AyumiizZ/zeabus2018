@@ -6,6 +6,7 @@
 **[Libraries](#libraries)**<br>
 **[Auto Exposure](#auto-exposure)**<br>
 **[Color Range](#color-range)**<br>
+**[Bag2JPG](#bag2jpg)**<br>
 **[Bag2mp4](#bag2mp4)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
@@ -148,6 +149,28 @@
 	use color (mission) : 
 
 	roslaunch zeabus_vision mission.launch mission:='example_color_range' number:='1' camera_position:='front'
+
+## Bag2JPG
+
+* roslaunch zeabus_vision bag2img.launch *bag:=<bag path> topic:=<topic name> republish:=<status> out:=<output path>*
+
+* `bag` is path of bag file.
+* `topic` is topic that you want convert to `*.JPG` in bag file. Not include `/Compressed`.
+* `republish` is status of republish that convert image compressed to image raw. Set `0` if bag record `Compressed`, 1 if bag record `Raw`.
+* `out` is output path. Please specific `absolute path`.	
+	
+* **e.g.** Convert bag that record compressed images to images.
+
+```
+roslaunch zeabus_vision bag2img.launch *bag:=../bag/dice00.bag topic:=/top/center/image_raw republish:=0 out:=/home/skconan/img*
+```
+
+
+* **e.g.** Convert bag that record compressed images to images.
+
+```
+roslaunch zeabus_vision bag2img.launch *bag:=../bag/stereo00.bag topic:=/my_stereo/right/image_raw republish:=1 out:=/home/skconan/img*
+```
 
 
 ## Bag2mp4
