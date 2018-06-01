@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy as np
 import statistics
 import constant as CONST
+import math
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
@@ -11,8 +12,9 @@ from cv_bridge import CvBridge
 def print_result(msg):
     """
         print ('<----------') + str(msg) + ('---------->')
+        #len of <---msg---> = 50
     """
-    print ('<----------') + str(msg) + ('---------->')
+    print '<{:-^50}>'.format(' '+str(msg)+' ')
 
 
 def publish_result(img, type, topicName):
@@ -61,7 +63,7 @@ def get_topic(cam, world):
     topic = None
     if cam == "front":
         if world == "real":
-            topic = "/top/center/image_raw/compressed"
+            topic = "/stereo/right/image_rect_color/compressed"
         if world == "sim":
             topic = "/syrena/front_cam/image_raw/compressed"
     if cam == "bottom":

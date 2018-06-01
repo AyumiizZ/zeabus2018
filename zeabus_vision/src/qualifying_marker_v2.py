@@ -43,11 +43,6 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
-    size = 500
-    r = 1.0*size / img.shape[1]
-    dim = (size, int(img.shape[0] * r))
-    resized = cv.resize(img, dim, interpolation=cv.INTER_AREA)
-    img = resized
     img_res = img.copy()
 
 
@@ -73,20 +68,16 @@ def get_object():
             mask (ONLY MARKER AREA)
     """
     global img
-    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-    # real world
-    # lower = np.array([0, 0, 0], dtype=np.uint8)
-    # upper = np.array([180, 180, 68], dtype=np.uint8)
-
-    lower, upper = get_color("qualifying", "orange", world)
-    mask = cv.inRange(hsv, lower, upper)
-    kernel = np.ones((31, 3), dtype=np.uint8)
-    mask = cv.GaussianBlur(mask, (5, 5), 0)
-    mask = cv.erode(mask, kernel)
-    mask = cv.erode(mask, kernel)
-    mask = cv.dilate(mask, kernel)
-    mask = cv.dilate(mask, kernel)
+    himg, wimg = img.shape[:2]
+    temp = np.zeros((himg+2, wimg+2), np.uint8)
+    b,g,r = cv.split(img)
+    publish_result(b, 'gray', pub_topic + 'b')
+    canny = cv.Canny(b,180,3*180)
+    publish_result(canny, 'gray', pub_topic + 'can')
+    im_floodfill = canny.copy()
+    cv.floodFill(im_floodfill, temp, (0,0), 255);
+    cv.floodFill(im_floodfill, temp, (wimg-1,himg-1), 255);
+    mask = ~im_floodfill
     return mask
 
 def find_marker():
@@ -107,12 +98,12 @@ def find_marker():
     global img, img_res
     while img is None and not rospy.is_shutdown():
         print('img is none.\nPlease check topic name or check camera is running')
+    img = cv.resize(img,(640,480))
     himg, wimg = img.shape[:2]
-    print (himg, wimg)
-    if wimg != 500:
+    if himg != 480:
         return message()
-
     mask = get_object()
+
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     ROI = []
