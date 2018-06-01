@@ -43,7 +43,7 @@
 #include <zeabus_controller/fix_abs_depth.h>
 #include <zeabus_controller/fix_abs_yaw.h>
 #include <zeabus_controller/fix_rel_xy.h>
-#include <zeabus_controller/fix_rel_depth.h>
+//#include <zeabus_controller/fix_rel_depth.h>
 #include <zeabus_controller/ok_position.h>
 
 #define PI 3.1415926535
@@ -70,7 +70,7 @@ void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t 
 //setup function of service
 bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response);
 bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, zeabus_controller::fix_rel_xy::Response &response);
-bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response);
+//bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response);
 bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response);
 bool service_target_yaw(zeabus_controller::fix_abs_yaw::Request &request, zeabus_controller::fix_abs_yaw::Response &response);
 bool service_target_x(zeabus_controller::fix_abs_x::Request &request, zeabus_controller::fix_abs_x::Response &response);
@@ -119,6 +119,7 @@ bool check_bound = true;
 bool print_data = true;
 bool first_time_tune = true;
 bool change_tune = true;
+bool cal_velocity = true;
 
 PID *PID_position, *PID_velocity;
 manage_PID_file PID_file(tune_file);
@@ -155,7 +156,7 @@ int main(int argc, char **argv){
 //service topic
 	ros::ServiceServer ser_cli_target_xy = nh.advertiseService("/fix_abs_xy", service_target_xy);
         ros::ServiceServer ser_cli_target_distance = nh.advertiseService("/fix_rel_xy", service_target_distance);
-        ros::ServiceServer ser_cli_target_z = nh.advertiseService("/fix_rel_depth", service_target_z);
+//        ros::ServiceServer ser_cli_target_z = nh.advertiseService("/fix_rel_depth", service_target_z);
         ros::ServiceServer ser_cli_target_depth = nh.advertiseService("/fix_abs_depth", service_target_depth);
         ros::ServiceServer ser_cli_target_yaw = nh.advertiseService("/fix_abs_yaw", service_target_yaw);
         ros::ServiceServer ser_cli_target_x = nh.advertiseService("/fix_abs_x", service_target_x);
@@ -177,7 +178,7 @@ int main(int argc, char **argv){
         while(nh.ok()){
             if(first_time_tune){
                 std::cout << "Before download" << std::endl; 
-                PID_file.load_file("Controller");
+                PID_file.load_file("force_controller");
                 std::cout << "Finish download" << std::endl;
                 first_time_tune = false;
                 rate.sleep();
@@ -186,7 +187,7 @@ int main(int argc, char **argv){
         }
             else if(change_tune){
                 std::cout << "before save file" << std::endl;
-                PID_file.save_file("Controller");
+                PID_file.save_file("force_controller");
                 std::cout << "finish save file" << std::endl;
                 change_tune = false;
                 set_all_PID();
@@ -194,6 +195,7 @@ int main(int argc, char **argv){
         }
             else{}
             calculate_control();
+                std::cout << "cal_output is " << force_output[2] << "\n";
             tell_pub.publish(create_msg_force());
             if(print_data){
                 ROS_INFO("!!!-------------------------- data -----------------------------!!!");
@@ -255,9 +257,9 @@ geometry_msgs::Twist create_msg_force(){
     message.angular.x = force_output[3];
     message.angular.y = force_output[4];
     message.angular.z = force_output[5];
+        std::cout << "message is " << message << "\n";
     return message;
 }
-
 void calculate_control(){
         diff_error();
         world_distance_xy = sqrt(pow(error[0], 2) + pow(error[1], 2));       
@@ -272,15 +274,25 @@ void calculate_control(){
         cal_error[5] = min_angular(error[5]);
         for(int count = 0; count < 6; count++){
             if(abs(cal_error[count]) < ok_error[count]){
-                force_output[count] = 0;
-                reset_all_I();
+                if(target_velocity == 0){
+                    force_output[count] = 0;
+                    reset_all_I();
+                    cal_velocity = false;
+                }
+                else{}
+            }
+            else if(cal_velocity){
+                force_output[count] = target_velocity[count];
+                    std::cout << "velocity is " << force_output[count] << "\n";
                 }
             else{   force_output[count] = PID_position[count].calculate_PID(cal_error[count], current_velocity[count]);            
                     reset_all_I();
+                        std::cout << "pid_position is " << force_output[count] << "\n";
                 }    
             if(check_bound){
                 if(force_output[count] < (-1*fix_bound[count])) force_output[count] = -1*fix_bound[count]; 
                 else if(force_output[count] > fix_bound[count]) force_output[count] = fix_bound[count];
+                    std::cout << "bound is " << force_output[count] << "\n";
                 }
         }
 }
@@ -387,6 +399,9 @@ void config_constant_PID(zeabus_controller::PIDConstantConfig &config, uint32_t 
         Kvs_position[3] = config.KVSroll;
         Kvs_position[4] = config.KVSpitch;
         Kvs_position[5] = config.KVSyaw;
+        if( not first_time_tune){
+            change_tune = true;
+        }
 }
 
 bool service_target_xy(zeabus_controller::fix_abs_xy::Request &request, zeabus_controller::fix_abs_xy::Response &response){
@@ -405,11 +420,11 @@ bool service_target_distance(zeabus_controller::fix_rel_xy::Request &request, ze
         return true;
 }
 
-bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response){
-        target_position[2] += request.fix_depth;
-        response.success = true;
-        return true;
-}
+//bool service_target_z(zeabus_controller::fix_rel_depth::Request &request, zeabus_controller::fix_rel_depth::Response &response){
+//        target_position[2] += request.fix_depth;
+//        response.success = true;
+//        return true;
+//}
 
 bool service_target_depth(zeabus_controller::fix_abs_depth::Request &request, zeabus_controller::fix_abs_depth::Response &response){
         target_position[2] = request.fix_depth;

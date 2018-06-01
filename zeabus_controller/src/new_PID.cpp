@@ -30,6 +30,11 @@ class PID{
 		this->diff_error = error - previous_error;
 		this->use_ttl = true;
 		double res = (this->Kp * error)+(this->Ki * sum_error)+((this->Kd * this->diff_error)/this->diff_time)-(this->Kvs * velocity);
+                        std::cout << "Kp is " << Kp << "\n";
+                        std::cout << "Ki is " << Ki << "\n";
+                        std::cout << "Kd is " << Kd << "\n";
+                        std::cout << "Kvs is " << Kvs << "\n";
+                        
 		if(use_ttl){
 			if(this->use_ttl > default_ttl)
 				reset_I();//I(integrate)
