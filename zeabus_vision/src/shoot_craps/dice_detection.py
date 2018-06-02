@@ -9,9 +9,13 @@ import cv2 as cv
 import csv
 import numpy as np
 from lib import *
+# from ../vision_lib import *
 from operator import itemgetter
+
 pattern = []
 pattern_predict = []
+width = None
+height = None
 
 
 def load_pattern():
@@ -26,7 +30,7 @@ def load_pattern():
 
 
 def matching(var):
-    print("MATCHING")
+    # print("MATCHING")
     for (p, res) in zip(pattern, pattern_predict):
         if var == p:
             return res
@@ -51,16 +55,16 @@ def get_circle_in_frame(mask):
         x, y, radius = int(x), int(y), int(radius)
         circles.append([x, y, radius])
         radius_list.append(radius)
-    
+
     if not len(radius_list):
-        return False,0,0
+        return False, 0, 0
     radius_avg = np.average(radius_list)
-    
-    return True,circles, radius_avg
+
+    return True, circles, radius_avg
 
 
 def may_be_dice(mask):
-    print("MAY_BE_DICE")
+    # print("MAY_BE_DICE")
     result = get_point(mask)
     is_one = np.count_nonzero(result)
     if is_one >= 2:
@@ -69,9 +73,18 @@ def may_be_dice(mask):
         return False, None
 
 
+def check_in_frame(top, left, bottom, right):
+    global width, height
+    if (0 <= top < height or     
+        0 <= bottom < height or
+        0 <= left < width or
+        0 <= right < width):
+        return True
+    return False
+
 def get_region(dice_size, x, y, radius):
-    print("GET_REGION")
-    a,b = 4,14
+    # print("GET_REGION")
+    a, b = 4, 14
     region = []
     top = int(y - radius - int(0.5 * radius)) - a
     left = int(x - radius - int(0.5 * radius)) - a
@@ -89,7 +102,7 @@ def get_region(dice_size, x, y, radius):
 
 
 def get_dice_position(mask, circles, radius_avg):
-    print("GET_DICE_POSITION")
+    # print("GET_DICE_POSITION")
     dice_size = int(radius_avg * CONST.SIDE_PER_RADIUS)
     data_list = []
 
@@ -99,7 +112,7 @@ def get_dice_position(mask, circles, radius_avg):
         x, y, radius = int(x), int(y), int(radius)
         for region in region_list:
             top, left, bottom, right = region
-            center = (int((left+right)/2),int((top+bottom)/2))
+            center = (int((left + right) / 2), int((top + bottom) / 2))
             roi = mask.copy()[top:bottom, left:right]
             try:
                 roi = cv.resize(roi, (CONST.DICE_SIZE, CONST.DICE_SIZE))
@@ -122,8 +135,9 @@ def remove_redundant_dice(data):
     result = {'2': None, '5': None, '6': None}
     data = sorted(data, key=itemgetter(3))
     for d in data:
-        if result[str(d[3])] is None or result[str(d[3])][5] < d[5]:
-            result[str(d[3])] = d
+        index_dict = str(d[3])
+        if result[index_dict] is None and (result[index_dict][5] < d[5] or (result[index_dict][5] == d[5] and result[index_dict][1] > d[5])):
+            result[index_dict][5] = d[5]
 
     return result
 
@@ -138,12 +152,15 @@ def mask_dice(img, dict):
         cv.circle(img, center, radius, color[d], -1)
     return img
 
+
 def run(img):
+    global width, height
     load_pattern()
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    (height, width) = gray.shape
     equ = cv.equalizeHist(gray)
     _, mask = cv.threshold(equ, 30, 255, cv.THRESH_BINARY_INV)
-    status,circles, radius_avg = get_circle_in_frame(mask)
+    status, circles, radius_avg = get_circle_in_frame(mask)
     if not status:
         return img
     print("BEFORE_GET_DICE_POSITION")
