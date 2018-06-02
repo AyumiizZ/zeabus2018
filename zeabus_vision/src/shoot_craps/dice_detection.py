@@ -136,8 +136,8 @@ def remove_redundant_dice(data):
     data = sorted(data, key=itemgetter(3))
     for d in data:
         index_dict = str(d[3])
-        if result[index_dict] is None and (result[index_dict][5] < d[5] or (result[index_dict][5] == d[5] and result[index_dict][1] > d[5])):
-            result[index_dict][5] = d[5]
+        if result[index_dict] is None or (result[index_dict][5] < d[5] or (result[index_dict][5] == d[5] and result[index_dict][1] > d[5])):
+            result[index_dict] = d
 
     return result
 
@@ -150,6 +150,7 @@ def mask_dice(img, dict):
             continue
         x, y, radius, dice, point, count, center = dict[d]
         cv.circle(img, center, radius, color[d], -1)
+        cv.circle(img, center, radius*9, color[d], 2)
     return img
 
 
