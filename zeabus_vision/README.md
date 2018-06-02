@@ -4,6 +4,7 @@
 **[Hardware](#hardware)**<br>
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
+**[Mission](#mission)**<br>
 **[Auto Exposure](#auto-exposure)**<br>
 **[Color Range](#color-range)**<br>
 **[Bag2JPG](#bag2jpg)**<br>
@@ -33,6 +34,17 @@
 * Numpy
 * Matplot
 
+## Mission
+
+**Shoot Craps** 
+* Execution: ``` rosrun zeabus_vision shoot_craps.py```
+* Result Topic: `/vision/shoot_craps/result`
+* Result Description: 
+	
+		Blue Circle is 2 points.
+		Green Circle is 5 points.
+		Red Circle is 6 points.
+		
 
 ## Auto Exposure
 
