@@ -4,7 +4,7 @@ import math
 import rospy
 import cv2 as cv
 import numpy as np
-from vision_lib_sk import *
+from vision_lib import *
 from shoot_craps.dice_detection import *
 from zeabus_vision.msg import vision_dice
 from sensor_msgs.msg import CompressedImage
