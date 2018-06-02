@@ -8,6 +8,7 @@
 **[Color Range](#color-range)**<br>
 **[Bag2JPG](#bag2jpg)**<br>
 **[Bag2mp4](#bag2mp4)**<br>
+**[Parameters](#parameters)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
 **[CameraInfo Message](#camerainfo-message)**<br>
@@ -178,6 +179,27 @@ roslaunch zeabus_vision bag2img.launch *bag:=../bag/stereo00.bag topic:=/my_ster
 * Please `catkin_make` before use it.
 * Command `rosrun zeabus_vision bag2mp4 filename.bag topicname fps output.mp4`
 
+
+
+## Parameters
+
+
+**In 2018** 
+
+* `master_gain` is 0
+* `red_gain` is 30
+* `green_gain` is 0
+* `blue_gain` is 50
+* `frame_rate` is 10
+
+
+**In 2017** 
+
+* `master_gain` is 10
+* `red_gain` is 100
+* `green_gain` is 0
+* `blue_gain` is 20
+* `frame_rate` is 15
 
 ## Camera calibration
     
