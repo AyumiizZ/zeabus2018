@@ -184,7 +184,7 @@ roslaunch zeabus_vision bag2img.launch *bag:=../bag/stereo00.bag topic:=/my_ster
 ## Parameters
 
 
-**In 2018** 
+**Ground** 
 
 * `master_gain` is 0
 * `red_gain` is 30
@@ -193,7 +193,7 @@ roslaunch zeabus_vision bag2img.launch *bag:=../bag/stereo00.bag topic:=/my_ster
 * `frame_rate` is 10
 
 
-**In 2017** 
+**Under Water** 
 
 * `master_gain` is 10
 * `red_gain` is 100
