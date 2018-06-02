@@ -13,7 +13,7 @@ from zeabus_vision.srv import vision_srv_dice
 img = None
 img_res = None
 sub_sampling = 0.5
-image_topic = '/top/center/image_raw/compressed'
+image_topic = '/stereo/right/image_rect_color/compressed'
 publish_topic = '/vision/dice/'
 
 
