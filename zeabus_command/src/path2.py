@@ -89,6 +89,8 @@ class Path(object) :
             mode = 0
             count = 0
             reset = 0
+            sidex = 0
+            sidey = 0
             while not rospy.is_shutdown() and not mode == -1:
                 #find path
                 self.detectPath()
@@ -130,6 +132,14 @@ class Path(object) :
                     print '---------------------'
                     ###############################
                     if appear :
+                        if cx < 0:
+                            sidex = 1
+                        elif cx > 0:
+                            sidex = -1
+                        if cy < 0:
+                            sidey = 1
+                        elif cy > 0:
+                            sidey = -1
                         if abs(angle) >= 15 :
                             auv.turnRelative(angle, 1)
                         if self.checkCenter() :
@@ -141,6 +151,14 @@ class Path(object) :
                         reset = 0
                         count += 1
                         print 'NOT FOUND PATH: %d'%(reset)
+                        if sidex > 0 :
+                            auv.move('right', cons.AUV_M_SPEED*abs(sidex))
+                        elif sidex < 0 :
+                            auv.move('left', cons.AUV_M_SPEED*abs(sidex))
+                        if sidey > 0 :
+                            auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
+                        if sidey < 0 :
+                            auv.move('forward', cons.AUV_M_SPEED*abs(sidey))
 
                     # check counter
                     if count >= 5:
