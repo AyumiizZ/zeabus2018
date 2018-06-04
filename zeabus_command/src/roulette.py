@@ -89,11 +89,11 @@ class roulette(object) :
 
         print '<===DOING BIN===>'
 
-        mode = 0
+        mode = 1
         count = 0
-        reset = 0 
+        reset = 0
         while not rospy.is_shutdown() and not mode == -1:
-
+            '''
             if mode == 0 : #find pinger
                 print '<---mode 0--->'
                 self.pinger()
@@ -106,7 +106,7 @@ class roulette(object) :
                     auv.move('forward', cons.AUV_H_SPEED)
                     auv.stop()
                     mode = 1
-
+            '''
             if mode == 1 : #find green bin
                 print '<---mode 1--->'
                 auv.depthAbs(-4, 0.5)
@@ -152,9 +152,11 @@ class roulette(object) :
                             auv.stop()
                             mode = -1
                         elif area < 0.8 :
-                            auv.depthRelative(-0.3, 0.3)
+                            #auv.depthRelative(-0.3, 0.3)
+                            auv.move('down', cons.AUV_H_SPEED)
                 elif not appear :
-                    auv.depthRelative(-0.2, 0.1)
+                    #auv.depthRelative(-0.2, 0.1)
+                    auv.move('down', cons.AUV_H_SPEED)
         print 'Roulette completed'
 
 if __name__=='__main__' :

@@ -84,7 +84,7 @@ class Path(object) :
             print '<===DOING PATH===>'
 
             #auv.depthAbs(cons.PATH_DEPTH)
-            #auv.depthAbs(-3, 0.5)
+            auv.depthAbs(-3, 0.5)
 
             mode = 0
             count = 0
@@ -155,6 +155,7 @@ class Path(object) :
                 # exist path yatta!
                 if mode == 2 :
                     auv.driveX(2)
+                    #auv.move('forward', 3)
                     mode = -1
 
             # passed through path
