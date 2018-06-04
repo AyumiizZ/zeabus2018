@@ -157,7 +157,7 @@ class Path(object) :
                             auv.move('left', cons.AUV_M_SPEED*abs(sidex))
                         if sidey > 0 :
                             auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
-                        if sidey < 0 :
+                        elif sidey < 0 :
                             auv.move('forward', cons.AUV_M_SPEED*abs(sidey))
 
                     # check counter
