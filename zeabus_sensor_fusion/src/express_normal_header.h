@@ -47,5 +47,13 @@ bool get_dvl = false, get_imu = false, get_pressure = false;
 bool start_run = true;
 
 bool absolute_check(double problem);
+bool absolute_detect(double diff , double problem);
+
+// this part have declare to protect about bias value of radian
+//double add_yaw(double problem ,double adding);
+//double absolute_domain(double problem);
+
+int count_detect_depth = 0;
+int limit_detect_depth = 50;
 
 nav_msgs::Odometry auv_state;
