@@ -13,8 +13,8 @@ from zeabus_vision.srv import vision_srv_dice
 img = None
 img_res = None
 sub_sampling = 0.5
-image_topic = '/top/center/image_raw/compressed'
-publish_topic = '/vision/shoot_craps/'
+image_topic = '/stereo/right/image_rect_color/compressed'
+publish_topic = '/vision/dice/'
 
 
 def mission_callback(msg):
