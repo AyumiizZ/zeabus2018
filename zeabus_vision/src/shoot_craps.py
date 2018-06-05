@@ -14,7 +14,7 @@ img = None
 img_res = None
 sub_sampling = 0.5
 image_topic = '/top/center/image_raw/compressed'
-publish_topic = '/vision/dice/'
+publish_topic = '/vision/shoot_craps/'
 
 
 def mission_callback(msg):
