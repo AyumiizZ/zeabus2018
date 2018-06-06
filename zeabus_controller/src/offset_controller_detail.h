@@ -11,7 +11,7 @@ void listen_current_state( const nav_msgs::Odometry message){
 			target_position[0] = message.pose.pose.position.x;
 			target_position[1] = message.pose.pose.position.y;
 		}
-		if( ( not want_fix[2] ) || reset_position ){
+		if( ( not want_fix[2] ) ){
 			target_position[2] = message.pose.pose.position.z;
 		}
         if( start_run ){
@@ -79,6 +79,21 @@ double convert_min_radian( double problem){
 double convert_range_radian( double problem){
 	if( problem < 0 ) return problem + 2*PI;
 	else return problem;
+}
+
+double find_min_angular(double current, double target){
+	if(current > target){
+		right_yaw = -(current - target);
+		left_yaw = (2*PI)+right_yaw; 
+	}
+	else{
+		left_yaw = target-current;
+		right_yaw = -((2*PI)-left_yaw);
+	}
+	double abs_right_yaw = abs(right_yaw);
+	double abs_left_yaw = abs(left_yaw);
+	if(abs_right_yaw<abs_left_yaw) return right_yaw;
+	else return left_yaw;
 }
 
 double bound_value_radian( double problem){
@@ -167,8 +182,8 @@ void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint3
 bool service_target_xy(
 		zeabus_controller::fix_abs_xy::Request &request ,
 		zeabus_controller::fix_abs_xy::Response &response){
-	target_position[0] += request.x;
-	target_position[1] += request.y;
+	target_position[0] = request.x;
+	target_position[1] = request.y;
 	response.success = true;
 	return true;
 }
@@ -177,8 +192,8 @@ bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
 		zeabus_controller::fix_rel_xy::Response &response){
 	target_position[0] += request.distance_x * cos( target_position[5]);
-	target_position[1] += request.distance_y * sin( target_position[5]);
-	target_position[0] += request.distance_x * cos( target_position[5] + PI/2);
+	target_position[1] += request.distance_x * sin( target_position[5]);
+	target_position[0] += request.distance_y * cos( target_position[5] + PI/2);
 	target_position[1] += request.distance_y * sin( target_position[5] + PI/2);
 	response.success = true;
 	return true;
@@ -192,10 +207,29 @@ bool service_target_yaw(
 	return true;
 }
 
+bool service_rel_yaw(
+		zeabus_controller::fix_abs_yaw::Request &request ,
+		zeabus_controller::fix_abs_yaw::Response &response){
+//    double previous_target = target_position[5];
+//	target_position[5] += convert_range_radian( request.fix_yaw );
+	target_position[5] = convert_range_radian( target_position[5] + request.fix_yaw );
+	response.success = true;
+	return true;
+}
+
 bool service_target_depth(
 		zeabus_controller::fix_abs_depth::Request &request , 
 		zeabus_controller::fix_abs_depth::Response &response){
 	target_position[2] = request.fix_depth;
+	response.success = true;
+	return true;
+}
+
+bool service_rel_depth(
+		zeabus_controller::fix_abs_depth::Request &request , 
+		zeabus_controller::fix_abs_depth::Response &response){
+    double previous_target = target_position[2];
+	target_position[2] += request.fix_depth;
 	response.success = true;
 	return true;
 }
@@ -305,6 +339,11 @@ void reset_specific_velocity( int number){
 
 // -------------------------------------- end part --------------------------------------------
 
+double find_direction( double problem){
+    if(problem < 0) return -1;
+    else return 1;
+}
+
 double absolute( double problem){
 	if(problem < 0) return -1*problem;
 	else return problem;
@@ -314,7 +353,14 @@ geometry_msgs::Twist create_msg_force(){
 	geometry_msgs::Twist message;
 	message.linear.x = sum_force[0];
 	message.linear.y = sum_force[1];
-	message.linear.z = sum_force[2];
+    if( sum_force[2] < 0 && old_force[2] < 0){
+	    message.linear.z = old_force[2];
+        old_force[2] = sum_force[2];
+    }
+    else{
+	    message.linear.z = sum_force[2]; 
+        old_force[2] = sum_force[2];
+    }
 	message.angular.x = sum_force[3];
 	message.angular.y = sum_force[4];
 	message.angular.z = sum_force[5];
