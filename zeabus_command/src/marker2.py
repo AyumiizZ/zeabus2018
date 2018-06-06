@@ -42,6 +42,7 @@ class Marker(object):
                 print '---mode 0---'
 
                 if appear:
+                    print 'AREA: %f'%(area)
                     count += 1
                     reset = 0
                     print 'FOUND MARKER: %d'%(count)
@@ -65,29 +66,24 @@ class Marker(object):
                     count = 0
 
                 auv.move('forward', cons.AUV_M_SPEED)
-
             if mode == 1:
-                '''
-                if(abs(auv.auv_state[5] - (yaw_check)+3.14/2) < 0.3):
-                    mode = 2
-                else:
-                    if cx <= -cons.VISION_MARKER_ERROR:
-                        auv.move('left', cons.AUV_M_SPEED)
-                    elif cx >= cons.VISION_MARKER_ERROR:
-                        auv.move('right', cons.AUV_M_SPEED)
-                    else:
-                        auv.driveY(2)
-                        auv.driveX(2)
-                        auv.turnRelative(90)
-                '''
-                auv.driveY(cons.MARK)
-                auv.driveX(cons.MARK*2+1)
-                auv.driveY(cons.MARK*(-2))
-                auv.driveX(cons.MARK*(2+1)*(-1))
-                auv.driveY(cons.MARK)
 
-            if mode == 2:
-                auv.turnRelative(90)
+                if cx <= -cons.VISION_MARKER_ERROR:
+                    auv.move('left', cons.AUV_M_SPEED)
+                elif cx >= cons.VISION_MARKER_ERROR:
+                    auv.move('right', cons.AUV_M_SPEED)
+                else :
+                    mode = 2
+            if mode == 2 :
+                auv.driveY(1)
+                auv.driveX(4.5)
+                auv.driveY(-2)
+                auv.driveX(-4.5)
+                auv.driveY(1)
+                mode = 3
+                auv.stop()
+            if mode == 3:
+                auv.turnRelative(180)
                 print 'DONE'
                 mode = -1
 

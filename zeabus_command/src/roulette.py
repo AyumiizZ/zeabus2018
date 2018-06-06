@@ -23,7 +23,6 @@ class roulette(object) :
     def pinger(self) :
         self.data = self.pinger(String('roulette'))
         self.data = self.data.data
-
     def checkCenter(self) :
         print 'checking'
         x = False
@@ -53,9 +52,9 @@ class roulette(object) :
             resetx += 1
 
         #check centerx's counter
-        if centerx >= 3:
+        if centerx >= 1:
             x = True
-        elif resetx >= 10:
+        elif resetx >= 5:
             centerx = 0
             resetx = 0
 
@@ -73,15 +72,16 @@ class roulette(object) :
             resety += 1
 
         #check center's counter
-        if centery >= 3:
+        if centery >= 1:
             y = True
-        elif resety >= 10:
+        elif resety >= 5:
             centery = 0
             resety = 0
         if x and y :
             print '<<<CENTER>>>'
             return True
         else :
+            print '<<<NOT CENTER>>>'
             return False
 
     def run(self) :
@@ -91,7 +91,7 @@ class roulette(object) :
 
         mode = 1
         count = 0
-        reset = 0
+        reset = 0 
         while not rospy.is_shutdown() and not mode == -1:
             '''
             if mode == 0 : #find pinger
@@ -109,8 +109,9 @@ class roulette(object) :
             '''
             if mode == 1 : #find green bin
                 print '<---mode 1--->'
-                auv.depthAbs(-4, 0.5)
+                auv.depthAbs(-2.5, 0.5)
                 self.detectBin('green')
+                appear = self.data.appear 
                 if appear :
                     count += 1
                     reset = 0
@@ -143,20 +144,22 @@ class roulette(object) :
                 print 'cx:%f'%(cx)
                 print 'cy:%f'%(cy)
                 print 'appear: %s'%(appear)
-                print 'area: %f'%(area)
+                print
                 #############################
                 if appear :
                     if self.checkCenter() :
-                        if area >= 0.8 :
+                        if area >= 0.03 :
                             print 'let\'s it go!!!'
                             auv.stop()
                             mode = -1
-                        elif area < 0.8 :
-                            #auv.depthRelative(-0.3, 0.3)
-                            auv.move('down', cons.AUV_H_SPEED)
+                        elif area < 0.03 :
+                            #auv.move('down', cons.AUV_M_SPEED)
+                            auv.depthRelative(-0.5, 0.2)
+                            auv.stop()
                 elif not appear :
-                    #auv.depthRelative(-0.2, 0.1)
-                    auv.move('down', cons.AUV_H_SPEED)
+                    #auv.move('down', cons.AUV_M_SPEED)
+                    auv.depthRelative(0.1, 0.1)
+                    auv.stop()
         print 'Roulette completed'
 
 if __name__=='__main__' :

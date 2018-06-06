@@ -1,0 +1,33 @@
+{
+  "lastUpgradeScriptRun": "v2.2.0",
+  "appId": "947faa1be45db67e4e86c0fc88fd661f43f1e718",
+  "windowSettings": {
+    "x": 75,
+    "y": 52,
+    "width": 1024,
+    "height": 1028,
+    "fullScreen": false,
+    "maximized": false
+  },
+  "registration": {
+    "email": "supakit.kr@gmail.com",
+    "name": "Supakit Kriangkhajorn",
+    "status": "activated",
+    "trialStatus": null,
+    "loginType": "github",
+    "providerToken": {
+      "access_token": "d9852ddddc62c49b875cc4848c5ed35d20092c6e",
+      "token_type": "bearer",
+      "scope": "admin:public_key,repo,user:email",
+      "expires_at": null
+    },
+    "date": "2017-06-02T02:26:00.085Z",
+    "EULA": {
+      "version": "1.5.0",
+      "status": "agree_verified"
+    }
+  },
+  "userId": "1ba17df4-614a-4cac-a6e2-39f64e13f54a",
+  "licensedFeatures": [],
+  "hasSeenNewUserOnboarding": true
+}

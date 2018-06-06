@@ -3,8 +3,8 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_example.srv import vision_srv_gate
-from zeabus_example.msg import vision_gate
+from zeabus_vision.srv import vision_qualifying_srv_gate
+from zeabus_vision.msg import vision_qualifying_gate
 from std_msgs.msg import String
 
 class Gate(object):
@@ -14,13 +14,13 @@ class Gate(object):
 
         # wait for vision service and declare variables for store data from vision
         print '---wait for vision service---'
-        rospy.wait_for_service('vision_gate')
-        self.gate_req = rospy.ServiceProxy('vision_gate', vision_srv_gate)
-        self.gate_data = vision_gate()
+        rospy.wait_for_service('vision_qualifying_gate')
+        self.gate_req = rospy.ServiceProxy('vision_qualifying_gate', vision_qualifying_srv_gate)
+        self.gate_data = vision_qualifying_gate()
 
     def detectGate(self):
         # store all data from vision service into gate_data
-        self.gate_data = self.gate_req(String('gate'), String('gate'))
+        self.gate_data = self.gate_req(String('gate'))
         self.gate_data = self.gate_data.data
 
     def run(self):
@@ -95,11 +95,11 @@ class Gate(object):
                         auv.move('right', cons.AUV_M_SPEED*abs(cx))
 
                     # check if gate is center or not
-                    if -cons.VISION_GATE_ERROR <= cx <= cons.VISION_GATE_ERROR:
+                    if -cons.vision_qualifying_gate_ERROR <= cx <= cons.vision_qualifying_gate_ERROR:
                         print '<<<CENTER>>>'
                         center += 1
                         auv.stop()
-                    elif -cons.VISION_GATE_ERROR > cx > cons.VISION_GATE_ERROR:
+                    elif -cons.vision_qualifying_gate_ERROR > cx > cons.vision_qualifying_gate_ERROR:
                         reset += 1
 
                 # check center's counter
@@ -136,7 +136,7 @@ class Gate(object):
             # go through the gate
             if mode == 2:
                 print '---mode 2---'
-                auv.driveX(8)
+                auv.driveX(5)
                 mode = -1
 
         # passed through gate

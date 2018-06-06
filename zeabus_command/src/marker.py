@@ -50,7 +50,7 @@ class Marker(object):
                 elif not appear:
                     reset += 1
                     print 'NOT FOUND MARKER: %d'%(reset)
-                    #auv.move('', 0, side*0.1)
+                       # auv.move('', 0, side*0.1)
 
                 if count >= 5:
                     count = 0

@@ -2,8 +2,8 @@
 
 import rospy
 from std_msgs.msg import String, Float64, Bool
-from zeabus_vision_task.srv import vision_srv_path
-from zeabus_vision_task.msg import vision_path
+from zeabus_vision.srv import vision_srv_path
+from zeabus_vision.msg import vision_path
 from aicontrol import AIControl
 import constants as cons
 
@@ -132,13 +132,13 @@ class Path(object) :
                     print '---------------------'
                     ###############################
                     if appear :
-                        if cx < 0:
+                        if cx > 0:
                             sidex = 1
-                        elif cx > 0:
+                        elif cx < 0:
                             sidex = -1
-                        if cy < 0:
+                        if cy > 0:
                             sidey = 1
-                        elif cy > 0:
+                        elif cy < 0:
                             sidey = -1
                         if abs(angle) >= 15 :
                             auv.turnRelative(angle, 1)
@@ -156,9 +156,9 @@ class Path(object) :
                         elif sidex < 0 :
                             auv.move('left', cons.AUV_M_SPEED*abs(sidex))
                         if sidey > 0 :
-                            auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
-                        elif sidey < 0 :
                             auv.move('forward', cons.AUV_M_SPEED*abs(sidey))
+                        elif sidey < 0 :
+                            auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
 
                     # check counter
                     if count >= 5:

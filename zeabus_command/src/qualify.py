@@ -2,26 +2,20 @@
 
 import rospy
 from aicontrol import AIControl
+from gate_qua import Gate
+from marker import Marker
 
 class Qualify(object):
     def __init__(self):
-        self.aicontrol = AIControl()
+        print '<===INIT QUALIFY===>'
+        self.marker = Marker()
+        self.gate = Gate()
 
     def run(self):
-        auv = self.aicontrol
-        auv.depthAbs(cons.QUALIFY_DEPTH)
-        auv.driveX(5)
-        auv.driveY(2)
-        auv.driveX(9)
-        auv.turnRelative(-90)
-        auv.driveX(4)
-        auv.turnRelative(-90)
-        auv.driveX(5)
-        auv.driveY(-2)
-        auv.driveX(10)
-        auv.depthAbs(-0.2)
+        self.marker.run()
+        self.gate.run()
 
 if __name__=='__main__':
-    rospy.init_node('qualify_node', anonymous=False)
+    rospy.init_node('qualifying_node')
     qualify = Qualify()
     qualify.run()

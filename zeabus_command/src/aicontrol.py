@@ -27,8 +27,9 @@ class AIControl:
         self.pub_xy = rospy.Publisher('/fix/abs/xy', point_xy, queue_size=10)
 
         self.pub_abs_yaw = rospy.Publisher('/fix/abs/yaw', Float64, queue_size=10)
+        self.pub_rel_yaw = rospy.Publisher('/fix/rel/yaw', Float64, queue_size=10)
         self.pub_abs_depth = rospy.Publisher('/fix/abs/depth', Float64, queue_size=10)
-        #self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
+        self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
         '''
         rospy.wait_for_service('io_and_pressure/IO_ON')
         print 'IO_ON'
@@ -37,28 +38,31 @@ class AIControl:
         '''
         rospy.wait_for_service('fix_abs_yaw')
         print 'abs_yaw'
+        rospy.wait_for_service('fix_rel_yaw')
+        print 'rel_yaw'
         rospy.wait_for_service('fix_rel_xy')
         print 'rel_xy'
         rospy.wait_for_service('fix_abs_xy')
         print 'abs_xy'
         rospy.wait_for_service('fix_abs_depth')
         print 'abs_depth'
-        #rospy.wait_for_service('fix_rel_depth')
+        rospy.wait_for_service('fix_rel_depth')
         print 'rel_depth'
         rospy.wait_for_service('ok_position')
         print 'ok_position'
         #rospy.wait_for_service('fix_service')
-        #print 'fix_service'
+        #print 'fix_s
 
         #self.srv_io_on = rospy.ServiceProxy('io_and_pressure/IO_ON', IOCommand)
         #self.srv_io_off = rospy.ServiceProxy('io_and_pressure/IO_OFF', IOCommand)
         self.srv_abs_yaw = rospy.ServiceProxy('fix_abs_yaw', fix_abs_yaw)
+        self.srv_rel_yaw = rospy.ServiceProxy('fix_rel_yaw', fix_abs_yaw)
         self.srv_rel_xy = rospy.ServiceProxy('fix_rel_xy', fix_rel_xy)
         self.srv_abs_xy = rospy.ServiceProxy('fix_abs_xy', fix_abs_xy)
         self.srv_abs_depth = rospy.ServiceProxy('fix_abs_depth', fix_abs_depth)
-        #self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_rel_depth)
+        self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_abs_depth)
         self.srv_ok_position = rospy.ServiceProxy('ok_position', ok_position)
-        #self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
+        self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
 
     def fullSpeed(self, time):
         print 'WARNING: BE READY TO STOP THE CONTROL NODE, IF ANYTHING GOING WRONG'
@@ -68,11 +72,11 @@ class AIControl:
         print 'AUV stop'
 
 
-    def move(self, direction, speed):
+    def move(self, direction, speed, yaw=0):
         print("speed : %.2f"%(speed))
         self.stop()
 
-        print 'Move %s at speed %f m/s'%(direction, speed)
+        print 'Move %s at speed %f m/s, yaw: %f'%(direction, speed, yaw)
 
         if direction == 'left':
            self.vel.linear.y = speed
@@ -82,6 +86,12 @@ class AIControl:
             self.vel.linear.x = speed
         elif direction == 'backward':
             self.vel.linear.x = -speed
+        elif direction == 'up' :
+            self.vel.linear.z = speed
+        elif direction == 'down' :
+            self.vel.linear.z = -speed
+
+        self.vel.angular.z = yaw
 
         for _ in range(3):
             self.pub_vel.publish(self.vel)
@@ -124,8 +134,9 @@ class AIControl:
     def driveX(self, x, err=0):
         print 'doing drive x'
         self.stop()
-
-        self.srv_rel_xy(x, 0)
+        if self.srv_ok_position(String('xy'), err).ok :
+            print('driveX already')
+            self.srv_rel_xy(x, 0)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err).ok:
             rospy.sleep(0.1)
@@ -135,45 +146,46 @@ class AIControl:
     def driveY(self, y, err=0):
         print 'doing drive y'
         self.stop()
-
-        self.srv_rel_xy(0, y)
+        if self.srv_ok_position(String('xy'), err).ok :
+            print('driveY already')
+            self.srv_rel_xy(0, y)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err).ok:
             rospy.sleep(0.1)
 
         print 'finish drive y'
 
-    def turnRelative(self, degree, err=0):
+    def turnRelative(self, degree, err=0.05):
         self.stop()
         print 'turning %f'%(degree)
-        degree %= 359
-
-        old_degree = math.degrees(self.auv_state[5])
-        degree += old_degree
-
-        rand = math.radians(degree)
-        self.srv_abs_yaw(rand)
+        if self.srv_ok_position(String('yaw'), err).ok :
+            print('turn already')
+            rand = math.radians(degree)
+            self.srv_rel_yaw(rand)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('yaw'), err).ok:
             rospy.sleep(0.4)
 
         print 'finish turn rel'
 
-    def turnAbs(self, degree, err=0):
+    def turnAbs(self, degree, err=0.05):
         self.stop()
         print 'turning to %f'%(degree)
-        rand = math.radians(degree)
-        self.srv_abs_yaw(rand)
+        if self.srv_ok_position(String('yaw'), err).ok :
+            print('turn already')
+            rand = math.radians(degree)
+            self.srv_abs_yaw(rand)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('yaw'), err).ok:
             rospy.sleep(0.4)
 
         print 'finish turn abs'
 
-    def depthAbs(self, depth, err=0):
+    def depthAbs(self, depth, err=0.3):
+        self.stop()
+        print 'move to depth %f'%(depth)
         if self.srv_ok_position(String('z'), err).ok :
-            self.stop()
-            print 'move to depth %f'%(depth)
+            print('depth already')
             self.srv_abs_depth(depth)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('z'), err).ok:
@@ -182,9 +194,10 @@ class AIControl:
         print 'finish depth abs'
 
     def depthRelative(self, depth, err=0):
+        self.stop()
+        print 'move to depth %f'%(depth)
         if self.srv_ok_position(String('z'), err).ok :
-            self.stop()
-            print 'move to depth %f'%(depth)
+            print 'depth already'
             self.srv_rel_depth(depth)
 
         while not rospy.is_shutdown() and not self.srv_ok_position(String('z'), err).ok:
@@ -193,7 +206,7 @@ class AIControl:
         print'finish depth relative'
 
     def stop(self):
-        rospy.sleep(0.1)
+        rospy.sleep(0.5)
         self.vel.linear.x = 0
         self.vel.linear.y = 0
         self.vel.linear.z = 0
@@ -229,9 +242,6 @@ class AIControl:
 if __name__=='__main__':
     rospy.init_node('aicontrol_node', anonymous=True)
     aicontrol = AIControl()
-    aicontrol.move('forward', 1)
-    rospy.sleep(5)
-    aicontrol.stop()
-    aicontrol.turnRelative(60, 5)
-    aicontrol.moveX(3)
-    aicontrol.moveY(3)
+    while not rospy.is_shutdown():
+        degree = input('input degree: ')
+        aicontrol.turnRelative(degree)
