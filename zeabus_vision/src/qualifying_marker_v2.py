@@ -72,11 +72,22 @@ def get_object():
     temp = np.zeros((himg+2, wimg+2), np.uint8)
     b,g,r = cv.split(img)
     publish_result(b, 'gray', pub_topic + 'b')
-    canny = cv.Canny(b,180,3*180)
+    can_value = 70
+    # can_value = 20
+    canny = cv.Canny(b,can_value,3*can_value)
     publish_result(canny, 'gray', pub_topic + 'can')
-    im_floodfill = canny.copy()
-    cv.floodFill(im_floodfill, temp, (0,0), 255);
-    cv.floodFill(im_floodfill, temp, (wimg-1,himg-1), 255);
+    kernel = np.ones((9, 1), dtype=np.uint8)
+    #mask = cv.GaussianBlur(mask, (5, 5), 0)
+    # mask = cv.erode(mask, kernel)
+    #mask = cv.erode(mask, kernel)
+    mask = cv.dilate(canny, kernel)
+    # mask = cv.dilate(mask, kernel)
+    # mask = cv.dilate(mask, kernel)
+    # mask = cv.dilate(mask, kernel)
+    publish_result(mask, 'gray', pub_topic + 'bc')
+    im_floodfill = mask.copy()
+    cv.floodFill(im_floodfill, temp, (1,1), 255)
+    cv.floodFill(im_floodfill, temp, (wimg-1,himg-1), 255)
     mask = ~im_floodfill
     return mask
 
@@ -100,6 +111,7 @@ def find_marker():
         print('img is none.\nPlease check topic name or check camera is running')
     img = cv.resize(img,(640,480))
     himg, wimg = img.shape[:2]
+    print (himg,wimg)
     if himg != 480:
         return message()
     mask = get_object()
@@ -136,10 +148,10 @@ def find_marker():
         x, y, w, h = cv.boundingRect(cnt)
         cx_left = x
         cx_right = x+w
-        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 1)
+        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 5)
         cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
-        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
+        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 5)
         cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
 
@@ -154,10 +166,10 @@ def find_marker():
         cnt = max(ROI,key=cv.contourArea)
         cx_left = x
         cx_right = x+w
-        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 1)
+        cv.line(img, (cx_left, 0), (cx_left, himg), (255, 0, 0), 5)
         cv.putText(img, "left", (x+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
-        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 1)
+        cv.line(img, (cx_right, 0), (cx_right, himg), (255, 0, 0), 5)
         cv.putText(img, "right", (x+w+5, himg-30), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
                    [0, 0, 0])
 
