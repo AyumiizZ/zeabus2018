@@ -19,6 +19,7 @@ class Path(object) :
     def detectPath(self) :
         self.data = self.detect_path(String('path'))
         self.data = self.data.data
+
     def checkCenter(self) :
         print 'checking'
         x = False
@@ -84,7 +85,7 @@ class Path(object) :
             print '<===DOING PATH===>'
 
             #auv.depthAbs(cons.PATH_DEPTH)
-            auv.depthAbs(-3, 0.5)
+            #auv.depthAbs(-3, 0.5)
 
             mode = 0
             count = 0
@@ -140,7 +141,7 @@ class Path(object) :
                             sidey = 1
                         elif cy < 0:
                             sidey = -1
-                        if abs(angle) >= 15 :
+                        if abs(angle) >= 7 :
                             auv.turnRelative(angle, 1)
                         if self.checkCenter() :
                             print 'I\'m going on path'
@@ -172,8 +173,8 @@ class Path(object) :
                         count = 0
                 # exist path yatta!
                 if mode == 2 :
-                    auv.driveX(2)
-                    #auv.move('forward', 3)
+                    #auv.driveX(2)
+                    auv.move('forward', 3)
                     mode = -1
 
             # passed through path
