@@ -25,6 +25,7 @@ add_message_files(
   vision_dice.msg
   vision_qualifying_gate.msg
   vision_qualifying_marker.msg
+  vision_casino_gate.msg
   vision_roulette.msg
 )
 
@@ -35,6 +36,7 @@ add_service_files(
   vision_srv_dice.srv
   vision_srv_qualifying_gate.srv
   vision_srv_qualifying_marker.srv
+  vision_srv_casino_gate.srv
   vision_srv_roulette.srv
 )
 
