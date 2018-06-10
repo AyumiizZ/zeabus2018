@@ -225,7 +225,7 @@ def find_path():
 
 
 if __name__ == '__main__':
-    rospy.init_node('vision_path', anonymous=True)
+    rospy.init_node('vision_path', anonymous=False)
     print_result("INIT NODE")
 
     image_topic = get_topic("bottom",world)

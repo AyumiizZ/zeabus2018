@@ -238,7 +238,7 @@ def find_gate():
 
 
 if __name__ == '__main__':
-    rospy.init_node('vision_qualifying_gate', anonymous=True)
+    rospy.init_node('vision_qualifying_gate', anonymous=False)
     print_result("INIT NODE")
     image_topic = get_topic("front",world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)

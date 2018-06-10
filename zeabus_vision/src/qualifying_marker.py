@@ -238,7 +238,7 @@ def find_marker():
 
 
 if __name__ == '__main__':
-    rospy.init_node('vision_qualifying_marker', anonymous=True)
+    rospy.init_node('vision_qualifying_marker', anonymous=False)
     print_result("INIT NODE")
     image_topic = get_topic("front", world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
