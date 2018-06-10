@@ -169,13 +169,16 @@ def find_gate():
             appear = True
             ROI.append(cnt)
             cv.rectangle(img,(x,y),(x+w,y+h),(0,0,255),)
+            area = 1.0*w*h/(wimg*himg)
             return_cx1 = x+(w/4)
             return_cx2 = x+(w*3/4)
             return_y = y+(h/2)
             cv.circle(img,(return_x1,return_y),3,(0,0,0),-1)
             cv.circle(img,(return_x2,return_y),3,(0,0,0),-1)
+            return_cx1 = Aconvert(return_cx1,wimg)
+            return_cx2 = Aconvert(return_cx2,wimg)
             publish_result(img, 'bgr', pub_topic + 'img')
-    return return_cx1,return_cx2,area,appear
+    return message(return_cx1,return_cx2,area,appear)
 
 if __name__ == '__main__':
     rospy.init_node('vision_casino_gate', anonymous=False)
