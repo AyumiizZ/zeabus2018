@@ -124,6 +124,7 @@ class thrust_mapper:
 		cmd = []
 		for i in range (0,4):
 			cmd.append(lup.lookup_pwm_02(t[i]))
+#		cmd.append(lup.lookup_pwm_02(-1*t[3]))
 		for i in range(4,8):
 			cmd.append(lup.lookup_pwm_01(t[i]))
 
