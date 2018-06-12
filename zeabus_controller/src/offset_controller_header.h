@@ -66,7 +66,7 @@ double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 4, 8, 3.5, 1.5, 1.5, 0.03};
+double	bound_force[6] = { 4, 8, 3.8, 1.5, 1.5, 0.2};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};
@@ -74,7 +74,7 @@ double	target_position[6] = {0, 0, 0, 0, 0, 0};
 double	world_error[6] = {0, 0, 0, 0, 0, 0}; // this part will calculate error from sensor
 double	robot_error[6] = {0, 0, 0, 0, 0, 0}; // this part will use to calculate force and calculate form
 									 // world_error
-double ok_error[6] = { 0.03 , 0.03 , 0.05 , 0.05 , 0.05 , 0.01}; // for calculate error you ok
+double ok_error[6] = { 0.03 , 0.03 , 0.1 , 0.05 , 0.05 , 0.01}; // for calculate error you ok
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?

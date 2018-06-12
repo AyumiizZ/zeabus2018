@@ -244,9 +244,9 @@ int main(int argc , char **argv){
                         //sum_force[count] = target_velocity[ count ];
 				}
 //                if( count == 5 ) sum_force[count] *= -1;
-/*                if( count == 2 ){
-                    if( robot_error[count] < -0.15) sum_force[ count ] = -3.5;
-                }*/
+                if( count == 2 ){
+                    if( robot_error[count] < -0.1) sum_force[ count ] = -3.7;
+                }
 			}
 			for( int count = 0 ; count < 6 ; count++){
 				if( absolute( sum_force[count]) >= bound_force[count]){

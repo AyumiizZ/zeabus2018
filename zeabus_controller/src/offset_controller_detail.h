@@ -78,6 +78,7 @@ double convert_min_radian( double problem){
 
 double convert_range_radian( double problem){
 	if( problem < 0 ) return problem + 2*PI;
+    else if( problem > 2*PI) return problem - 2*PI;
 	else return problem;
 }
 
@@ -272,7 +273,7 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[2]
 						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
 		#endif
-        if( absolute(robot_error[1]) < ok_error[2] + request.adding) response.ok = true;
+        if( absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
         else response.ok = false;
     }
 	else if(request.type.data == "xyz"){
