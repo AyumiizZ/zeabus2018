@@ -36,6 +36,14 @@
 
 ## Mission
 
+**Qualifying Maneuver (gate)** 
+* Execution: ``` rosrun zeabus_vision qualifying_gate.py```
+* Result Topic: `/vision/qualifying_gate/img`
+
+**Qualifying Maneuver (marker)** 
+* Execution: ``` rosrun zeabus_vision qualifying_marker_v2.py```
+* Result Topic: `/vision/qualifying_marker/img`
+
 **Shoot Craps** 
 * Execution: ``` rosrun zeabus_vision shoot_craps.py```
 * Result Topic: `/vision/shoot_craps/result`
@@ -44,7 +52,10 @@
 		Blue Circle is 2 points.
 		Green Circle is 5 points.
 		Red Circle is 6 points.
-		
+
+**Play Roulette** 
+* Execution: ``` rosrun zeabus_vision roulette.py```
+* Result Topic: `/vision/roulette/img`
 
 ## Auto Exposure
 
