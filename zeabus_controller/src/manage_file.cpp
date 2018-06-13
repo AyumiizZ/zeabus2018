@@ -1,5 +1,7 @@
 #include <fstream>
 #include <iostream>
+#include <ctime>
+#include <string>
 #include <cstdlib>
 #include <ros/package.h>
 #define name_file "control_tune"
@@ -41,3 +43,34 @@ class manage_PID_file{
 		std::system( "clear" );
 	}
 
+class manage_log{
+	private:
+		std::time_t time_now;
+		
+	public:
+		manage_log();
+		std::string sub_directory;
+		std::string locate_file;
+		std::string cmd_string;
+		void write_log(std::string message);
+};
+
+	manage_log::manage_log(){
+		time_now = std::time(NULL);
+		sub_directory = "log";
+		locate_file = "2018_06_13";
+		cmd_string = "echo \"----------------- start log control -----------------\" > " 
+					 + sub_directory + "/" + locate_file + ".txt";
+		std::system( cmd_string.c_str() );
+	}
+
+	void manage_log::write_log( std::string message){
+		time_now = std::time(NULL);
+		cmd_string = "echo \"------------- at " + (std::string) std::asctime(std::localtime(&time_now)) 
+					 +" ------------------------\"" + " >> "  
+					 + sub_directory + "/" + locate_file + ".txt";
+		std::system( cmd_string.c_str() );
+		cmd_string = "echo \"" + message + "\"" 
+					 + " >> " + sub_directory + "/" + locate_file + ".txt";
+		std::system( cmd_string.c_str() );
+	}

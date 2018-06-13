@@ -155,6 +155,7 @@ bool service_change_mode(
 find_velocity::second_case *PID_position; // use to calculate force
 find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
+manage_log log_file; // use to save log service
 
 double convert_min_radian( double problem); // convert to [ -PI , PI]
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]

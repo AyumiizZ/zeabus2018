@@ -299,8 +299,19 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[5]
 						<< " ok_error + adding " << ok_error[5] + request.adding << "\n";
 		#endif
-		if( absolute(robot_error[5]) < ok_error[5] + request.adding) response.ok = true;
-		else response.ok = false;
+		std::string message;
+/*		message = "target_position[5] is " + (std::string) target_position[5] + "\n"
+				  + "current_position[5] is " + (std::string) current_position[5]  + "\n"
+				  + "robot_error[5] is " + (std::string) robot_error[5]  "\n";*/
+		if( absolute(robot_error[5]) < ok_error[5] + request.adding){
+			response.ok = true;
+			message = "response.ok is true \n";
+		}
+		else{
+			response.ok = false;
+			message = "response.ok is false \n";
+		}
+		log_file.write_log( message);
 	}
     else response.ok = false;
 	#ifdef test_02
