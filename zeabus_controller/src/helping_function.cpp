@@ -39,6 +39,7 @@ namespace manage_message{
 							double target_01 , double current_01, double error_01,
 							double target_02 , double current_02, double error_02){
 		std::string message = "";
+		std::time_t time_now = std::time(NULL);
 		message = "------ Order by : " + name  
 				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
 				+ "--- type is " + type + " and add is " +convert::double_to_string( add ) + "\n"
@@ -57,6 +58,7 @@ namespace manage_message{
 							double target_02 , double current_02, double error_02,
 							double target_03 , double current_03, double error_03){
 		std::string message = "";
+		std::time_t time_now = std::time(NULL);
 		message = "------ Order by : " + name  
 				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
 				+ "--- type is " + type + " and add is " +convert::double_to_string( add ) + "\n"
@@ -70,6 +72,59 @@ namespace manage_message{
 				+ "current_03 is " + convert::double_to_string( current_03 ) + "\n"
 				+ "error_03 is " + convert::double_to_string( error_03 ) + "\n"
 				+ "--- result is " + result + "\n";
+		return message;
+	}
+
+	std::string absolute_target( std::string name , std::string text , 
+							double target_01 ){
+		std::string message = "";
+		std::time_t time_now = std::time(NULL);
+		message = "------ Order by : " + name  
+				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
+				+ "--- order to " + text + "\n"
+				+ "now target is " + convert::double_to_string( target_01 ) + "\n";
+		return message;
+	}
+
+	std::string absolute_target( std::string name , std::string text , 
+							double target_01 , double target_02 ){
+		std::string message = "";
+		std::time_t time_now = std::time(NULL);
+		message = "------ Order by : " + name  
+				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
+				+ "--- order to " + text + "\n"
+				+ "now target_01 is " + convert::double_to_string( target_01 ) + "\n"
+				+ "now target_02 is " + convert::double_to_string( target_02 ) + "\n";
+		return message;
+	}
+
+	std::string relative_target( std::string name , std::string text , 
+							double origin_01 , double adding_01 , double new_01){
+		std::string message = "";
+		std::time_t time_now = std::time(NULL);
+		message = "------ Order by : " + name  
+				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
+				+ "--- order to " + text + "\n"
+				+ "form origin_01 is " + convert::double_to_string( origin_01 ) 
+				+ " adding_01 is " + convert::double_to_string( adding_01 ) 
+				+ " so new_01 is " + convert::double_to_string( new_01 ) + "\n";
+		return message;
+	}
+
+	std::string relative_target( std::string name , std::string text , 
+							double origin_01 , double adding_01 , double new_01,
+							double origin_02 , double adding_02 , double new_02){
+		std::string message = "";
+		std::time_t time_now = std::time(NULL);
+		message = "------ Order by : " + name  
+				+ " when "+(std::string) std::asctime(std::localtime( &time_now))
+				+ "--- order to " + text + "\n"
+				+ "form origin_01 is " + convert::double_to_string( origin_01 ) 
+				+ " adding_01 is " + convert::double_to_string( adding_01 ) 
+				+ " so new_01 is " + convert::double_to_string( new_01 ) + "\n"
+				+ "form origin_02 is " + convert::double_to_string( origin_02 ) 
+				+ " adding_02 is " + convert::double_to_string( adding_02 ) 
+				+ " so new_02 is " + convert::double_to_string( new_02 ) + "\n";
 		return message;
 	}
 }

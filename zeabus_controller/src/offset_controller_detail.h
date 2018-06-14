@@ -185,6 +185,11 @@ bool service_target_xy(
 		zeabus_controller::fix_abs_xy::Response &response){
 	target_position[0] = request.x;
 	target_position[1] = request.y;
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute xy"
+									, target_position[0] , target_position[1]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -192,10 +197,21 @@ bool service_target_xy(
 bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
 		zeabus_controller::fix_rel_xy::Response &response){
+	#ifdef save_log_service
+		double origin_01 = target_position[0];
+		double origin_02 = target_position[1];
+	#endif
 	target_position[0] += request.distance_x * cos( target_position[5]);
 	target_position[1] += request.distance_x * sin( target_position[5]);
 	target_position[0] += request.distance_y * cos( target_position[5] + PI/2);
 	target_position[1] += request.distance_y * sin( target_position[5] + PI/2);
+
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative xy"
+									, origin_01 , request.distance_x , target_position[0]
+									, origin_02 , request.distance_y , target_position[1]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -204,6 +220,11 @@ bool service_target_yaw(
 		zeabus_controller::fix_abs_yaw::Request &request ,
 		zeabus_controller::fix_abs_yaw::Response &response){
 	target_position[5] = convert_range_radian( request.fix_yaw );
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute yaw"
+									, target_position[5]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -213,7 +234,15 @@ bool service_rel_yaw(
 		zeabus_controller::fix_abs_yaw::Response &response){
 //    double previous_target = target_position[5];
 //	target_position[5] += convert_range_radian( request.fix_yaw );
+	#ifdef save_log_service
+		double origin = target_position[5];
+	#endif
 	target_position[5] = convert_range_radian( target_position[5] + request.fix_yaw );
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
+									, origin , request.fix_yaw , target_position[5]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -222,6 +251,11 @@ bool service_target_depth(
 		zeabus_controller::fix_abs_depth::Request &request , 
 		zeabus_controller::fix_abs_depth::Response &response){
 	target_position[2] = request.fix_depth;
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute depth"
+									, target_position[2]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -229,8 +263,15 @@ bool service_target_depth(
 bool service_rel_depth(
 		zeabus_controller::fix_abs_depth::Request &request , 
 		zeabus_controller::fix_abs_depth::Response &response){
-    double previous_target = target_position[2];
+	#ifdef save_log_service
+	    double previous_target = target_position[2];
+	#endif
 	target_position[2] += request.fix_depth;
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
+									, previous_target , request.fix_depth , target_position[2]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -269,7 +310,7 @@ bool service_ok_position(
 				&& absolute(robot_error[1]) < ok_error[1] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
-				message = manage_message::ok_two_case( "Unknow", "true",
+				message = manage_message::ok_two_case( request.user.data, "true",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1] ); 
@@ -278,7 +319,7 @@ bool service_ok_position(
         else{
 			response.ok = false;
 			#ifdef save_log_service
-				message = manage_message::ok_two_case( "Unknow", "false",
+				message = manage_message::ok_two_case( request.user.data , "false",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1] ); 
@@ -295,7 +336,7 @@ bool service_ok_position(
         if( absolute(robot_error[2]) < ok_error[2] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
-				message = manage_message::ok_one_case( "Unknow", "true",
+				message = manage_message::ok_one_case( request.user.data, "true",
 						request.type.data, request.adding,
 						target_position[2] , current_position[2] , robot_error[2] ); 
 			#endif
@@ -303,7 +344,7 @@ bool service_ok_position(
         else{
 			response.ok = false;
 			#ifdef save_log_service
-				message = manage_message::ok_one_case( "Unknow", "false",
+				message = manage_message::ok_one_case( request.user.data, "false",
 						request.type.data, request.adding,
 						target_position[2] , current_position[2] , robot_error[2] ); 
 			#endif
@@ -325,7 +366,7 @@ bool service_ok_position(
 				&& absolute(robot_error[2]) < ok_error[2] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
-				message = manage_message::ok_three_case( "Unknow", "false",
+				message = manage_message::ok_three_case( request.user.data, "false",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1], 
@@ -336,7 +377,7 @@ bool service_ok_position(
 		else{
 			response.ok = false;
 			#ifdef save_log_service
-				message = manage_message::ok_three_case( "Unknow", "true",
+				message = manage_message::ok_three_case( request.user.data, "true",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1], 
@@ -354,7 +395,7 @@ bool service_ok_position(
 		if( absolute(robot_error[5]) < ok_error[5] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
-				message = manage_message::ok_one_case( "Unknow", "true",
+				message = manage_message::ok_one_case( request.user.data, "true",
 								request.type.data, request.adding,
 								target_position[5] , current_position[5] , robot_error[5] ); 
 			#endif
@@ -363,7 +404,7 @@ bool service_ok_position(
 		else{
 			response.ok = false;
 			#ifdef save_log_service
-				message = manage_message::ok_one_case( "Unknow", "false",
+				message = manage_message::ok_one_case( request.user.data, "false",
 								request.type.data, request.adding,
 								target_position[5] , current_position[5] , robot_error[5] );
 			#endif
