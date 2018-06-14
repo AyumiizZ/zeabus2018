@@ -1,6 +1,5 @@
 #!/usr/bin/python2.7
 import rospy
-import time
 from std_msgs.msg import String, Float64, Bool
 from zeabus_vision.srv import path_srv
 from zeabus_vision.msg import path
@@ -81,6 +80,8 @@ class Path(object) :
         mode = 0
         count = 0
         reset = 0
+        sidex = 0
+        sidey = 0
         while not rospy.is_shutdown() and not mode == -1:
             #find path
             self.detectPath()
@@ -119,7 +120,16 @@ class Path(object) :
                 print '---------------------'
                 ###############################
                 if appear :
-                    if abs(angle) >= 15 :
+                    if cx > 0:
+                        sidex = 1
+                    elif cx < 0:
+                        sidex = -1
+                    if cy > 0:
+                        sidey = 1
+                    elif cy < 0:
+                        sidey = -1
+
+                    if abs(angle) >= 7 :
                         print 'turn degrees %f '%(angle)
                     if self.checkCenter() :
                         print 'I\'m going on path'
@@ -130,6 +140,16 @@ class Path(object) :
                     reset = 0
                     count += 1
                     print 'NOT FOUND PATH: %d'%(reset)
+
+                    if sidex > 0 :
+                        print 'right'
+                    elif sidex < 0 :
+                        print 'left'
+                    if sidey > 0 :
+                        print 'forward'
+                    elif sidey < 0 :
+                        print 'backward'
+
 
                 # check counter
                 if count >= 10:
@@ -144,7 +164,7 @@ class Path(object) :
             if mode == 2 :
                 print 'move forward speed 3'
                 mode = -1
-            time.sleep(3)
+            rospy.sleep(1)
 
         # passed through path
         print 'Path completed'

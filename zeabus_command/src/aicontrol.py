@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 
+
 import rospy, math, tf
 import constants as cons
 from zeabus_elec_ros_hardware_interface.srv import IOCommand
@@ -123,85 +124,219 @@ class AIControl:
         for _ in range(3):
             self.pub_vel.publish(temp)
 
-    def fixXY(self, x, y, err=0):
+    def fixXY(self, x, y, err=0, user='mission_planner'):
         print 'Move to (%f, %f)'%(x, y)
-        self.srv_abs_xy(x, y)
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err).ok:
+        self.srv_abs_xy(x, y, String(user))
+        while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err, String(user)).ok:
             rospy.sleep(0.1)
 
         print 'finish moving'
 
-    def driveX(self, x, err=0):
+    def driveX(self, x, err=0.2, user='mission_planner'):
         print 'doing drive x'
         self.stop()
-        if self.srv_ok_position(String('xy'), err).ok :
-            print('driveX already')
-            self.srv_rel_xy(x, 0)
+        count = 0
+        reset = 0
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+                rospy.sleep(0.2)
+            else: reset += 1
+            if reset >= 5: 
+                count = 0
+                reset = 0
+            print count
+            print 'Wait for xy'
+        print('driveX already')
+        self.srv_rel_xy(x, 0, String(user))
+        count = 0
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err).ok:
-            rospy.sleep(0.1)
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+                rospy.sleep(0.2)
+            print count
 
         print 'finish drive x'
 
-    def driveY(self, y, err=0):
+    def driveY(self, y, err=0.2, user='mission_planner'):
         print 'doing drive y'
         self.stop()
-        if self.srv_ok_position(String('xy'), err).ok :
-            print('driveY already')
-            self.srv_rel_xy(0, y)
+        count = 0
+        reset = 0
+        while not rospy.is_shutdown() and count < 10:
+            check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
+            print 'pos: %s'%check_pos
+            if check_pos:
+                count += 1
+                print 'Wait for xy'
+                rospy.sleep(0.2)
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+        print('driveY already')
+        self.srv_rel_xy(0, y, String(user))
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err).ok:
-            rospy.sleep(0.1)
+        while not rospy.is_shutdown() and count < 10:
+            check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
+            print 'pos: %s'%check_pos
+            if check_pos:
+            #if not rospy.is_shutdown() and self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
+                rospy.sleep(0.1)
+                count += 1
 
         print 'finish drive y'
 
-    def turnRelative(self, degree, err=0.05):
+    def turnRelative(self, degree, err=0.05, user='mission_planner'):
         self.stop()
         print 'turning %f'%(degree)
-        if self.srv_ok_position(String('yaw'), err).ok :
-            print('turn already')
-            rand = math.radians(degree)
-            self.srv_rel_yaw(rand)
+        count = 0
+        reset = 0
+        rospy.sleep(1.5)
+        while not rospy.is_shutdown() and count < 10:
+            check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err,String(user)).ok
+            print 'pos: %s'%check_pos
+            #if self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
+            if check_pos:
+                print 'if'
+                count += 1
+                rospy.sleep(0.2)
+            else: 
+                print 'else'
+                reset += 1
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('yaw'), err).ok:
-            rospy.sleep(0.4)
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print 'wait xy yaw'
+            print count
+
+        print('turn already')
+        rand = math.radians(degree)
+        self.srv_rel_yaw(rand, String(user))
+        count = 0
+        reset = 0
+        rospy.sleep(1.5)
+        while not rospy.is_shutdown() and count < 10:
+            check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
+            #if not rospy.is_shutdown() and self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
+            if check_pos:
+                print 'if'
+                print 'pos: %s'%check_pos
+                count += 1
+                print('Wait for yaw')
+                rospy.sleep(0.2)
+            elif not check_pos:
+                print 'else'
+                print 'pos: %s'%check_pos
+                reset = 0
+
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print count
 
         print 'finish turn rel'
 
-    def turnAbs(self, degree, err=0.05):
+    def turnAbs(self, degree, err=0.05, user='mission_planner'):
         self.stop()
         print 'turning to %f'%(degree)
-        if self.srv_ok_position(String('yaw'), err).ok :
-            print('turn already')
-            rand = math.radians(degree)
-            self.srv_abs_yaw(rand)
+        count = 0
+        reset = 0
+        rospy.sleep(1.2)
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok  and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+                rospy.sleep(0.2)
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print 'wait xy yaw'
+            print count
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('yaw'), err).ok:
-            rospy.sleep(0.4)
+        print('turn already')
+        rand = math.radians(degree)
+        self.srv_abs_yaw(rand, String(user))
+
+
+        count = 0
+        reset = 0
+        rospy.sleep(1.2)
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+                rospy.sleep(0.2)
+            else: reset += 1
+            if reset >= 5: 
+                count = 0
+                reset = 0
+            print count
 
         print 'finish turn abs'
 
-    def depthAbs(self, depth, err=0.3):
+    def depthAbs(self, depth, err=0.2, user='mission_planner'):
         self.stop()
         print 'move to depth %f'%(depth)
-        if self.srv_ok_position(String('z'), err).ok :
-            print('depth already')
-            self.srv_abs_depth(depth)
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('z'), err).ok:
+        count = 0
+        reset = 0
+
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('z'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print count
+
+        print 'READY Z'
+        self.srv_abs_depth(depth, String(user))
+        count = 0
+        reset = 0
+
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('z'), err, String(user)).ok:
+                count += 1
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print count
+            print 'wait for z'
             rospy.sleep(0.4)
 
         print 'finish depth abs'
 
-    def depthRelative(self, depth, err=0):
+    def depthRelative(self, depth, err=0, user='mission_planner'):
         self.stop()
         print 'move to depth %f'%(depth)
-        if self.srv_ok_position(String('z'), err).ok :
-            print 'depth already'
-            self.srv_rel_depth(depth)
+        count = 0
+        reset = 0
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('z'), err, String(user)).ok :
+                count += 1
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+            print count
+        print 'depth already'
+        self.srv_rel_depth(depth, String(user))
+        count = 0
+        reset = 0
 
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('z'), err).ok:
-            rospy.sleep(0.4)
+        while not rospy.is_shutdown() and count < 10:
+            if self.srv_ok_position(String('z'), err, String(user)).ok:
+                count += 1
+                rospy.sleep(0.4)
+            else:reset += 1
+            if reset >= 5: 
+                reset = 0
+                count = 0
+            print count
 
         print'finish depth relative'
 
@@ -242,6 +377,6 @@ class AIControl:
 if __name__=='__main__':
     rospy.init_node('aicontrol_node', anonymous=True)
     aicontrol = AIControl()
-    while not rospy.is_shutdown():
-        degree = input('input degree: ')
-        aicontrol.turnRelative(degree)
+    auv = aicontrol
+    auv.driveX(180)
+    print 'done'

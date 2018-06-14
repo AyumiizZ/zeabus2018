@@ -3,7 +3,7 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_vision.srv import vision_qualifying_srv_gate
+from zeabus_vision.srv import vision_srv_qualifying_gate
 from zeabus_vision.msg import vision_qualifying_gate
 from std_msgs.msg import String
 
@@ -15,7 +15,7 @@ class Gate(object):
         # wait for vision service and declare variables for store data from vision
         print '---wait for vision service---'
         rospy.wait_for_service('vision_qualifying_gate')
-        self.gate_req = rospy.ServiceProxy('vision_qualifying_gate', vision_qualifying_srv_gate)
+        self.gate_req = rospy.ServiceProxy('vision_qualifying_gate', vision_srv_qualifying_gate)
         self.gate_data = vision_qualifying_gate()
 
     def detectGate(self):
@@ -29,7 +29,7 @@ class Gate(object):
 
         print '<===Doing Gate===>'
         # move auv to target depth
-        auv.depthAbs(cons.GATE_DEPTH)
+        #auv.depthAbs(cons.GATE_DEPTH)
 
         # declare all variables used for mission
         count = 0 # counter for mode changing
@@ -45,7 +45,7 @@ class Gate(object):
             area = self.gate_data.area
             appear = self.gate_data.appear
             cx = self.gate_data.cx
-            pos = self.data.gate_data.pos
+            pos = self.gate_data.pos
 
             # find gate
             if mode == 0:

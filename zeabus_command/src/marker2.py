@@ -2,6 +2,7 @@
 
 import rospy, math
 import constants as cons
+import numpy as np
 import pickle, sklearn
 from aicontrol import AIControl
 from zeabus_vision.srv import vision_srv_qualifying_marker
@@ -13,7 +14,7 @@ from std_msgs.msg import String
 class Marker(object):
     def __init__(self):
         print '<===INIT MARKER===>'
-        #self.aicontrol = AIControl()
+        self.aicontrol = AIControl()
 
         print '---wait for vision service---'
         rospy.wait_for_service('vision_qualifying_marker')
@@ -24,10 +25,13 @@ class Marker(object):
         self.data = self.marker_req(String('marker'))
         self.data = self.data.data
 
+    def linear(self, area):
+        return -42.46119459*(area) + 3.76897
+
     def run(self):
         auv = self.aicontrol
-        pickle_in = open('linearregression.pickle', 'rb')
-        clf = pickle.load(pickle_in)
+        #pickle_in = open('linearregression.pickle', 'rb')
+        #clf = pickle.load(pickle_in)
 
         mode = 0
         count = 0
@@ -48,19 +52,22 @@ class Marker(object):
                 if appear:
                     print 'AREA: %f'%(area)
                     count += 1
-                    pred = (pred+area)/count
+                    pred = area
                     reset = 0
                     print 'FOUND MARKER: %d'%(count)
                     if cx < 0:
                         side = -1
                     elif cx > 0:
                         side = 1
+                    #print clf.predict(np.array([[0, pred]]))
+                    print self.linear(pred)
                 elif not appear:
                     reset += 1
                     print 'NOT FOUND MARKER: %d'%(reset)
                     #auv.move('', 0, side*0.1)
 
                 if count >= 5:
+                    print 'pred %f'%pred
                     count = 0
                     reset = 0
                     print '<<<Change to mode 1>>>'
@@ -72,7 +79,6 @@ class Marker(object):
 
                 auv.move('forward', cons.AUV_M_SPEED)
             if mode == 1:
-<<<<<<< HEAD
                 if cx <= -cons.VISION_MARKER_ERROR:
                     auv.move('left', cons.AUV_M_SPEED)
                 elif cx >= cons.VISION_MARKER_ERROR:
@@ -81,34 +87,21 @@ class Marker(object):
                     mode = 2
 
             if mode == 2:
-                dis = clf.predict(pred)
+                #pred = np.array([[0, pred]])
+                print pred
+                #dis = clf.predict(pred)
+                dis = self.linear(pred)
                 print 'Predict: %f'%(dis)
-                auv.driveY(1)
+                auv.driveY(-1.7)
                 auv.driveX(dis+1.5)
-                auv.driveY(-2)
+                auv.driveY(3.4)
                 auv.driveX(-(dis+1.5))
-                auv.driveY(1)
-
-            if mode == 2:
-=======
-
-                if cx <= -cons.VISION_MARKER_ERROR:
-                    auv.move('left', cons.AUV_M_SPEED)
-                elif cx >= cons.VISION_MARKER_ERROR:
-                    auv.move('right', cons.AUV_M_SPEED)
-                else :
-                    mode = 2
-            if mode == 2 :
-                auv.driveY(1)
-                auv.driveX(4.5)
-                auv.driveY(-2)
-                auv.driveX(-4.5)
-                auv.driveY(1)
+                auv.driveY(-1.7)
                 mode = 3
-                auv.stop()
+
             if mode == 3:
->>>>>>> d840952d4fc3e9b6b2ee8d134595c1ca5bb9f9de
                 auv.turnRelative(180)
+                auv.driveX(1.5+dis+5.5)
                 print 'DONE'
                 mode = -1
 

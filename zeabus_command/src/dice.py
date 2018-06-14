@@ -48,7 +48,7 @@ class Dice(object):
 
                 if count >= 5:
                     count = 0
-                    reset = 0
+                   reset = 0
                     print '<<<Change to mode 1>>>'
                 elif reset >= 5:
                     reset = 0

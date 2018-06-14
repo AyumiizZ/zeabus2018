@@ -12,7 +12,6 @@ class Path(object) :
     def __init__(self) :
         self.data = vision_path
         print '<===INIT PATH===>'
-        self.aicontrol = AIControl()
         rospy.wait_for_service('vision_path')
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
 
@@ -23,12 +22,11 @@ class Path(object) :
     def run(self) :
         while not rospy.is_shutdown():
             self.detectPath()
-            print
             print '-------------------'
-            print self.data.cx
-            print self.data.cy
-            print self.data.appear
-            print self.data.degrees
+            print "CX: %f"%self.data.cx
+            print "CY: %f"%self.data.cy
+            print "appear: %f"%self.data.appear
+            print "Degree: %f"%self.data.degrees
             print '-------------------'
 
 if __name__=='__main__':

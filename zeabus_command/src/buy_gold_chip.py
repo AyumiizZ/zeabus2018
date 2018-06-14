@@ -95,6 +95,7 @@ class BuyGoldChip(object) :
             cx = self.data.cx
             cy = self.data.cy
             appear = self.data.appear
+            area = self.data.area
             if mode == 0
                 print '<---mode 0--->'
                 if appear :
@@ -125,6 +126,7 @@ class BuyGoldChip(object) :
                 print 'cx: %f'%(cx)
                 print 'cy: %f'%(cy)
                 print 'appear: %s'%(appear)
+                print 'area: %f'%(area)
                 print '-----------------------'
                 ################################
                 if appear :
@@ -139,6 +141,9 @@ class BuyGoldChip(object) :
                     if self.checkCenter() :
                         print 'colliding with plate'
                         auv.move('forward', cons.AUV_M_SPED)
+                    if area == 1 :
+                        print 'collided'
+                        auv.stop()
                     reset += 1
                     print 'FOUND PLATE: %d'%(count)
                 elif not appear :

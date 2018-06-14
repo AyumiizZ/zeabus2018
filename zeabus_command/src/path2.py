@@ -19,6 +19,8 @@ class Path(object) :
     def detectPath(self) :
         self.data = self.detect_path(String('path'))
         self.data = self.data.data
+        # print self.data
+        # print 'check data'
 
     def checkCenter(self) :
         print 'checking'
@@ -34,10 +36,12 @@ class Path(object) :
         self.detectPath()
 
         #check cx's center
-        if cx > 0:
-            auv.move('left', cons.AUV_M_SPEED*abs(cx))
-        elif cx < 0:
-            auv.move('right', cons.AUV_M_SPEED*abs(cx))
+        if cx < -(cons.VISION_PATH_ERROR-0.1):
+            for i in range(3) :
+                auv.move('left', cons.AUV_M_SPEED*abs(cx+1))
+        elif cx > (cons.VISION_PATH_ERROR-0.1):
+            for i in range(3) :
+                auv.move('right', cons.AUV_M_SPEED*abs(cx+1))
 
         #check if auv is centerx of path or not
         if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
@@ -48,12 +52,14 @@ class Path(object) :
 
         #check centerx's counter
         if centerx >= 3:
-            x = True
+            centerx = 0
+            return True
         elif resetx >= 10:
             centerx = 0
             resetx = 0
 
         #check cy's center
+        '''
         if cy < 0:
             auv.move('forward', cons.AUV_M_SPEED*abs(cy))
         elif cy > 0:
@@ -72,11 +78,8 @@ class Path(object) :
         elif resety >= 10:
             centery = 0
             resety = 0
-        if x and y :
-            print '<<<CENTER>>>'
-            return True
-        else :
-            return False
+        '''
+
 
 
     def run(self) :
@@ -85,9 +88,11 @@ class Path(object) :
             print '<===DOING PATH===>'
 
             #auv.depthAbs(cons.PATH_DEPTH)
-            #auv.depthAbs(-3, 0.5)
+            auv.depthAbs(-2.5, 0.5)
 
             mode = 0
+            reset_turn = 0
+            count_turn = 0
             count = 0
             reset = 0
             sidex = 0
@@ -116,6 +121,7 @@ class Path(object) :
                         reset = 0
                         print 'let\'s to adjust->>>'
                         auv.stop()
+                        auv.driveX(0.5)
                         mode = 1
                     elif reset >= 5:
                         reset = 0
@@ -141,11 +147,19 @@ class Path(object) :
                             sidey = 1
                         elif cy < 0:
                             sidey = -1
-                        if abs(angle) >= 7 :
+                        if abs(angle) >= 15 :
+                            count_turn += 1
                             auv.turnRelative(angle, 1)
+                        else:
+                            reset_turn += 1
+
+                        if reset_turn >=5:
+                            reset_turn = 0
+                            count_turn = 0
                         if self.checkCenter() :
                             print 'I\'m going on path'
-                            auv.move('forward', cons.AUV_L_SPEED)
+                            for _ in range(5):
+                                auv.move('forward', cons.AUV_L_SPEED)
                         reset += 1
                         print 'FOUND PATH: %d'%(count)
                     elif not appear:
@@ -153,16 +167,18 @@ class Path(object) :
                         count += 1
                         print 'NOT FOUND PATH: %d'%(reset)
                         if sidex > 0 :
-                            auv.move('right', cons.AUV_M_SPEED*abs(sidex))
+                            auv.move('right', cons.AUV_M_SPEED)
                         elif sidex < 0 :
-                            auv.move('left', cons.AUV_M_SPEED*abs(sidex))
+                            auv.move('left', cons.AUV_M_SPEED)
+                        '''
                         if sidey > 0 :
-                            auv.move('forward', cons.AUV_M_SPEED*abs(sidey))
+                            auv.move('forward', cons.AUV_M_SPEED*sidey)
                         elif sidey < 0 :
-                            auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
+                            auv.move('backward', cons.AUV_M_SPEED*sidey)
+                        '''
 
                     # check counter
-                    if count >= 5:
+                    if count >= 10:
                         count = 0
                         reset = 0
                         print 'let\'s to adjust->>>'
@@ -173,8 +189,8 @@ class Path(object) :
                         count = 0
                 # exist path yatta!
                 if mode == 2 :
-                    #auv.driveX(2)
-                    auv.move('forward', 3)
+                    auv.driveX(2)
+                    #auv.move('forward', 3)
                     mode = -1
 
             # passed through path
