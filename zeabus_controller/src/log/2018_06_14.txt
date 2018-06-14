@@ -1,0 +1,25 @@
+----------------- start log control -----------------
+------ Order by : Unknow when Thu Jun 14 06:05:22 2018
+
+--- type is yaw and add is 0.5
+target is 0
+current is 0
+error is 0
+--- result is true
+
+------ Order by : Unknow when Thu Jun 14 06:05:24 2018
+
+--- type is yaw and add is 1
+target is 0
+current is 0
+error is 0
+--- result is true
+
+------ Order by : Unknow when Thu Jun 14 06:05:28 2018
+
+--- type is yaw and add is -1
+target is 0
+current is 0
+error is 0
+--- result is false
+

@@ -253,6 +253,9 @@ bool service_ok_position(
 	    std::cout << "service check " << request.type.data 
 					<< "and use adding is " << request.adding << std::endl;
 	#endif
+	#ifdef save_log_service
+		std::string message = "";
+	#endif
     if(request.type.data == "xy"){
 		#ifdef print_data
 			std::cout 	<< "------------------ check position "
@@ -263,8 +266,24 @@ bool service_ok_position(
 						<< " ok_error + adding " << ok_error[1] + request.adding << "\n";
 		#endif
         if( absolute(robot_error[0]) < ok_error[0] + request.adding 
-			&& absolute(robot_error[1]) < ok_error[1] + request.adding) response.ok = true;
-        else response.ok = false;
+				&& absolute(robot_error[1]) < ok_error[1] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_two_case( "Unknow", "true",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1] ); 
+			#endif
+			}
+        else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_two_case( "Unknow", "false",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1] ); 
+			#endif
+		}
     }
     else if(request.type.data == "z"){
 		#ifdef print_data
@@ -273,8 +292,22 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[2]
 						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
 		#endif
-        if( absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
-        else response.ok = false;
+        if( absolute(robot_error[2]) < ok_error[2] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( "Unknow", "true",
+						request.type.data, request.adding,
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
+        else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( "Unknow", "false",
+						request.type.data, request.adding,
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
     }
 	else if(request.type.data == "xyz"){
 		#ifdef print_data
@@ -288,9 +321,28 @@ bool service_ok_position(
 						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
 		#endif
 		if( absolute(robot_error[0]) < ok_error[0] + request.adding
-			&& absolute(robot_error[1]) < ok_error[1] + request.adding
-			&& absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
-		else response.ok = false;
+				&& absolute(robot_error[1]) < ok_error[1] + request.adding
+				&& absolute(robot_error[2]) < ok_error[2] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_three_case( "Unknow", "false",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1], 
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+
+		}
+		else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_three_case( "Unknow", "true",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1], 
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
 	}
 	else if(request.type.data == "yaw"){
 		#ifdef print_data
@@ -299,19 +351,27 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[5]
 						<< " ok_error + adding " << ok_error[5] + request.adding << "\n";
 		#endif
-		std::string message;
-/*		message = "target_position[5] is " + (std::string) target_position[5] + "\n"
-				  + "current_position[5] is " + (std::string) current_position[5]  + "\n"
-				  + "robot_error[5] is " + (std::string) robot_error[5]  "\n";*/
 		if( absolute(robot_error[5]) < ok_error[5] + request.adding){
 			response.ok = true;
-			message = "response.ok is true \n";
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( "Unknow", "true",
+								request.type.data, request.adding,
+								target_position[5] , current_position[5] , robot_error[5] ); 
+			#endif
+//			message = "response.ok is true \n";
 		}
 		else{
 			response.ok = false;
-			message = "response.ok is false \n";
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( "Unknow", "false",
+								request.type.data, request.adding,
+								target_position[5] , current_position[5] , robot_error[5] );
+			#endif
+//			message = "response.ok is false \n";
 		}
-		log_file.write_log( message);
+		#ifdef save_log_service
+			log_file.write_log( message );
+		#endif
 	}
     else response.ok = false;
 	#ifdef test_02

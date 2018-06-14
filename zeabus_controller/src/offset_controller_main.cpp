@@ -257,7 +257,7 @@ int main(int argc , char **argv){
 			}
 			tell_force.publish( create_msg_force() );
 		}
-		#ifdef print_data
+		#ifdef print_all_value
 			PID_file.clear();
 			ROS_INFO("-------------------------- print data -----------------------------");
 			ROS_INFO("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,

@@ -4,6 +4,8 @@
 #define	test_01 // test state
 //#define test_02 // print test
 #define print_data // print data
+#define print_all_value // print all normal value
+#define save_log_service // for save log service
 // ------------------------------------------------------------------------------------------ //
 
 // standard include
@@ -15,6 +17,7 @@
 // include other file
 #include	"calculate_velocity.cpp" // will use pid of this file to calculate force out
 #include	"manage_file.cpp" // this file about save / load value of dynamic reconfigure
+#include	"helping_function.cpp" // this file about manage string to write log
 
 #include 	<math.h> // for math
 
@@ -155,7 +158,9 @@ bool service_change_mode(
 find_velocity::second_case *PID_position; // use to calculate force
 find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
-manage_log log_file; // use to save log service
+#ifdef save_log_service
+	manage_log log_file; // use to save log service
+#endif
 
 double convert_min_radian( double problem); // convert to [ -PI , PI]
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
