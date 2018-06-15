@@ -22,14 +22,13 @@ class Path(object) :
         # print self.data
         # print 'check data'
 
+    centerx = 0
+    #centery = 0
+    resetx = 0
+    #resety = 0
+
     def checkCenter(self) :
         print 'checking'
-        x = False
-        y = False
-        centerx = 0
-        centery = 0
-        resetx = 0
-        resety = 0
         auv = self.aicontrol
         cx = self.data.cx
         cy = self.data.cy
@@ -45,18 +44,19 @@ class Path(object) :
 
         #check if auv is centerx of path or not
         if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
-            print '<<<CENTERX>>>'
-            centerx += 1
+            self.centerx += 1
+            print '<<<CENTERX:%d>>>'%(centerx)
         elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
-            resetx += 1
+            self.resetx += 1
+            print '<<<NOT CENTERX:%D>>>'(%resetx)
 
         #check centerx's counter
-        if centerx >= 3:
-            centerx = 0
+        if self.centerx >= 3:
+            self.centerx = 0
             return True
         elif resetx >= 10:
-            centerx = 0
-            resetx = 0
+            self.centerx = 0
+            self.resetx = 0
 
         #check cy's center
         '''
