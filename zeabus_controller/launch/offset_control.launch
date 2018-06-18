@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    
+    <node name="Controller" pkg="zeabus_controller" type="offset_control" output="log"/>
+    <node name="pure_thruster_2018" pkg="zeabus_controller" type="pure_thrust_mapper.py" output="log">
+	<node name="sensor_fusion" pkg="zeabus_">
+    </node>
+    
+</launch>
