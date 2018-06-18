@@ -9,7 +9,7 @@
 void listen_current_state( const nav_msgs::Odometry message);
 bool active_close = false;
 
-int main(){	
+int main(int argc, char **argv){
 	ros::init(argc , argv , "manage_controller");
 	ros::NodeHandle nh;
 	ros::Subscriber sub_state = nh.subscribe("/auv_state" , 1000, &listen_current_state);

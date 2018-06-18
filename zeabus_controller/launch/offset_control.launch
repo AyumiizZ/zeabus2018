@@ -3,7 +3,7 @@
     
 	<node name="sensor_fusion" pkg="zeabus_sensor_fusion" type="ex_normal_fusion" output="log">
     <node name="pure_thruster_mapper" pkg="zeabus_controller" type="pure_thrust_mapper.py" output="log">
-    <node name="Controller" pkg="zeabus_controller" type="offset_control" output="log"/>
+    <node name="Controller" pkg="zeabus_controller" type="offset_control" output="log">
     </node>
     
 </launch>
