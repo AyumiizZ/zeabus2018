@@ -63,9 +63,14 @@ def get_topic(cam, world):
     topic = None
     if cam == "front":
         if world == "real":
-            topic = "/stereo/right/image_rect_color/compressed"
+            topic = "/stereo/right/image_raw/compressed"
         if world == "sim":
             topic = "/syrena/front_cam/image_raw/compressed"
+    # if cam == "front":
+    #     if world == "real":
+    #         topic = "/stereo/right/image_rect_color/compressed"
+    #     if world == "sim":
+    #         topic = "/syrena/front_cam/image_raw/compressed"
     if cam == "bottom":
         if world == "real":
             topic = "/bottom/left/image_raw/compressed"
