@@ -15,17 +15,14 @@ class Path(object) :
         self.aicontrol = AIControl()
         rospy.wait_for_service('vision_path')
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
+        self.centerx = 0
+        self.resetx = 0
 
     def detectPath(self) :
         self.data = self.detect_path(String('path'))
         self.data = self.data.data
         # print self.data
         # print 'check data'
-
-    centerx = 0
-    #centery = 0
-    resetx = 0
-    #resety = 0
 
     def checkCenter(self) :
         print 'checking'
@@ -37,26 +34,28 @@ class Path(object) :
         #check cx's center
         if cx < -(cons.VISION_PATH_ERROR-0.1):
             for i in range(3) :
-                auv.move('left', cons.AUV_M_SPEED*abs(cx+1))
+                auv.move('left', cons.AUV_M_SPEED*(abs(cx)+1))
         elif cx > (cons.VISION_PATH_ERROR-0.1):
             for i in range(3) :
-                auv.move('right', cons.AUV_M_SPEED*abs(cx+1))
+                auv.move('right', cons.AUV_M_SPEED*(abs(cx)+1))
 
         #check if auv is centerx of path or not
         if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
+            print '<<<CENTERX:%d>>>'%(self.centerx)
             self.centerx += 1
-            print '<<<CENTERX:%d>>>'%(centerx)
+
         elif -cons.VISION_PATH_ERROR > cx > cons.VISION_PATH_ERROR:
+            print '<<<NOTCENTER:%d>>>'%(self.resetx)
             self.resetx += 1
-            print '<<<NOT CENTERX:%D>>>'(%resetx)
 
         #check centerx's counter
         if self.centerx >= 3:
             self.centerx = 0
             return True
-        elif resetx >= 10:
+        elif self.resetx >= 10:
             self.centerx = 0
             self.resetx = 0
+        return False
 
         #check cy's center
         '''
@@ -78,6 +77,11 @@ class Path(object) :
         elif resety >= 10:
             centery = 0
             resety = 0
+        if x  :
+            print '<<<CENTER>>>'
+            return True
+        else :
+            return False
         '''
 
 
@@ -87,8 +91,6 @@ class Path(object) :
 
             print '<===DOING PATH===>'
 
-            #auv.depthAbs(cons.PATH_DEPTH)
-            auv.depthAbs(-2.5, 0.5)
 
             mode = 0
             reset_turn = 0
@@ -97,17 +99,19 @@ class Path(object) :
             reset = 0
             sidex = 0
             sidey = 0
+            Pass = False
             while not rospy.is_shutdown() and not mode == -1:
                 #find path
                 self.detectPath()
                 cx = self.data.cx
                 cy = self.data.cy
+                area = self.data.area
                 angle = self.data.degrees
                 appear = self.data.appear
                 if mode == 0 :
                     print '<---MODE 0--->'
                     #check if path appear
-                    if appear :
+                    if appear and area > 0.05:
                         count += 1
                         reset = 0
                         print 'FOUND PATH: %d'%(count)
@@ -121,7 +125,9 @@ class Path(object) :
                         reset = 0
                         print 'let\'s to adjust->>>'
                         auv.stop()
-                        auv.driveX(0.5)
+                        auv.driveX(0.3)
+                        #auv.depthAbs(cons.PATH_DEPTH)
+                        auv.depthAbs(-2.5, 0.5)
                         mode = 1
                     elif reset >= 5:
                         reset = 0
@@ -145,13 +151,18 @@ class Path(object) :
                             sidex = -1
                         if cy > 0:
                             sidey = 1
+                            Pass = False
                         elif cy < 0:
                             sidey = -1
+                            Pass = True
                         if abs(angle) >= 15 :
                             count_turn += 1
-                            auv.turnRelative(angle, 1)
                         else:
                             reset_turn += 1
+
+                        if count_turn >= 5:
+                            count_turn = 0
+                            auv.turnRelative(angle, 1)
 
                         if reset_turn >=5:
                             reset_turn = 0
@@ -166,10 +177,11 @@ class Path(object) :
                         reset = 0
                         count += 1
                         print 'NOT FOUND PATH: %d'%(reset)
-                        if sidex > 0 :
-                            auv.move('right', cons.AUV_M_SPEED)
-                        elif sidex < 0 :
-                            auv.move('left', cons.AUV_M_SPEED)
+                        if not Pass:
+                            if sidex > 0 :
+                                auv.move('right', cons.AUV_M_SPEED)
+                            elif sidex < 0 :
+                                auv.move('left', cons.AUV_M_SPEED)
                         '''
                         if sidey > 0 :
                             auv.move('forward', cons.AUV_M_SPEED*sidey)

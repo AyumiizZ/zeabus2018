@@ -18,7 +18,7 @@ class Qualify(object):
         auv.depthAbs(cons.QUALIFY_DEPTH)
         auv.driveX(5)
         self.marker.run()
-        #self.gate.run()
+        self.gate.run()
 
 if __name__=='__main__':
     rospy.init_node('qualifying_node')

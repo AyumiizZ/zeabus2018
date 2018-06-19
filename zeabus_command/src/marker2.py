@@ -26,7 +26,7 @@ class Marker(object):
         self.data = self.data.data
 
     def linear(self, area):
-        return -42.46119459*(area) + 3.76897
+        return (-42.46119459*(area) + 3.76897) + 1.5
 
     def run(self):
         auv = self.aicontrol
@@ -101,7 +101,7 @@ class Marker(object):
 
             if mode == 3:
                 auv.turnRelative(180)
-                auv.driveX(1.5+dis+5.5)
+                #auv.driveX(1.5+dis+5.5)
                 print 'DONE'
                 mode = -1
 

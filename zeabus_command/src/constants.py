@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 
 GATE_DEPTH = -1.5
-QUALIFY_DEPTH = -3
+QUALIFY_DEPTH = -2
 PATH_DEPTH = -1.5
 
 MARK = 2

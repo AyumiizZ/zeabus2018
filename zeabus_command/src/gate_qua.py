@@ -110,6 +110,7 @@ class Gate(object):
                         center = 0
                         reset = 0
 
+                '''
                 # check if auv is too close or too far from the gate
                 if area > 0.01:
                     print 'TOO CLOSE'
@@ -132,6 +133,7 @@ class Gate(object):
                 elif back >= 3:
                     print 'MOVE FURTHUR FROM THE GATE'
                     auv.driveX(-0.4)
+                '''
 
             # go through the gate
             if mode == 2:

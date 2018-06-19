@@ -25,6 +25,7 @@ class Path(object) :
             print '-------------------'
             print "CX: %f"%self.data.cx
             print "CY: %f"%self.data.cy
+            print 'AREA: %f'%(self.data.area)
             print "appear: %f"%self.data.appear
             print "Degree: %f"%self.data.degrees
             print '-------------------'
