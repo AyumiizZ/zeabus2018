@@ -100,7 +100,7 @@ class Marker(object):
                 mode = 3
 
             if mode == 3:
-                auv.turnRelative(180)
+                auv.turnRelative(90)
                 #auv.driveX(1.5+dis+5.5)
                 print 'DONE'
                 mode = -1

@@ -19,6 +19,7 @@ class Qualify(object):
         auv.driveX(5)
         self.marker.run()
         self.gate.run()
+        auv.driveX(5)
 
 if __name__=='__main__':
     rospy.init_node('qualifying_node')
