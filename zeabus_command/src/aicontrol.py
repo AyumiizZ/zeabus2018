@@ -24,6 +24,7 @@ class AIControl:
         # sim
         #self.pub_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
+        '''
         self.pub_position = rospy.Publisher('/cmd_fix_position', Point, queue_size=10)
         self.pub_xy = rospy.Publisher('/fix/abs/xy', point_xy, queue_size=10)
 
@@ -31,6 +32,7 @@ class AIControl:
         self.pub_rel_yaw = rospy.Publisher('/fix/rel/yaw', Float64, queue_size=10)
         self.pub_abs_depth = rospy.Publisher('/fix/abs/depth', Float64, queue_size=10)
         self.pub_rel_depth = rospy.Publisher('/fix/rel/depth', Float64, queue_size=10)
+        '''
         '''
         rospy.wait_for_service('io_and_pressure/IO_ON')
         print 'IO_ON'
@@ -52,7 +54,7 @@ class AIControl:
         rospy.wait_for_service('ok_position')
         print 'ok_position'
         #rospy.wait_for_service('fix_service')
-        #print 'fix_s
+        #print 'fix_service'
 
         #self.srv_io_on = rospy.ServiceProxy('io_and_pressure/IO_ON', IOCommand)
         #self.srv_io_off = rospy.ServiceProxy('io_and_pressure/IO_OFF', IOCommand)
@@ -63,7 +65,7 @@ class AIControl:
         self.srv_abs_depth = rospy.ServiceProxy('fix_abs_depth', fix_abs_depth)
         self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_abs_depth)
         self.srv_ok_position = rospy.ServiceProxy('ok_position', ok_position)
-        self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
+        #self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
 
     def fullSpeed(self, time):
         print 'WARNING: BE READY TO STOP THE CONTROL NODE, IF ANYTHING GOING WRONG'
@@ -84,6 +86,11 @@ class AIControl:
 
         return twist
 
+    def backTrack(self, point):
+        print 'Backtracking'
+        self.driveX(-2)
+        self.fixXY(point[0], point[1])
+        print 'Back to checkpoint'
 
     def multiMove(self, speed):
         self.stop()
@@ -178,7 +185,6 @@ class AIControl:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
             print 'pos: %s'%check_pos
             if check_pos:
-            #if not rospy.is_shutdown() and self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
                 rospy.sleep(0.1)
                 count += 1
 
@@ -193,7 +199,6 @@ class AIControl:
         while not rospy.is_shutdown() and count < 10:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err,String(user)).ok
             print 'pos: %s'%check_pos
-            #if self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
             if check_pos:
                 print 'if'
                 count += 1
@@ -216,7 +221,6 @@ class AIControl:
         rospy.sleep(1.5)
         while not rospy.is_shutdown() and count < 10:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
-            #if not rospy.is_shutdown() and self.srv_ok_position(String('xy'), err).ok and self.srv_ok_position(String('yaw'), err):
             if check_pos:
                 print 'if'
                 print 'pos: %s'%check_pos
@@ -371,8 +375,7 @@ class AIControl:
         self.auv_state[5] = euler_angular[2]
 
 if __name__=='__main__':
-    rospy.init_node('aicontrol_node', anonymous=True)
+    rospy.init_node('aicontrol_node')
     aicontrol = AIControl()
     auv = aicontrol
-    auv.driveX(180)
     print 'done'
