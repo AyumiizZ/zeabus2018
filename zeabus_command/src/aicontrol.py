@@ -72,6 +72,29 @@ class AIControl:
         self.srv_full_speed(String(""))
         print 'AUV stop'
 
+    def listToTwist(self, lis):
+        twist = Twist()
+        twist.linear.x = lis[0]
+        twist.linear.y = lis[1]
+        twist.linear.z = lis[2]
+
+        twist.angular.x = lis[4]
+        twist.angular.y = lis[5]
+        twist.angular.z = lis[6]
+
+        return twist
+
+
+    def multiMove(self, speed):
+        self.stop()
+        temp = self.listToTwist(speed)
+        print 'MOVE'
+        print 'X: %f'%speed[0]
+        print 'Y: %f'%speed[1]
+        print 'Z: %f'%speed[2]
+        print 'YAW: %f'%speed[5]
+        for _ in range(3):
+            self.pub_vel.publish(temp)
 
     def move(self, direction, speed, yaw=0):
         print("speed : %.2f"%(speed))
@@ -96,33 +119,6 @@ class AIControl:
 
         for _ in range(3):
             self.pub_vel.publish(self.vel)
-
-    def moveX(self, speed):
-        print 'Move x at speed %f'%(speed)
-        self.stop()
-        temp = Twist()
-        temp.linear.x = speed
-        temp.linear.y = 0
-        temp.linear.z = 0
-
-        temp.angular.x = 0
-        temp.angular.y = 0
-        temp.angular.z = 0
-        for _ in range(3):
-            self.pub_vel.publish(temp)
-
-    def moveY(self, speed):
-        print 'Move y at speed %f'%(speed)
-        temp = Twist()
-        temp.linear.x = 0
-        temp.linear.y = speed
-        temp.linear.z = 0
-
-        temp.angular.x = 0
-        temp.angular.y = 0
-        temp.angular.z = 0
-        for _ in range(3):
-            self.pub_vel.publish(temp)
 
     def fixXY(self, x, y, err=0, user='mission_planner'):
         print 'Move to (%f, %f)'%(x, y)
@@ -341,7 +337,7 @@ class AIControl:
         print'finish depth relative'
 
     def stop(self):
-        rospy.sleep(0.5)
+        rospy.sleep(0.3)
         self.vel.linear.x = 0
         self.vel.linear.y = 0
         self.vel.linear.z = 0
