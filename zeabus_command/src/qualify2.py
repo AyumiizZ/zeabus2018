@@ -2,7 +2,7 @@
 
 import rospy
 from aicontrol import AIControl
-from gate_qua import Gate
+from gate_qua2 import Gate
 import constants as cons
 from marker2 import Marker
 

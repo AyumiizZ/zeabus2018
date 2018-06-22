@@ -55,9 +55,9 @@ class BuyGoldChip(object) :
 
         #check cy's center
         if cy < 0:
-            auv.move('forward', cons.AUV_M_SPEED*abs(cy))
+            auv.move('up', cons.AUV_M_SPEED*abs(cy))
         elif cy > 0:
-            auv.move('backward', cons.AUV_M_SPEED*abs(cy))
+            auv.move('down', cons.AUV_M_SPEED*abs(cy))
 
         #check if auv is centery of plate or not
         if -cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR:

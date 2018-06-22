@@ -32,7 +32,7 @@ class dice(object):
         reset = 0
 
         target_die = 0
-        found = False
+        appear = False
 
         checkpoint = [0, 0]
 
@@ -48,8 +48,8 @@ class dice(object):
                     auv.move('forward', cons.AUV_M_SPEED)
                     print 'Look for %d point'%dice[index]
                     self.detectDie(dice[index])
-                    found = self.data.appear
-                    if found:
+                    appear = self.data.appear
+                    if appear:
                         count_dice[index] += 1
                         reset_count[index] = 0
                     else:
@@ -61,7 +61,7 @@ class dice(object):
 
                     if count_dice[index] >= 5:
                         target_die = dice[index]
-                        print 'Found %d point'%(target_die)
+                        print 'appear %d point'%(target_die)
                         print 'Set target to %d'%(target_die)
                         checkpoint = [auv.auv_state[0], auv.auv_state[1]]
                         print '---checkpoint---'
@@ -72,15 +72,19 @@ class dice(object):
             if mode == 1:
                 print 'Mode 1'
                 self.detectDie(target_die)
-                found = self.data.appear
+                appear = self.data.appear
                 cx = self.data.cx
                 cy = self.data.cy
                 print '<<<Data from Vision>>>'
-                print 'APPEAR: %s'%(found)
+                print 'APPEAR: %s'%(appear)
                 print 'CX: %f'%(cx)
                 print 'CY: %f'%(cy)
-                if found:
-                    auv.multiMove([1, cx, cy, 0, 0, 0])
+                if appear:
+                    if -cons.VISION_DICE_ERROR < cx < cons.VISION_DICE_ERROR:
+                        if -cons.VISION_DICE_ERROR < cy < cons.VISION_DICE_ERROR:
+                            auv.multiMove([1, cx, cy, 0, 0, 0])
+                    else:
+                        auv.multiMove([0, cx, cy, 0, 0, 0])
                     reset += 1
                 else:
                     count += 1
@@ -97,15 +101,19 @@ class dice(object):
 
             if mode == 2:
                 self.detectDie(target_die)
-                found = self.data.appear
+                appear = self.data.appear
                 cx = self.data.cx
                 cy = self.data.cy
                 print '<<<Data from Vision>>>'
-                print 'APPEAR: %s'%(found)
+                print 'APPEAR: %s'%(appear)
                 print 'CX: %f'%(cx)
                 print 'CY: %f'%(cy)
-                if found:
-                    auv.multiMove([1, cx, cy, 0, 0, 0])
+                if appear:
+                    if -cons.VISION_DICE_ERROR < cx < cons.VISION_DICE_ERROR:
+                        if -cons.VISION_DICE_ERROR < cy < cons.VISION_DICE_ERROR:
+                            auv.multiMove([1, cx, cy, 0, 0, 0])
+                    else:
+                        auv.multiMove([0, cx, cy, 0, 0, 0])
                     reset += 1
                 else:
                     count += 1
