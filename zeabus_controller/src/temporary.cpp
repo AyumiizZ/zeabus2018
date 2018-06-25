@@ -15,7 +15,7 @@ int main(int argc, char **argv){
 	ros::init(argc , argv , "manage_controller");
 	ros::NodeHandle nh;
 	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
-	ros::Rate sleep(1);
+	ros::Rate sleep(0.5);
 	std::cout << "Waiting for open 1 second\n";
 	sleep.sleep();
 	manage_control.run_launch( "zeabus_controller" , "offset_control.launch");
@@ -29,7 +29,7 @@ void listen_current_state( const nav_msgs::Odometry message){
 		count_close_close++;
 		if(count_close_close > 5){
 			manage_control.kill_node("Controller");
-			manage_control.kill_node("pure_thruster_mapper");
+			manage_control.kill_node("thrust_mapper");
 			manage_control.kill_node("sensor_fusion");
 			std::cout << "I close that\n";	
 			active_close = false;
@@ -45,5 +45,8 @@ void listen_current_state( const nav_msgs::Odometry message){
 			count_open_close = 0;
 			count_close_close = 0;
 		}
+	}
+	else{
+		std::cout << "I don't do any things\n";	
 	}
 }
