@@ -15,6 +15,8 @@ class roulette(object) :
         self.data = vision_roulette
         rospy.wait_for_service('vision_roulette')
         self.detect_roulette = rospy.ServiceProxy('vision_roulette',vision_srv_roulette)
+        self.center = 0
+        self.reset = 0
 
     def detectBin(self, req) :
         self.data = self.detect_roulette(String('roulette'), String('green'))
@@ -23,66 +25,32 @@ class roulette(object) :
     def pinger(self) :
         self.data = self.pinger(String('roulette'))
         self.data = self.data.data
+
     def checkCenter(self) :
         print 'checking'
-        x = False
-        y = False
-        centerx = 0
-        centery = 0
-        resetx = 0
-        resety = 0
         auv = self.aicontrol
         cx = self.data.cx
         cy = self.data.cy
+        appear = self.data.appear
         self.detectBin('green')
 
-        #check cx's center
-        if cx < 0:
-            auv.move('left', cons.AUV_M_SPEED*abs(cx))
-        elif cx > 0:
-            auv.move('right', cons.AUV_M_SPEED*abs(cx))
+        #check bin center
+        if appear :
+            if -cons.VISION_ROULETTE_ERROR <= cx <= cons.VISION_ROULETTE_ERROR and -cons.VISION_ROULETTE_ERROR <= cy <= cons.VISION_ROULETTE_ERROR :
+                self.center += 1
+                print 'center:%d'%center
+            else :
+                self.reset +=1
+                auv.multiMove([cx, cy, 0, 0, 0, 0])
 
 
-        #check if auv is centerx of bin or not
-
-        if -cons.VISION_ROULETTE_ERROR <= cx <= cons.VISION_ROULETTE_ERROR:
-            print '<<<CENTERX>>>'
-            centerx += 1
-        elif -cons.VISION_ROULETTE_ERROR > cx > cons.VISION_ROULETTE_ERROR:
-            resetx += 1
-
-        #check centerx's counter
-        if centerx >= 1:
-            x = True
+        #check center counter
+        if center >= 1:
+            print '<<<CHECK CENTER>>>'
+            return True
         elif resetx >= 5:
             centerx = 0
             resetx = 0
-
-        #check cy's center
-        if cy > 0:
-            auv.move('forward', cons.AUV_M_SPEED*abs(cy))
-        elif cy < 0:
-            auv.move('backward', cons.AUV_M_SPEED*abs(cy))
-
-        #check if auv is centery of bin or not
-        if -cons.VISION_ROULETTE_ERROR <= cy <= cons.VISION_ROULETTE_ERROR:
-            print '<<<CENTERY>>>'
-            centery += 1
-        elif -cons.VISION_ROULETTE_ERROR > cy > cons.VISION_ROULETTE_ERROR:
-            resety += 1
-
-        #check center's counter
-        if centery >= 1:
-            y = True
-        elif resety >= 5:
-            centery = 0
-            resety = 0
-        if x and y :
-            print '<<<CENTER>>>'
-            return True
-        else :
-            print '<<<NOT CENTER>>>'
-            return False
 
     def run(self) :
         auv = self.aicontrol
@@ -91,7 +59,7 @@ class roulette(object) :
 
         mode = 1
         count = 0
-        reset = 0 
+        reset = 0
         while not rospy.is_shutdown() and not mode == -1:
             '''
             if mode == 0 : #find pinger
