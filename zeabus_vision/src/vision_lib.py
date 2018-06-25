@@ -231,7 +231,7 @@ def color_mapping(mono):
         cv.COLORMAP_PINK,
         cv.COLORMAP_HOT
     '''
-    bgr = cv.applyColorMap(bin, cv.COLORMAP_HSV)
+    bgr = cv.applyColorMap(mono, cv.COLORMAP_HSV)
     return bgr
 
 
