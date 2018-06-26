@@ -15,11 +15,12 @@ class BuyGoldChip(object) :
 
         rospy.wait_for_service(vision_chip)
         self.detect_chip = rospy.ServiceProxy('vision_chip', vision_srv_chip)
-
+        self.center = 0
+        self.reset = 0
     def detectPlate(self) :
         self.data = self.detect_chip(String('plate'))
         self.data = self.data.data
-
+    '''
     def checkCenter(self) :
         print 'checking'
         x = False
@@ -77,6 +78,31 @@ class BuyGoldChip(object) :
             return True
         else :
             return False
+    '''
+    def checkCenter(self) :
+
+        print 'checking'
+        auv = self.aicontrol
+        cx = self.data.cx
+        cy = self.data.cy
+        self.detectChip()
+        #check bin center
+        if appear :
+            if -cons.VISION_ROULETTE_ERROR <= cx <= cons.VISION_ROULETTE_ERROR and -cons.VISION_ROULETTE_ERROR <= cy <= cons.VISION_ROULETTE_ERROR :
+                self.center += 1
+                print 'center:%d'%center
+            else :
+                self.reset +=1
+                auv.multiMove([0, cx, cy 0, 0, 0])
+
+
+        #check center counter
+        if center >= 1:
+            print '<<<CHECK CENTER>>>'
+            return True
+        elif resetx >= 5:
+            centerx = 0
+            resetx = 0
 
     def run(self) :
         auv = self.aicontrol
@@ -96,26 +122,26 @@ class BuyGoldChip(object) :
             cy = self.data.cy
             appear = self.data.appear
             area = self.data.area
-            if mode == 0
+            if mode == 0 :
                 print '<---mode 0--->'
                 if appear :
-                        count += 1
-                        reset = 0
-                        print 'FOUND PLATE: %d'%(count)
-                    elif not appear:
-                        reset += 1
-                        print 'NOT FOUND PLATE: %d'%(reset)
+                    count += 1
+                    reset = 0
+                    print 'FOUND PLATE: %d'%(count)
+                elif not appear:
+                    reset += 1
+                    print 'NOT FOUND PLATE: %d'%(reset)
 
-                    # check counter
-                    if count >= 5:
-                        count = 0
-                        reset = 0
-                        print 'let\'s to adjust->>>'
-                        auv.stop()
-                        mode = 1
-                    elif reset >= 5:
-                        reset = 0
-                        count = 0
+                # check counter
+                if count >= 5:
+                    count = 0
+                    reset = 0
+                    print 'let\'s to adjust->>>'
+                    auv.stop()
+                    mode = 1
+                elif reset >= 5:
+                    reset = 0
+                    count = 0
 
                 auv.move('forward', cons.AUV_M_SPEED)
             #check on center of plate
@@ -132,12 +158,12 @@ class BuyGoldChip(object) :
                 if appear :
                     if cx > 0:
                             sidex = 1
-                        elif cx < 0:
-                            sidex = -1
-                        if cy > 0:
-                            sidey = 1
-                        elif cy < 0:
-                            sidey = -1
+                    elif cx < 0:
+                        sidex = -1
+                    if cy > 0:
+                        sidey = 1
+                    elif cy < 0:
+                         sidey = -1
                     if self.checkCenter() :
                         print 'colliding with plate'
                         auv.move('forward', cons.AUV_M_SPED)
@@ -171,6 +197,7 @@ class BuyGoldChip(object) :
                     count = 0
             # find gold chip
             if mode == 2 :
+                pass
 
 
 if __name__ == '__main__' :

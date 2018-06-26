@@ -3,8 +3,8 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_example.srv import vision_srv_gate
-from zeabus_example.msg import vision_gate
+from zeabus_vision.srv import vision_srv_gate
+from zeabus_vision.msg import vision_gate
 from std_msgs.msg import String
 
 class Gate(object):
@@ -44,7 +44,8 @@ class Gate(object):
             self.detectGate()
             area = self.gate_data.area
             appear = self.gate_data.appear
-            cx = self.gate_data.cx
+            cx1 = self.gate_data.cx1
+            cx2 = self.gate_data.cx2
             pos = self.data.gate_data.pos
 
             # find gate
@@ -74,10 +75,13 @@ class Gate(object):
 
             # move to center of the gate
             if mode == 1:
+                print
                 print '---mode 1---'
                 print 'POS: %d'%(pos)
-                print 'cx: %f'%(cx)
+                print 'cx1: %f'%(cx1)
+                print 'cx2: %f'%(cx2)
                 print 'area: %f'%(area)
+                print '-------------------'
 
                 # found only left part
                 if pos == -1:
@@ -89,17 +93,17 @@ class Gate(object):
 
                 # found both left and right
                 elif pos == 0:
-                    if cx < 0:
-                        auv.move('left', cons.AUV_M_SPEED*abs(cx))
-                    elif cx > 0:
-                        auv.move('right', cons.AUV_M_SPEED*abs(cx))
+                    if cx1 < 0:
+                        auv.move('left', cons.AUV_M_SPEED*abs(cx1))
+                    elif cx1 > 0:
+                        auv.move('right', cons.AUV_M_SPEED*abs(cx1))
 
                     # check if gate is center or not
-                    if -cons.VISION_GATE_ERROR <= cx <= cons.VISION_GATE_ERROR:
+                    if -cons.VISION_GATE_ERROR <= cx1 <= cons.VISION_GATE_ERROR:
                         print '<<<CENTER>>>'
                         center += 1
                         auv.stop()
-                    elif -cons.VISION_GATE_ERROR > cx > cons.VISION_GATE_ERROR:
+                    elif -cons.VISION_GATE_ERROR > cx1 > cons.VISION_GATE_ERROR:
                         reset += 1
 
                 # check center's counter
