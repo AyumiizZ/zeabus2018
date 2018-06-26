@@ -11,10 +11,15 @@ from vision_lib import *
 
 class AutoExposure:
 
-    def __init__(self, subTopic, clientName, EVdefault=1, EVmin=0.5):
+    def __init__(self, subTopic, clientName, EVdefault=1, EVmin=0.5, camera_position='front'):
         print_result("init_node_auto_exposure")
-        self.imageW = CONST.IMAGE_TOP_WIDTH
-        self.imageH = CONST.IMAGE_TOP_HEIGHT
+        if camera_position == 'front':
+            self.imageW = CONST.IMAGE_FRONT_WIDTH
+            self.imageH = CONST.IMAGE_FRONT_HEIGHT
+        else:
+            self.imageW = CONST.IMAGE_BOTTOM_WIDTH
+            self.imageH = CONST.IMAGE_BOTTOM_HEIGHT
+
         self.hsv = None
         self.image = None
         self.subTopic = subTopic
@@ -85,14 +90,3 @@ class AutoExposure:
         for i in range(trimmedValue[1], 256):
             data = filter(lambda a: a != i, data)
         return data
-
-
-# def test_class():
-#     subTopic = "/top/left/image_raw/compressed"
-#     client = "ueye_cam_nodelet_top_left/"
-#     ae = AutoExposure(subTopic, client)
-#     ae.adjust_exposure_time()
-
-# if __name__ == '__main__':
-#     rospy.init_node('Auto_Exposure_Top')
-#     test_class()

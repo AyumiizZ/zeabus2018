@@ -4,6 +4,12 @@
 **[Hardware](#hardware)**<br>
 **[Software](#software)**<br>
 **[Libraries](#libraries)**<br>
+**[Mission](#mission)**<br>
+**[Auto Exposure](#auto-exposure)**<br>
+**[Color Range](#color-range)**<br>
+**[Bag2JPG](#bag2jpg)**<br>
+**[Bag2mp4](#bag2mp4)**<br>
+**[Parameters](#parameters)**<br>
 **[Camera calibration](#camera-calibration)**<br>
 **[Description](#description)**<br>
 **[CameraInfo Message](#camerainfo-message)**<br>
@@ -28,6 +34,195 @@
 * Numpy
 * Matplot
 
+## Mission
+
+**Qualifying Maneuver (gate)** 
+* Execution: ``` rosrun zeabus_vision qualifying_gate.py```
+* Result Topic: `/vision/qualifying_gate/img`
+
+**Qualifying Maneuver (marker)** 
+* Execution: ``` rosrun zeabus_vision qualifying_marker_v2.py```
+* Result Topic: `/vision/qualifying_marker/img`
+
+**Shoot Craps** 
+* Execution: ``` rosrun zeabus_vision shoot_craps.py```
+* Result Topic: `/vision/shoot_craps/result`
+* Result Description: 
+	
+		Blue Circle is 2 points.
+		Green Circle is 5 points.
+		Red Circle is 6 points.
+
+**Play Roulette** 
+* Execution: ``` rosrun zeabus_vision roulette.py```
+* Result Topic: `/vision/roulette/img`
+
+## Auto Exposure
+
+* ZEABUS's auto exposure (*ZEABUS's AE*) is changed by mode of V that is channel of HSV Color in frame.
+* The main program contain in `auto_exposure.py` that have a `AutoExposure` Class, You can use it with camera which you want to use ZEABUS's AE by create a new file and insert `AutoExposure` Class. See [*auto_exposure_front.py*](https://github.com/zeabusTeam/zeabus2018/blob/vision/zeabus_vision/src/auto_exposure_front.py).
+* ZEABUS's AE is called by `stereo.launch`, If you want to **Disable** please comment code below:
+
+```
+<node pkg="zeabus_vision" name="auto_exposure_front" type="auto_exposure_front.py" output="screen">
+	<param name="topic_right" type="str" value="/stereo/right/image_rect_color/compressed"/>
+	<param name="client_right" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_right)/"/>
+</node>
+```
+* If you want to use `auto exposure` but code be commented, can use command : ```rosrun zeabus_vision auto_exposre_front.py```
+
+
+## Color Range
+
+
+	**(A)** mission.launch ---------_-- run ---> task or mission file.py ----- mission name ----------
+					|								  |------
+	**(B)** color_range_*.launch --| -- run ---> color_range_main.py ---------- mission name ---------	|
+					|									|
+					V									|
+	call color param from param/<interger 1,2,3,...>/\*.yaml **(C)**					|
+														|
+														|
+		-------------------------------------------------------------------------------------------------
+		|
+		V
+	after_preprocess ---> hsv ---> task or mission file.py -----> Can use get_color_range() in vision_lib.py
+			       |
+			       |
+			       V
+			color_range_main.py  ----> You click or slide hsv trackbar for get color  ------
+													|
+													|
+													V
+				set color param <--- save to param in sub directory 1, 2, or ... same **(C)**
+	
+	
+
+* Color range have 2 part, **1. Get color value and 2. Use Color Value**. 
+* The color value is saved `*.yaml` files in `params` directory (folder) in sub directory `1` or `2` or interger for seprerate color range value for each period (morning or noon) .
+
+### 1. Get color value.
+
+* In this part have three files are `color_range_main.py`, `color_range_front.launch` and `color_range_bottom.launch`.
+* Have `pre_process(mission)` function in `vision_lib.py` for preprocess image before convert to hsv and use in your task or mission files when you use color range value. 
+
+		explain 1. You preprocess image before convert to hsv in path.py 
+			2. You get color from hsv in color_range_main.py also you copy code preprocess from path.py into color_range_main.py for hsv color from path.py is equal to hsv color from color_range_main.py
+			3. I will description agian in part 2. Use Color Value
+			
+* *color_range_main.py* use for get color from image's topic (real or bag) then save to `*.yaml` 
+* *color_range_\*.launch* that launch (run) *color_range_main.py* and config parameter for front and bottom cameras. Command is 
+
+```
+	roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
+```
+
+
+![alt text](https://raw.githubusercontent.com/zeabusTeam/zeabus2018/vision/zeabus_vision/images/color_range_example.png)
+
+
+* Above image show color range main that launched by color_range_front.launch.
+
+**Manual**
+
+1. Run command for launch `color_range_main.py`
+2. Press <color key> for set color that you want to get color into `mask` window. Please see the `m<->c` status is 0 or m, The m<->c status default is 1.
+3. Now, you can get color by `left click` or slide trackbar. Please see below.
+4. After, you satisfied in color press in *step 2* again for back to `color` window and save (press s), check your terminal show `<------------ save ------------>`  
+5. Then, if you to get other color press <color key> until `m<->c` status is 2 or c, following step 2-4 again.
+	
+*P.S.* get color when `m<->c` status is 0 or m. and save when `m<->c` status is 2 or c.
+
+* In the `image` window represent HSV image after pre_process, current color value, `m<->c` status that show now you choose mask(m or 0) window or color(c or 2) window. 
+* `press <color key>`   <color key> is first letter of colors name. (e.g. red -> r, violet -> v)	
+* `left-click`          click on image window for get color that you want.
+* `press z`             undo
+* `press x`             redo
+* `press s`             save
+* `press c`             clear color value set to lower : 179, 255, 255 and upper 0, 0, 0 
+* `press q`		exit program. if not save cannot exit but you can `Ctrl+C` in termnal for exit.
+
+### 2. Use color Value
+
+* Have three files `mission.launch`(launch file for run task file), `color_front_example_color_range.yaml`(color range value from step 1.) and `example_color_range.py`(task file)
+* Please read `example_color_range.py` file that edit from `roulette.py.py` and search `part of color range` for code about color range, in `line 191` show how to get color range 
+* Run task file by 
+
+```
+	roslaunch zeabus_vision mission.launch mission:='example_color_range' number:='1' camera_position:='front'
+```
+
+### Refer
+
+##### File
+	
+	python: color_range_main.py, task or mission.py and vision_lib.py (pre_process(), get_color_range(), 
+
+	launch: color_range_front.launch, color_range_bottom.launch and mission.launch
+	
+	yaml: params/<1,2,3,...>/ *.yaml
+	
+
+##### Command
+	
+	get color : 
+
+	roslaunch zeabus_vision color_range_<front or bottom>.launch mission:='<mission name>' number:='<directory name 1, 2, 3, ...>'
+	
+	
+	use color (mission) : 
+
+	roslaunch zeabus_vision mission.launch mission:='example_color_range' number:='1' camera_position:='front'
+
+## Bag2JPG
+
+* roslaunch zeabus_vision bag2img.launch *bag:=[bag path] topic:=[topic name] republish:=[status] out:=[output path]*
+
+* `bag` is path of bag file.
+* `topic` is topic that you want convert to `*.JPG` in bag file. Not include `/Compressed`.
+* `republish` is status of republish that convert image compressed to image raw. Set `0` if bag record `Compressed`, 1 if bag record `Raw`.
+* `out` is output path. Please specific `absolute path`.	
+	
+* **e.g.** Convert bag that record compressed images to images.
+
+```
+roslaunch zeabus_vision bag2img.launch *bag:=../bag/dice00.bag topic:=/top/center/image_raw republish:=0 out:=/home/skconan/img*
+```
+
+
+* **e.g.** Convert bag that record compressed images to images.
+
+```
+roslaunch zeabus_vision bag2img.launch *bag:=../bag/stereo00.bag topic:=/my_stereo/right/image_raw republish:=1 out:=/home/skconan/img*
+```
+
+
+## Bag2mp4
+
+* Please `catkin_make` before use it.
+* Command `rosrun zeabus_vision bag2mp4 filename.bag topicname fps output.mp4`
+
+
+
+## Parameters
+
+
+**Ground** 
+
+* `master_gain` is 0
+* `red_gain` is 30
+* `green_gain` is 0
+* `blue_gain` is 50
+* `frame_rate` is 10
+
+
+**Under Water** 
+
+* `master_gain` is 10
+* `red_gain` is 100
+* `green_gain` is 0
+* `blue_gain` is 20
+* `frame_rate` is 15
 
 ## Camera calibration
     
