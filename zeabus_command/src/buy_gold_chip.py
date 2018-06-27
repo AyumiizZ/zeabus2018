@@ -1,7 +1,7 @@
 #!/usr/bin/python2.7
 import rospy
-from zeabus_vision.msg import vision_chip
-from zeabus_vision.srv import vision_srv_chip
+from zeabus_vision.msg import vision_buy_a_gold_chip
+from zeabus_vision.srv import vision_srv_buy_a_gold_chip
 from aicontrol import AIControl
 from std_msgs.msg import String, Float64, Bool
 import constants as cons
@@ -13,13 +13,19 @@ class BuyGoldChip(object) :
 
         print '<===INIT BUY_GOLD_CHIP===>'
 
-        rospy.wait_for_service(vision_chip)
-        self.detect_chip = rospy.ServiceProxy('vision_chip', vision_srv_chip)
+        rospy.wait_for_service(vision_buy_a_gold_chip)
+        self.detect_chip = rospy.ServiceProxy('vision_buy_a_glod_chip', vision_srv_buy_a_gold_chip)
         self.center = 0
         self.reset = 0
-    def detectPlate(self) :
-        self.data = self.detect_chip(String('plate'))
-        self.data = self.data.data
+
+    def detectPlate(self, req) :
+        self.data = self.detect_buy_a_gold_chip(String('buy_a_gold_chip'), ('front'))
+        self.plate = self.plate.data
+
+    def detectBall(self, req) :
+        self.data = self.detect_buy_a_gold_chip(String('buy_a_gold_chip'), ('bottom'))
+        self.ball = self.ball.data
+
     '''
     def checkCenter(self) :
         print 'checking'
@@ -83,18 +89,18 @@ class BuyGoldChip(object) :
 
         print 'checking'
         auv = self.aicontrol
-        cx = self.data.cx
-        cy = self.data.cy
+        cx = self.plate.cx
+        cy = self.plate.cy
+        appear = self.plate.appear
         self.detectChip()
         #check bin center
         if appear :
-            if -cons.VISION_ROULETTE_ERROR <= cx <= cons.VISION_ROULETTE_ERROR and -cons.VISION_ROULETTE_ERROR <= cy <= cons.VISION_ROULETTE_ERROR :
+            if -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and -cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
                 self.center += 1
                 print 'center:%d'%center
             else :
                 self.reset +=1
-                auv.multiMove([0, cx, cy 0, 0, 0])
-
+                auv.multiMove([0, cx, cy, 0, 0, 0])
 
         #check center counter
         if center >= 1:
@@ -118,10 +124,12 @@ class BuyGoldChip(object) :
         while not rospy.is_shutdown() and not maod == -1 :
             #find plate
             self.detectPlate()
-            cx = self.data.cx
-            cy = self.data.cy
-            appear = self.data.appear
-            area = self.data.area
+            cx = self.plate.cx
+            cy = self.plate.cy
+            appear = self.plate.appear
+            area = self.plate.area
+            hit = self.plate.hit
+
             if mode == 0 :
                 print '<---mode 0--->'
                 if appear :
@@ -153,11 +161,12 @@ class BuyGoldChip(object) :
                 print 'cy: %f'%(cy)
                 print 'appear: %s'%(appear)
                 print 'area: %f'%(area)
+                print 'hit: %f'%(hit)
                 print '-----------------------'
                 ################################
                 if appear :
                     if cx > 0:
-                            sidex = 1
+                        sidex = 1
                     elif cx < 0:
                         sidex = -1
                     if cy > 0:
@@ -165,11 +174,11 @@ class BuyGoldChip(object) :
                     elif cy < 0:
                          sidey = -1
                     if self.checkCenter() :
-                        print 'colliding with plate'
+                        print 'center'
                         auv.move('forward', cons.AUV_M_SPED)
-                    if area == 1 :
-                        print 'collided'
-                        auv.stop()
+                    if 0.3 <= area <= 0.4 :
+                        print 'colliding with plate'
+                        count += 1
                     reset += 1
                     print 'FOUND PLATE: %d'%(count)
                 elif not appear :
