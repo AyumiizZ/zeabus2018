@@ -27,7 +27,11 @@ add_message_files(
   vision_qualifying_marker.msg
   vision_casino_gate.msg
   vision_roulette.msg
+<<<<<<< HEAD
   path.msg
+=======
+  vision_buy_a_gold_chip.msg
+>>>>>>> a4a37303818c03dc16eff6ebd642d6a4d98b35d0
 )
 
 ## Generate services in the 'srv' folder
@@ -39,7 +43,7 @@ add_service_files(
   vision_srv_qualifying_marker.srv
   vision_srv_casino_gate.srv
   vision_srv_roulette.srv
-  path_srv.srv
+  vision_srv_buy_a_gold_chip.srv
 )
 
 
