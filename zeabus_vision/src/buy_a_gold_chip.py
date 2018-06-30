@@ -11,7 +11,7 @@ img = None
 img_res = None
 sub_sampling = 1
 pub_topic = "/vision/buy_a_gold_chip/"
-world = "sim"
+world = "real"
 
 
 def mission_callback(msg):
@@ -78,10 +78,29 @@ def get_object(obj):
             lower = np.array([0, 240, 240], dtype=np.uint8)
             upper = np.array([10, 255, 255], dtype=np.uint8)
             mask = cv.inRange(img, lower, upper) 
+    elif obj == "tray" :
+        if world == "real" :
+            hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+            lower1 = np.array([0,85,12], dtype=np.uint8)
+            upper1 = np.array([11, 234, 234], dtype=np.uint8)
+            lower2 = np.array([158,85,12], dtype=np.uint8)
+            upper2= np.array([180, 234, 234], dtype=np.uint8)
+            mask1 = cv.inRange(hsv, lower1, upper1)
+            mask2 = cv.inRange(hsv, lower2, upper2)
+            mask = cv.bitwise_or(mask1,mask2)
+        if world == "sim" :
+            hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+            lower1 = np.array([0,85,12], dtype=np.uint8)
+            upper1 = np.array([11, 234, 234], dtype=np.uint8)
+            lower2 = np.array([158,85,12], dtype=np.uint8)
+            upper2= np.array([180, 234, 234], dtype=np.uint8)
+            mask1 = cv.inRange(hsv, lower1, upper1)
+            mask2 = cv.inRange(hsv, lower2, upper2)
+            mask = cv.bitwise_or(mask1,mask2)
     return mask
 
 
-def get_ROI(mask):
+def get_ROI(mask,task):
     global img
     himg, wimg = img.shape[:2]
     contours = cv.findContours(
@@ -94,10 +113,17 @@ def get_ROI(mask):
             hit += area
         if area > 300:
             x, y, w, h = cv.boundingRect(cnt)
-            top_excess = (y < 0.05*himg)
-            bot_excess = ((y+h) > 0.95*himg)
-            right_excess = (x+w > 0.95*wimg)
-            left_excess = (x < 0.05*wimg)
+            if task == 'chip' :
+                x_tray,y_tray,w_tray ,h_tray = find_tray()
+                top_excess = (y < y_tray+0.05*h_tray)
+                bot_excess = ((y+h) > y_tray+0.95*h_tray)
+                right_excess = (x+w > x_tray+0.95*w_tray)
+                left_excess = (x < x_tray+0.05*w_tray)
+            elif task == 'plate' :
+                top_excess = (y < 0.05*himg)
+                bot_excess = ((y+h) > 0.95*himg)
+                right_excess = (x+w > 0.95*wimg)
+                left_excess = (x < 0.05*wimg)   
             w_h_ratio = 1.0*w/h
             window_excess = top_excess or bot_excess or right_excess or left_excess
             if (not window_excess) and w_h_ratio >= 0.5 and w_h_ratio < 2:
@@ -127,8 +153,7 @@ def find_chip():
     while img is None and not rospy.is_shutdown():
         img_is_none()
     mask = get_object("chip")
-    _,ROI = get_ROI(mask)
-
+    _,ROI = get_ROI(mask,"chip")
     if ROI == []:
         mode = 1
     elif len(ROI) == 1:
@@ -145,17 +170,36 @@ def find_chip():
         return message()
     elif mode == 2:
         print_result("MODE 2: FOUND A GOLD CHIP",color_text.GREEN)
+        cx,cy,area = get_cx(chip)
+        publish_result(img_res, 'bgr', pub_topic + 'img_res')
+        publish_result(mask, 'gray', pub_topic + 'mask')
+        return message(cx=cx,cy=cy,area=area,appear=True)
     elif mode == 3:
-        print_result("MODE 3: FOUND BUT HAVE SOME NOISE",color_text.YELLOW)
+        print_result("MODE 3: FOUND BUT HAVE SOME NOISE",color_text.YELLOW)        
+        cx,cy,area = get_cx(chip)
+        publish_result(img_res, 'bgr', pub_topic + 'img_res')
+        publish_result(mask, 'gray', pub_topic + 'mask')
+        return message(cx=cx,cy=cy,area=area,appear=True)
 
-
+def find_tray() :
+    global img, img_res
+    while img is None and not rospy.is_shutdown() :
+        img_is_none()
+    mask = get_object("tray")
+    cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
+    if cnt > 1 :
+        cnt = max(cnt,key=cv.contourArea)
+    x, y, w, h = cv.boundingRect(cnt)
+    cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    return x,y,w,h
+    
 def find_plate():
     global img, img_res
     while img is None and not rospy.is_shutdown():
-        print('img is none.\nPlease check topic name or check camera is running')
+        img_is_none()
 
     mask = get_object("plate")
-    hit, ROI = get_ROI(mask)
+    hit, ROI = get_ROI(mask,"plate")
     if ROI == []:
         mode = 1
     elif len(ROI) == 1:

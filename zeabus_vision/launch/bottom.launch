@@ -77,11 +77,11 @@
 			<param name="flip_lr" type="bool" value="$(arg flip_lr)" />
 		</node>
 	</group>
-	<!-- <arg name="imageType" value="image_raw/compressed"/>
+	<arg name="imageType" value="image_raw/compressed"/>
 	<node pkg="zeabus_vision" name="auto_exposure_bottom" type="auto_exposure_bottom.py" output="screen">
 		<param name="imageTopicL" type="str" value="/bottom/left/$(arg imageType)"/>
 		<param name="imageClientL" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_left)/"/>
 		<param name="imageTopicR" type="str" value="/bottom/right/$(arg imageType)"/>
 		<param name="imageClientR" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_right)/"/>
-	</node> -->
+	</node>
 </launch>
