@@ -3,8 +3,8 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_vision.srv import vision_srv_gate
-from zeabus_vision.msg import vision_gate
+from zeabus_vision.srv import vision_srv_casino_gate
+from zeabus_vision.msg import vision_casino_gate
 from std_msgs.msg import String
 
 class Gate(object):
@@ -14,13 +14,13 @@ class Gate(object):
 
         # wait for vision service and declare variables for store data from vision
         print '---wait for vision service---'
-        rospy.wait_for_service('vision_gate')
-        self.gate_req = rospy.ServiceProxy('vision_gate', vision_srv_gate)
-        self.gate_data = vision_gate()
+        rospy.wait_for_service('vision_casino_gate')
+        self.gate_req = rospy.ServiceProxy('vision_casino_gate', vision_srv_casino_gate)
+        self.gate_data = vision_casino_gate()
 
     def detectGate(self):
         # store all data from vision service into gate_data
-        self.gate_data = self.gate_req(String('gate'), String('gate'))
+        self.gate_data = self.gate_req(String('gate'))
         self.gate_data = self.gate_data.data
 
     def run(self):
@@ -46,7 +46,6 @@ class Gate(object):
             appear = self.gate_data.appear
             cx1 = self.gate_data.cx1
             cx2 = self.gate_data.cx2
-            pos = self.data.gate_data.pos
 
             # find gate
             if mode == 0:
@@ -82,7 +81,7 @@ class Gate(object):
                 print 'cx2: %f'%(cx2)
                 print 'area: %f'%(area)
                 print '-------------------'
-
+                '''
                 # found only left part
                 if pos == -1:
                     auv.move('right', cons.AUV_M_SPEED)
@@ -93,26 +92,27 @@ class Gate(object):
 
                 # found both left and right
                 elif pos == 0:
-                    if cx1 < 0:
-                        auv.move('left', cons.AUV_M_SPEED*abs(cx1))
-                    elif cx1 > 0:
-                        auv.move('right', cons.AUV_M_SPEED*abs(cx1))
+                '''
+                if cx1 < 0:
+                    auv.move('left', cons.AUV_M_SPEED*abs(cx1))
+                elif cx1 > 0:
+                    auv.move('right', cons.AUV_M_SPEED*abs(cx1))
 
-                    # check if gate is center or not
-                    if -cons.VISION_GATE_ERROR <= cx1 <= cons.VISION_GATE_ERROR:
-                        print '<<<CENTER>>>'
-                        center += 1
-                        auv.stop()
-                    elif -cons.VISION_GATE_ERROR > cx1 > cons.VISION_GATE_ERROR:
-                        reset += 1
+                # check if gate is center or not
+                if -cons.VISION_GATE_ERROR <= cx1 <= cons.VISION_GATE_ERROR:
+                    print '<<<CENTER>>>'
+                    center += 1
+                    auv.stop()
+                elif -cons.VISION_GATE_ERROR > cx1 > cons.VISION_GATE_ERROR:
+                    reset += 1
 
-                # check center's counter
-                    if center >= 3:
-                        print '<<<Change to mode 2>>>'
-                        mode = 2
-                    elif reset >= 10:
-                        center = 0
-                        reset = 0
+            # check center's counter
+                if center >= 3:
+                    print '<<<Change to mode 2>>>'
+                    mode = 2
+                elif reset >= 10:
+                    center = 0
+                    reset = 0
 
                 # check if auv is too close or too far from the gate
                 if area > 0.01:

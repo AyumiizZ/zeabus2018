@@ -3,17 +3,17 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_vision.srv import vision_srv_qualifying_gate
-from zeabus_vision.msg import vision_qualifying_gate
+from zeabus_vision.srv import vision_srv_casino_gate
+from zeabus_vision.msg import vision_casino_gate
 from std_msgs.msg import String
 
 class Gate(object):
     def __init__(self):
         print '<===INIT GATE===>'
         print '---wait for vision service---'
-        rospy.wait_for_service('vision_qualifying_gate')
-        self.gate_req = rospy.ServiceProxy('vision_qualifying_gate', vision_srv_qualifying_gate)
-        self.gate_data = vision_qualifying_gate()
+        rospy.wait_for_service('vision_casino_gate')
+        self.gate_req = rospy.ServiceProxy('vision_casino_gate', vision_srv_casino_gate)
+        self.gate_data = vision_casino_gate()
 
     def detectGate(self):
         # store all data from vision service into gate_data
@@ -24,8 +24,8 @@ class Gate(object):
         # declare auv for shorter variable name
         while not rospy.is_shutdown():
             self.detectGate()
-            print 'POS: %d'%(self.gate_data.pos)
-            print 'CX: %f'%(self.gate_data.cx)
+            print 'CX1: %f'%(self.gate_data.cx1)
+            print 'CX2: %f'%(self.gate_data.cx2)
             print 'AREA: %f'%(self.gate_data.area)
             print 'APPEAR: %s'%(self.gate_data.appear)
             rospy.sleep(0.3)

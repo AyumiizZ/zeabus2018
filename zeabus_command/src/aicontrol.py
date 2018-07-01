@@ -80,9 +80,9 @@ class AIControl:
         twist.linear.y = lis[1]
         twist.linear.z = lis[2]
 
-        twist.angular.x = lis[4]
-        twist.angular.y = lis[5]
-        twist.angular.z = lis[6]
+        twist.angular.x = lis[3]
+        twist.angular.y = lis[4]
+        twist.angular.z = lis[5]
 
         return twist
 
