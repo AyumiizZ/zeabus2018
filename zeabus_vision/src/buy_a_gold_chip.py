@@ -20,7 +20,7 @@ def mission_callback(msg):
         Returns:
             a group of process value from this program
     """
-    print_result('mission_callback')
+    print_result('mission_callback',color_text.CYAN)
     task = msg.task.data
     req = msg.req.data
     print('task:', str(task))
