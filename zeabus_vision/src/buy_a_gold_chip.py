@@ -44,6 +44,11 @@ def image_callback(msg):
 
 
 def message(cx=-1, cy=-1, hit=-1, area=-1, appear=False):
+    """
+        Convert value into a message (from vision_buy_a_gold_chip.msg)
+        Returns:
+            vision_buy_a_gold_chip (message): a group of value from args
+    """
     m = vision_buy_a_gold_chip()
     m.cx = cx
     m.cy = cy
@@ -55,6 +60,11 @@ def message(cx=-1, cy=-1, hit=-1, area=-1, appear=False):
 
 
 def get_object(obj):
+    """
+        get mask from picture and remove some noise
+        Returns:
+            mask (ONLY obj(args) area)
+    """
     global img
     if obj == "plate":
         if world == "real":
@@ -104,6 +114,12 @@ def get_object(obj):
 
 
 def get_ROI(mask, task):
+    """
+        find the area that maybe have an object (pass all condition)
+        Returns:
+            int: hit
+            list: ROI
+    """
     global img
     himg, wimg = img.shape[:2]
     contours = cv.findContours(
@@ -136,6 +152,13 @@ def get_ROI(mask, task):
 
 
 def get_cx(cnt):
+    """
+        get cx, cy and area of object
+        Returns:
+            float: cx
+            float: cy
+            float: area
+    """
     global img_res
     himg, wimg = img.shape[:2]
     x, y, w, h = cv.boundingRect(cnt)
@@ -154,6 +177,19 @@ def get_cx(cnt):
 
 
 def find_chip():
+    """
+        find chip that on the plate
+        Returns:
+            if mode is 1:
+                this mode is NOT FOUND
+                return default value
+            else if mode is 2:
+                return
+                    float: cx
+                    float: cy
+                    float: area
+                    bool: appear (True)
+    """
     global img, img_res
     while img is None and not rospy.is_shutdown():
         img_is_none()
@@ -183,6 +219,9 @@ def find_chip():
 
 
 def find_tray():
+    """
+        find tray area
+    """
     global img, img_res
     while img is None and not rospy.is_shutdown():
         img_is_none()
@@ -197,6 +236,20 @@ def find_tray():
 
 
 def find_plate():
+    """
+    find chip that on the plate
+    Returns:
+        if mode is 1:
+            this mode is NOT FOUND
+            return default value w/hit value
+        else if mode is 2:
+            return
+                float: cx
+                float: cy
+                float: area
+                float: hit
+                float: appear (True)
+    """
     global img, img_res
     while img is None and not rospy.is_shutdown():
         img_is_none()
