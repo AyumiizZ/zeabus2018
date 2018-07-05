@@ -1,4 +1,5 @@
 bool[] appear
 int16[] point
-int16[] cx
-int16[] cy
+float64[] cx
+float64[] cy
+float64[] area
