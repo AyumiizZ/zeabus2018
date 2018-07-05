@@ -1,4 +1,3 @@
-#!/usr/bin/python2.7
 '''
     File name: constant.py
     Author: zeabus2018
@@ -13,21 +12,18 @@ import math
         RADIUS = 1
     DICE_SIZE must be divided by 3 
 '''
-DICE_SIZE = 60
-SIDE_PER_RADIUS = 9
-POINT_RADIUS = DICE_SIZE / SIDE_PER_RADIUS
-POINT_AREA_LOWER = math.pi * (POINT_RADIUS-1.5)**2
-POINT_AREA_UPPER = math.pi * (POINT_RADIUS+1.5)**2
-EXPECTED_AREA_RATIO = 0.7
 
-'''
-    For windows
-'''
-# ABS_PATH = 'C:/Users/skconan/Desktop/Workspace/dice/'
-# IMG_PATH = ABS_PATH + 'images/'
-
-'''
-    For Ubuntu
-'''
-ABS_PATH = '/home/skconan/catkin_ws/src/src_code/zeabus_vision/src/shoot_craps/'
+IMG_WIDTH = 1152
+IMG_HEIGHT = 874
+DICE_SIZE = 90
+SIDE_PER_RADIUS = 9.0
+POINT_RADIUS = float(DICE_SIZE) / SIDE_PER_RADIUS
+POINT_AREA_LOWER = math.pi * ((POINT_RADIUS-1.5)**2)
+POINT_AREA_UPPER = math.pi * ((min(IMG_WIDTH, IMG_HEIGHT) / SIDE_PER_RADIUS)**2) 
+ABS_PATH = 'C:/Users/skconan/Desktop/Workspace/dice/'
 IMG_PATH = ABS_PATH + 'images/'
+DATA_SET_PATH = IMG_PATH + 'data_set/'
+CONNECTED_LINE_PATH = DATA_SET_PATH + 'connected_line/'
+POINT_PATH = DATA_SET_PATH + 'point/'
+VDO_PATH = ABS_PATH + 'videos/'
+EXPECTED_AREA_RATIO = 0.65
