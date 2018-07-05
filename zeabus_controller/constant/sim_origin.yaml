@@ -16,19 +16,19 @@ dictitems:
   KIProll: 0.0
   KIPx: 0.0
   KIPy: 0.0
-  KIPyaw: 0.0
+  KIPyaw: 0.01
   KIPz: 0.0
   KIVpitch: 0.0
   KIVroll: 0.0
-  KIVx: 0.5
+  KIVx: 0.0
   KIVy: 0.0
   KIVyaw: 0.0
   KIVz: 0.0
-  KPPpitch: 0.0
-  KPProll: 0.0
+  KPPpitch: 0.1
+  KPProll: 0.1
   KPPx: 1.0
   KPPy: 1.0
-  KPPyaw: 1.0
+  KPPyaw: 0.3
   KPPz: 1.0
   KPVpitch: 0.0
   KPVroll: 0.0
@@ -60,19 +60,19 @@ dictitems:
       KIProll: 0.0
       KIPx: 0.0
       KIPy: 0.0
-      KIPyaw: 0.0
+      KIPyaw: 0.01
       KIPz: 0.0
       KIVpitch: 0.0
       KIVroll: 0.0
-      KIVx: 0.5
+      KIVx: 0.0
       KIVy: 0.0
       KIVyaw: 0.0
       KIVz: 0.0
-      KPPpitch: 0.0
-      KPProll: 0.0
+      KPPpitch: 0.1
+      KPProll: 0.1
       KPPx: 1.0
       KPPy: 1.0
-      KPPyaw: 1.0
+      KPPyaw: 0.3
       KPPz: 1.0
       KPVpitch: 0.0
       KPVroll: 0.0
