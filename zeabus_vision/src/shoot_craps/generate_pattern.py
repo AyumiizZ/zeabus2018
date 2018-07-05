@@ -12,7 +12,7 @@ from lib import *
 import numpy as np
 import constant as CONST
 from operator import itemgetter
-from sklearn import linear_model
+# from sklearn import linear_model
 
 mk = []
 combination_result = []

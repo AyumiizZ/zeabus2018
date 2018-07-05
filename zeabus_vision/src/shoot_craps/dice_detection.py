@@ -12,14 +12,15 @@ from lib import *
 import numpy as np
 from generate_pattern import *
 from operator import itemgetter
-from sklearn.cluster import KMeans
+# from sklearn.cluster import KMeans
 from matplotlib import pyplot as plt
+import constant_dice as CONST
 
 pattern_list = []
 pattern_predict = []
 img_result = None
 mask_extend_size = 80
-table_position = []
+table_position = create_table_position()
 position = [
     [10, 10], [10, 30], [10, 50],
     [30, 10], [30, 30], [30, 50],
@@ -190,7 +191,7 @@ def find_dice(mask, circles):
 
             if is_match == False:
                 continue
-            cv.imshow('mask', res_mask)
+            # cv.imshow('mask', res_mask)
             cv.waitKey(1)
 
             extend = mask_extend_size / 2.0
@@ -200,8 +201,8 @@ def find_dice(mask, circles):
                 left), int(bottom), int(right)
             center = (int((left + right) / 2.0), int((top + bottom) / 2.0))
 
-            cv.rectangle(img_result, (top, left),
-                         (bottom, right), (0, 255, 255), 1)
+            # cv.rectangle(img_result, (top, left),
+            #              (bottom, right), (0, 255, 255), 1)
             cv.line(roi, (30, 0), (30, 90), (255, 255, 255), 1)
             cv.line(roi, (60, 0), (60, 90), (255, 255, 255), 1)
             cv.line(roi, (0, 30), (90, 30), (255, 255, 255), 1)
@@ -221,6 +222,12 @@ def find_dice(mask, circles):
             #########################################################
     data_dict = remove_redundant_dice(data_list)
     return data_dict
+
+
+'''
+    > Remove redudant dice
+    
+'''
 
 
 def remove_redundant_dice(data):
@@ -364,7 +371,7 @@ def find_mask_threshold(img_bgr):
     erode = cv.erode(mask, get_kernel('rect', (3, 3)))
     mask = cv.dilate(erode, get_kernel('rect', (3, 3)))
 
-    img_result[mask < v_avg / 1.75] = 100
+    # img_result[mask < v_avg / 1.75] = 100
 
     tmp = np.zeros((r + mask_extend_size, c + mask_extend_size), np.uint8)
     extend = int(mask_extend_size / 2.0)
@@ -379,22 +386,40 @@ def find_mask_threshold(img_bgr):
 
 
 def mask_dice(dict):
-    global img_result, mask_extend_size
+    global img_result
     color = {'2': (255, 0, 0), '5': (0, 255, 0), '6': (0, 0, 255)}
     for d in dict.keys():
         if dict[d] is None:
             continue
         center, radius, dice, accuracy = dict[d]
+        cx, cy = center
+        cx, cy = norm_center(cx, cy)
         cv.circle(img_result, center, radius, color[d], -1)
         cv.circle(img_result, center, radius * 9, color[d], 2)
         font = cv.FONT_HERSHEY_SIMPLEX
-        cv.putText(img_result, str(dice), center,
+        cv.putText(img_result, str(dice) + ' ' + str("%.2f" % cx) + ' ' + str("%.2f" % cy), center,
                    font, 1, color[d], 2, cv.LINE_AA)
+        center = (cx,cy)
+        dict[d] = [center, radius, dice, accuracy]
         # cv.imshow('image_result', img_result)
+    return dict
+
+
+def norm_center(cx, cy):
+    global img_result
+    r, c, _ = img_result.shape
+    r_norm = r / 2.0
+    c_norm = c / 2.0
+    cx_norm = (cx - c_norm) / c_norm
+    cy_norm = (cy - r_norm) / r_norm
+    return cx_norm, cy_norm
 
 
 def run(img):
     global img_result, table_position
+    img_result = img.copy()
+    load_pattern()
+    # table_position =
     '''
         Enhancement BGR image in pre_processing() before do anything.
         mask_th is the result of grayscale that have color value less than threshold and extend the frame.
@@ -410,10 +435,11 @@ def run(img):
     '''
 
     dice_dict = find_dice(mask_circles, circles)
-    mask_dice(dice_dict)
-    cv.imshow('mask_circles', mask_circles)
-    cv.imshow('result', img_result)
-    cv.waitKey(1)
+    dice_dict = mask_dice(dice_dict)
+    # cv.imshow('mask_circles', mask_circles)
+    # cv.imshow('result', img_result)
+    # cv.waitKey(1)
+    return img_result, dice_dict
 
 
 def main():
