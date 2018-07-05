@@ -22,7 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   vision_path.msg
-  vision_dice.msg
+  vision_shoot_craps.msg
   vision_qualifying_gate.msg
   vision_qualifying_marker.msg
   vision_casino_gate.msg
@@ -34,7 +34,7 @@ add_message_files(
 add_service_files(
   FILES
   vision_srv_path.srv
-  vision_srv_dice.srv
+  vision_srv_shoot_craps.srv
   vision_srv_qualifying_gate.srv
   vision_srv_qualifying_marker.srv
   vision_srv_casino_gate.srv
