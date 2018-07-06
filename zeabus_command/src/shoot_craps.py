@@ -17,6 +17,7 @@ class Timer(object):
     def __init__(self):
         self.beginTime = 0
         self.timeout = 0
+        self.noOfIncreasing = 3
 
     def setTimeout(self, sec):
         print 'Set timeout :', sec, 'second'
@@ -33,6 +34,14 @@ class Timer(object):
             print 'Remaining timeout :', '%.2f' % (self.timeout - t), 'second'
             return False
 
+    def increaseTimeout(self, sec):
+        if self.noOfIncreasing > 0:
+            self.timeout += sec
+            self.noOfIncreasing -= 1
+
+    def setLimitIncreasing(self, time):
+        self.noOfIncreasing = time
+
 
 class ShootCraps(object):
     def __init__(self):
@@ -43,12 +52,12 @@ class ShootCraps(object):
         rospy.wait_for_service('vision_shoot_craps')
         print('Service Already')
         self.data = None
-        self.checkPoint = [0, 0]
+        self.checkPoint = {'x': 0, 'y': 0, 'yaw': 0}
         self.detect_dice = rospy.ServiceProxy(
             'vision_shoot_craps', vision_srv_shoot_craps)
         self.timer = Timer()
         self.dice = {'5': [False], '6': [False], '2': [False]}
-        self.relativeDice = {'5->6':'left','6->5':'right'}
+        self.relativeDice = {'5->6': 'left', '6->5': 'right'}
 
     def request(self):  # , point):
         self.data = self.detect_dice(String('shoot_craps'))  # , point)
@@ -68,7 +77,7 @@ class ShootCraps(object):
         pass
 
     '''
-        Find all dice for set the checkpoint
+        Find checkpoint by detect dice 5 and 6
         Condition
             - Low speed
             - Cener between 5 and 6
@@ -77,31 +86,47 @@ class ShootCraps(object):
 
     '''
 
-    def detectAllDice(self):
+    def findCheckPoint(self):
         self.timer.setTimeout(10)
         auv = self.aicontrol
         # nFrame = {'2':0,'5':0,'6':0}
-        nFrame = {'5':0,'6':0}
+        nFrame = {'5': 0, '6': 0}
+        expectedFrame = 3
         lowSpeed = 0.2
+        nextState = False
         # highSpeed = 0.7
 
         while not self.timer.isTimeout():
-            auv.move('forward',lowSpeed)
+            auv.move('forward', lowSpeed)
             self.request()
             # nFrame['2'] += int(self.dice['2'][0])
             nFrame['5'] += int(self.dice['5'][0])
             nFrame['6'] += int(self.dice['6'][0])
             if nFrame['5'] > nFrame['6']:
-                auv.move(relativeDice['5->6'],lowSpeed)
+                auv.move(self.relativeDice['5->6'], lowSpeed)
+                self.timer.increaseTimeout(2)
             elif nFrame['6'] > nFrame['5']:
-                auv.move(relativeDice['5->6'],lowSpeed)
+                auv.move(self.relativeDice['5->6'], lowSpeed)
+                self.timer.increaseTimeout(2)
+            elif nFrame['6'] >= expectedFrame and nFrame['5'] >= expectedFrame:
+                nextState = True
+                self.checkPoint['x'] = auv.auv_state[0]
+                self.checkPoint['y'] = auv.auv_state[1]
+                self.checkPoint['yaw'] = auv.auv_state[5]
+                break
 
-        if nFrame['5'] >= 3 and  nFrame['6'] >= 3:
+        return nextState
+
+    def findCheckPointFail(self, doit):
+        if not doit:
+            return
+        # Estimate relative postion  and yaw from Maker
+
     '''
         Find dice 5 or 6
     '''
 
-    def detectDice(self):
+    def hitDice(self, point):
         pass
 
     '''
@@ -121,8 +146,10 @@ class ShootCraps(object):
 
     def run(self):
         print('SHOOT CRAPS RUNNING')
-        self.detectAllDice()
-        pass
+        nextState = self.findCheckPoint()
+        self.findCheckPointFail(nextState)
+
+        nextState = self.hitDice(5)
 
 
 if __name__ == '__main__':
