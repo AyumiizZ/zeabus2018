@@ -58,6 +58,8 @@ class ShootCraps(object):
         self.timer = Timer()
         self.dice = {'5': [False], '6': [False], '2': [False]}
         self.relativeDice = {'5->6': 'left', '6->5': 'right'}
+        # wait for testing
+        self.hitArea = 1
 
     def request(self):  # , point):
         self.data = self.detect_dice(String('shoot_craps'))  # , point)
@@ -73,8 +75,13 @@ class ShootCraps(object):
 
             self.dice[str(point)] = [appear, cx, cy, area]
 
-    def isHit(self):
-        pass
+    def isHit(self, point):
+        if not self.dice[str(point)][0]:
+            return False 
+
+        if  self.dice[str(point)][0][3] > self.hitArea:
+            return True
+        return False
 
     '''
         Find checkpoint by detect dice 5 and 6
@@ -127,14 +134,22 @@ class ShootCraps(object):
     '''
 
     def hitDice(self, point):
-        pass
+        self.timer.setTimeout(10)
+        auv = self.aicontrol
 
+        while not self.timer.isTimeout():
+            auv.move('forward', lowSpeed)
+            if self.isHit(5):
+                auv.driveX(1)
+                break
     '''
         back to check point 
     '''
 
-    def back2CheckPoint(self):
-        pass
+    def back2CheckPoint(self, x):
+        auv = self.aicontrol
+        auv.driveX(-x)
+        auv.fixXY(self.checkPoint['x'], self.checkPoint['y'])     
 
     '''
         Predict dice position by previous position (Forwarding) 
@@ -144,6 +159,13 @@ class ShootCraps(object):
     def predictDicePosition(self):
         pass
 
+    '''
+        1. Find checkpoint
+        2. hit 5
+        3. if hit 5 fail -> hit 6 -> hit 5 again -> if fail "Next Mission" 
+        4. else hit 6 
+        5. hit 6 fail -> hit 5 -> hit 6 again -> if fail "Next Mission"
+    '''
     def run(self):
         print('SHOOT CRAPS RUNNING')
         nextState = self.findCheckPoint()
