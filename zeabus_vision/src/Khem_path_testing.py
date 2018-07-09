@@ -44,10 +44,10 @@ def main() :
         cv.imshow('second',gray)
         gray = cv.cvtColor(gray,cv.COLOR_BGR2GRAY)
         cv.imshow('third',gray)
-        a = np.array(s)
+        # a = np.array(s)
         # print(" ----------------- I will print a -------------------")
         # print a
-        m = stats.mode(a)[0]
+        # m = stats.mode(a)[0]
         # print(" ----------------- I will print m -------------------")
         # print m
         # p = stats.mode(m)[0]
