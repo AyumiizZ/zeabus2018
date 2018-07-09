@@ -22,19 +22,18 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   vision_path.msg
-  vision_dice.msg
+  vision_shoot_craps.msg
   vision_qualifying_gate.msg
   vision_qualifying_marker.msg
   vision_casino_gate.msg
   vision_roulette.msg
-  vision_buy_a_gold_chip.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
   vision_srv_path.srv
-  vision_srv_dice.srv
+  vision_srv_shoot_craps.srv
   vision_srv_qualifying_gate.srv
   vision_srv_qualifying_marker.srv
   vision_srv_casino_gate.srv
@@ -45,7 +44,7 @@ add_service_files(
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-   DEPENDENCIES   
+   DEPENDENCIES
    std_msgs
 )
 
