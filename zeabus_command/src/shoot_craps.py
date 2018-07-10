@@ -2,6 +2,8 @@
 
 import rospy
 from aicontrol import AIControl
+import constants as cons
+from std_msgs.msg import String, Float64
 from zeabus_vision.msg import vision_dice
 from zeabus_vision.srv import vision_srv_dice
 
@@ -27,6 +29,8 @@ class dice(object):
             return 5
 
     def run(self):
+        auv = self.aicontrol
+        auv.depthAbs(-3)
         mode = 0
         count = 0
         reset = 0
@@ -134,3 +138,4 @@ class dice(object):
 if __name__=='__main__':
     rospy.init_node('shoot_craps')
     dice = dice()
+    dice.run()

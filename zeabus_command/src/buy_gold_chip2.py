@@ -41,13 +41,21 @@ class BuyGoldChip(object) :
         if appear :
             if -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and -cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
                 #self.center += 1
-                print 'center:%d'%(self.center)
+                print 'CENTER'
                 auv.stop()
                 return True
-            else :
+            elif -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and not-cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
+                auv.multiMove([0, 0, cy/20, 0, 0, 0])
+            elif not -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and -cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
+                auv.multiMove([0, cx/20, 0, 0, 0, 0])
+            else:
                 self.reset +=1
-                auv.multiMove([0, -cx/10, cy/10, 0, 0, 0])
+                auv.multiMove([0, -cx/20, cy/20, 0, 0, 0])
+                print 'NOT CENTER'
                 return False
+        else:
+            print 'not found plate (check center)'
+            return False
 
         #check center counter
         if self.center >= 3:
@@ -100,8 +108,10 @@ class BuyGoldChip(object) :
                     side_y = cy
                 elif not appear:
                     if side_x == 0 and side_y == 0:
+                        print 'not found'
                         auv.move('forward', cons.AUV_M_SPEED)
                     else:
+                        print 'find plate'
                         auv.multiMove([0, cons.AUV_M_SPEED*side_x, cons.AUV_M_SPEED*side_y, 0, 0, 0])
 
                     reset += 1
@@ -131,12 +141,19 @@ class BuyGoldChip(object) :
                 print '-----------------------'
                 ################################
                 if appear :
+                    if area <= 0.005:
+                        auv.move('forward', cons.AUV_M_SPEED)
+                    elif area >= 0.006 or hit >= 0.006:
+                        auv.move('backward', cons.AUV_M_SPEED)
                     if self.checkCenter() :
                         print 'center'
-                        auv.move('forward', cons.AUV_M_SPEED)
+                        if area <= 0.002:
+                            auv.move('forward', cons.AUV_M_SPEED)
+                        elif area >= 0.004 or hit >= 0.004:
+                            auv.move('backward', cons.AUV_M_SPEED)
                     else:
                         auv.stop()
-                    if 0.002 <= area <= 0.004 :
+                    if 0.005 <= area <= 0.006 and self.checkCenter():
                         print 'colliding with plate'
                         count += 1
                         reset = 0
@@ -146,8 +163,9 @@ class BuyGoldChip(object) :
                     side_y = cy
                     print 'sidex: %f'%(side_x)
                     print 'sidey: %f'%(side_y)
-                elif not appear:
-                    auv.multiMove([0, cons.AUV_M_SPEED*side_x, cons.AUV_M_SPEED*side_y, 0, 0, 0])
+                else:
+                    print 'move back'
+                    auv.multiMove([-cons.AUV_M_SPEED, cons.AUV_M_SPEED*side_x, cons.AUV_M_SPEED*side_y, 0, 0, 0])
                 '''
                 elif not appear :
                     reset = 0
@@ -175,10 +193,11 @@ class BuyGoldChip(object) :
                     count = 0
 
             if mode == 2 :
+                print '---mode 2---'
                 if appear:
                     if self.checkCenter():
-                        auv.move('forward', cons.AUV_M_SPEED)
-                if hit <= 0.9 and hit > 0.4:
+                        print 'checkcenter'
+                if hit <= 0.9:
                     print 'collided'
                     auv.move('forward', cons.AUV_M_SPEED)
                     reset += 1

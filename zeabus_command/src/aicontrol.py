@@ -18,6 +18,7 @@ class AIControl:
         self.point = Point()
 
         self.auv_state = [0, 0, 0, 0, 0, 0]
+        self.checkpoint = [0, 0, 0, 0, 0, 0]
         rospy.Subscriber('/auv/state', Odometry, self.getState)
         # real
         self.pub_vel = rospy.Publisher('/zeabus/cmd_vel', Twist, queue_size=10)
@@ -127,13 +128,14 @@ class AIControl:
         for _ in range(3):
             self.pub_vel.publish(self.vel)
 
-    def fixXY(self, x, y, err=0, user='mission_planner'):
+    def fixXY(self, x, y, err=0.05, user='mission_planner'):
         print 'Move to (%f, %f)'%(x, y)
         self.srv_abs_xy(x, y, String(user))
         while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err, String(user)).ok:
             rospy.sleep(0.1)
 
         print 'finish moving'
+        self.checkpoint = self.auv_state
 
     def driveX(self, x, err=0.2, user='mission_planner'):
         print 'doing drive x'
@@ -148,17 +150,18 @@ class AIControl:
             if reset >= 5: 
                 count = 0
                 reset = 0
-            print count
-            print 'Wait for xy'
+            #print count
+            #print 'Wait for xy'
         print('driveX already')
         self.srv_rel_xy(x, 0, String(user))
         count = 0
+        self.checkpoint = self.auv_state
 
         while not rospy.is_shutdown() and count < 10:
             if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
                 rospy.sleep(0.2)
-            print count
+            #print count
 
         print 'finish drive x'
 
@@ -189,6 +192,7 @@ class AIControl:
                 count += 1
 
         print 'finish drive y'
+        self.checkpoint = self.auv_state
 
     def turnRelative(self, degree, err=0.05, user='mission_planner'):
         self.stop()
@@ -200,18 +204,18 @@ class AIControl:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err,String(user)).ok
             print 'pos: %s'%check_pos
             if check_pos:
-                print 'if'
+                #print 'if'
                 count += 1
                 rospy.sleep(0.2)
-            else: 
-                print 'else'
+            else:
+                #print 'else'
                 reset += 1
 
             if reset >= 5:
                 count = 0
                 reset = 0
-            print 'wait xy yaw'
-            print count
+            #print 'wait xy yaw'
+            #print count
 
         print('turn already')
         rand = math.radians(degree)
@@ -222,22 +226,23 @@ class AIControl:
         while not rospy.is_shutdown() and count < 10:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
             if check_pos:
-                print 'if'
+                #print 'if'
                 print 'pos: %s'%check_pos
                 count += 1
-                print('Wait for yaw')
+                #print('Wait for yaw')
                 rospy.sleep(0.2)
             elif not check_pos:
-                print 'else'
-                print 'pos: %s'%check_pos
+                #print 'else'
+                #print 'pos: %s'%check_pos
                 reset = 0
 
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
+            #print count
 
         print 'finish turn rel'
+        self.checkpoint = self.auv_state
 
     def turnAbs(self, degree, err=0.05, user='mission_planner'):
         self.stop()
@@ -253,8 +258,8 @@ class AIControl:
             if reset >= 5:
                 count = 0
                 reset = 0
-            print 'wait xy yaw'
-            print count
+            #print 'wait xy yaw'
+            #print count
 
         print('turn already')
         rand = math.radians(degree)
@@ -272,9 +277,10 @@ class AIControl:
             if reset >= 5: 
                 count = 0
                 reset = 0
-            print count
+            #print count
 
         print 'finish turn abs'
+        self.checkpoint = self.auv_state
 
     def depthAbs(self, depth, err=0.2, user='mission_planner'):
         self.stop()
@@ -290,7 +296,7 @@ class AIControl:
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
+            #print count
 
         print 'READY Z'
         self.srv_abs_depth(depth, String(user))
@@ -304,8 +310,8 @@ class AIControl:
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
-            print 'wait for z'
+            #print count
+            #print 'wait for z'
             rospy.sleep(0.4)
 
         print 'finish depth abs'
@@ -322,7 +328,7 @@ class AIControl:
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
+            #print count
         print 'depth already'
         self.srv_rel_depth(depth, String(user))
         count = 0
@@ -336,7 +342,7 @@ class AIControl:
             if reset >= 5: 
                 reset = 0
                 count = 0
-            print count
+            #print count
 
         print'finish depth relative'
 
@@ -378,4 +384,27 @@ if __name__=='__main__':
     rospy.init_node('aicontrol_node')
     aicontrol = AIControl()
     auv = aicontrol
+    checkpoint = auv.checkpoint
+    checkpoint_x = auv.checkpoint[0]
+    checkpoint_y = auv.checkpoint[1]
+    print("------------------")
+    print(checkpoint_x)
+    print(checkpoint_y)
+    print("------------------")
+    print checkpoint[0]
+    print checkpoint[1]
+    print checkpoint
+    auv.driveX(2)
+    print("------------------")
+    print(checkpoint_x)
+    print(checkpoint_y)
+    print("------------------")
+    auv.fixXY(checkpoint_x, checkpoint_y)
+    print("------------------")
+    print(checkpoint_x)
+    print(checkpoint_y)
+    print("------------------")
+    print checkpoint[0]
+    print checkpoint[1]
+    print checkpoint
     print 'done'

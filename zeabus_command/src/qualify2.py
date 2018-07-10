@@ -14,12 +14,17 @@ class Qualify(object):
         self.gate = Gate()
 
     def run(self) :
+        rospy.sleep(2)
         auv = self.aicontrol
         auv.depthAbs(cons.QUALIFY_DEPTH)
         auv.driveX(5)
+        checkpoint_x = auv.checkpoint[0]
+        checkpoint_y = auv.checkpoint[1]
         self.marker.run()
-        self.gate.run()
-        auv.driveX(5)
+        auv.fixXY(checkpoint_x, checkpoint_y)
+        #self.gate.run()
+        auv.driveX(4.3)
+        auv.depthAbs(-0.1)
 
 if __name__=='__main__':
     rospy.init_node('qualifying_node')

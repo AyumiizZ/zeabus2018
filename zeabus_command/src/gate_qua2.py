@@ -1,9 +1,7 @@
-#/usr/bin/python2.7
+#!/usr/bin/python2.7
 
 import rospy, math
 import constants as cons
-import numpy as np
-import pickle, sklearn
 from aicontrol import AIControl
 from zeabus_vision.srv import vision_srv_qualifying_marker
 from zeabus_vision.msg import vision_qualifying_marker
@@ -22,7 +20,7 @@ class Gate(object):
         self.data = vision_qualifying_marker()
 
     def detectGate(self):
-        self.data = self.marker_req(String('marker'))
+        self.data = self.marker_req(String('gate'))
         self.data = self.data.data
 
     def run(self):
@@ -34,27 +32,39 @@ class Gate(object):
         while not rospy.is_shutdown() and mode != -1:
             self.detectGate()
             found_gate = self.data.appear
+            cx = (self.data.cx_right+self.data.cx_left)/2
 
             if mode == 0:
-                auv.multiMove([0, 0, 0, 0, 0, 0.2])
+                print 'mode 0'
                 if not found_gate:
+                    auv.multiMove([0, 0, 0, 0, 0, 0.1])
                     reset += 1
+                    print 'not found gate'
                 else:
+                    print 'found gate'
                     count += 1
                     reset = 0
+                    auv.multiMove([0, 0, 0, 0, 0, 0.05])
 
                 if count >= 5:
                     mode = 1
+                    auv.stop()
+                    count = 0
+                    reset = 0
 
                 if reset >= 5:
                     count = 0
                     reset = 0
 
             if mode == 1:
-                auv.multiMove([0, 0, 0, 0, 0, 0.2])
+                print 'mode 1'
                 if found_gate:
+                    auv.multiMove([0, 0, 0, 0, 0, 0.05])
+                    print 'found gate'
                     reset += 1
                 else:
+                    auv.stop()
+                    print 'not found gate'
                     count += 1
                     reset = 0
 
@@ -68,5 +78,7 @@ class Gate(object):
 
 if __name__=='__main__':
     rospy.init_node('gate_node')
+    print 'init'
     gate = Gate()
+    print 'create object'
     gate.run()
