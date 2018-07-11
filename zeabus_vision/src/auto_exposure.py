@@ -76,6 +76,8 @@ class AutoExposure:
             ev = self.get_param('exposure')
             print_result('Exposure')
             print_result(ev)
+            print_result('V mode')
+            print_result(vMode)
             if ev is None:
                 continue
             if vMode >= 235:
