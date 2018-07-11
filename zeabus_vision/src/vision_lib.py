@@ -10,7 +10,7 @@ from cv_bridge import CvBridge
 import color_text
 
 def img_is_none():
-    print(color_text.YELLOW+color_text.RED_HL+'img is none.\nPlease check topic name or check camera is running'+color_text.DEFAULT)
+    print(color_text.RED+'img is none.\nPlease check topic name or check camera is running'+color_text.DEFAULT)
 
 def print_result(msg,color=color_text.DEFAULT):
     """
