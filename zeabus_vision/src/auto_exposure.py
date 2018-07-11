@@ -46,7 +46,7 @@ class AutoExposure:
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
         self.image = cv2.resize(cv2.imdecode(
-            arr, 1), (self.imageW, self.imageH))
+            arr, 1), (0,0),fx=0.5,fy=0.5)
         self.hsv = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
     def set_param(self, param, value):
