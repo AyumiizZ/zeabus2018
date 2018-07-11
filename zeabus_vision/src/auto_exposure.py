@@ -39,8 +39,8 @@ class AutoExposure:
             data = data.ravel()
         count = np.bincount(data)
         max = count.max()
-        mode = np.where(count == max)
-        return np.mean(mode)
+        count = list(count)
+        return count.index(max)
 
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
