@@ -9,7 +9,9 @@ import constant as CONST
 from vision_lib import *
 
 
+
 class AutoExposure:
+
 
     def __init__(self, subTopic, clientName, EVdefault=1, EVmin=0.5, camera_position='front'):
         print_result("init_node_auto_exposure")
@@ -31,6 +33,17 @@ class AutoExposure:
         self.client = dynamic_reconfigure.client.Client(self.clientName)
         print_result('set_client')
         self.set_param('exposure', self.EVdefault)
+
+    def get_mode2(self,data):
+        data = data.ravel()
+        count = np.bincount(data)
+        max = 0 
+        mode = 127
+        for i in range(len(count)):
+            if count[i] > max:
+                max = count[i]
+                mode = i
+        return mode
 
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
@@ -55,13 +68,13 @@ class AutoExposure:
 
             h, s, v = cv2.split(self.hsv)
             vOneD = v.ravel()
-            vMean = cv2.mean(vOneD)[0]
-            vMode = get_mode(vOneD)
+            # vMean = cv2.mean(vOneD)[0]
+            vMode = self.get_mode(vOneD)
             if vMode is None:
                 vMode = 127
-            vCV = get_cv(v)
-            _, vSD = cv2.meanStdDev(vOneD, vMean)
-            vSD = vSD[0]
+            # vCV = get_cv(v)
+            # _, vSD = cv2.meanStdDev(vOneD, vMean)
+            # vSD = vSD[0]
             ev = self.get_param('exposure')
             print_result('Exposure')
             print_result(ev)
