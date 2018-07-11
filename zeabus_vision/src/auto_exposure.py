@@ -34,8 +34,10 @@ class AutoExposure:
         print_result('set_client')
         self.set_param('exposure', self.EVdefault)
 
-    def get_mode2(self,data):
-        data = data.ravel()
+    def get_mode(self,data):
+        if len(data.shape) > 1:
+            data = data.ravel()
+        # data = data.ravel()
         count = np.bincount(data)
         max = 0 
         mode = 127
