@@ -38,9 +38,18 @@ class AutoExposure:
         if len(data.shape) > 1:
             data = data.ravel()
         count = np.bincount(data)
-        max = count.max()
-        count = list(count)
-        return count.index(max)
+        max = 0 
+        mode = 127
+        length = len(count) -1
+        end = int(length/2) + 1
+        for i in range(end):
+            if count[i] > max:
+                max = count[i]
+                mode = i
+            if count[length - i] > max:
+                max = count[length - i]
+                mode = i
+        return mode
 
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
