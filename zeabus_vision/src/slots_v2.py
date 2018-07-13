@@ -63,12 +63,13 @@ def image_bot_callback(msg):
     img_bot_res = img_bot.copy()
 
 
-def message(cx=-1, cy=-1, area=-1, appear=False):
+def message(cx=-1, cy=-1, area=-1, appear=False, mode=1):
     m = vision_slots()
     m.cx = cx
     m.cy = cy
     m.area = area
     m.appear = appear
+    m.mode = mode
     print(m)
     return m
 
@@ -111,49 +112,6 @@ def get_object(img, color):
     return mask
 
 
-# def get_cx_hole(mask):
-#     """
-#         get cx, cy and area of object
-#         Returns:
-#             float: cx
-#             float: cy
-#             float: area
-#     """
-#     cx = 0
-#     cy = 0
-#     area = 0
-#     appear = False
-#     global img_res
-#     himg, wimg = img.shape[:2]
-#     x, y, w, h = cv.boundingRect(mask)
-#     top_excess = (y < 0.05*himg)
-#     bot_excess = ((y+h) > 0.95*himg)
-#     right_excess = (x+w > 0.95*wimg)
-#     left_excess = (x < 0.05*wimg)
-#     window_excess = top_excess or bot_excess or right_excess or left_excess
-#     if (not window_excess):
-#         cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
-#         cnt = cv.findContours(mask, cv.RETR_EXTERNAL,
-#                               cv.CHAIN_APPROX_SIMPLE)[1]
-#         area_out = max(cnt, key=cv.contourArea)
-#         copy = img_res.copy()
-#         slot = copy[y:y+h, x:x+w]
-#         slot = not(slot)
-#         x_s, y_s, w_s, h_s = cv.boundingRect(slot)
-#         cv.rectangle(img_res, (x_s, y_s), (x_s+w_s, y_s+h_s), (0, 255, 0), 2)
-#         cnt = cv.findContours(slot, cv.RETR_EXTERNAL,
-#                               cv.CHAIN_APPROX_SIMPLE)[1]
-#         area_in = max(cv.cnt, key=cv.contourArea)
-#         if area_out/area_in*100 >= 25 and area_out/area_in*100 <= 75:
-#             appear = True
-#             cx = x_s + (w_s/2)
-#             cy = y_s + (h_s/2)
-#             cv.circle(img_res, (cx, cy), 5, (0, 0, 255), -1)
-#             cx = Aconvert(cx, wimg)
-#             cy = -1.0*Aconvert(cy, himg)
-#             area = (1.0*w_s*h_s)/(wimg*himg)
-#     return cx, cy, area, appear
-
 def get_ROI_hole(mask):
     himg, wimg = mask.shape[:2]
     ROI = []
@@ -167,7 +125,8 @@ def get_ROI_hole(mask):
         not_mask_crop = cv.bitwise_not(mask_crop)
         mask_area = cv.countNonZero(mask_crop)
         not_mask_area = cv.countNonZero(not_mask_crop)
-        percent_not_mask = float(not_mask_area)/float(mask_area + not_mask_area)
+        percent_not_mask = float(not_mask_area) / \
+            float(mask_area + not_mask_area)
         top_excess = (y < 0.05*himg)
         bot_excess = ((y+h) > 0.95*himg)
         right_excess = ((x+w) > 0.95*wimg)
@@ -179,13 +138,13 @@ def get_ROI_hole(mask):
 
 
 def find_red_hole(size):
-    global img_top,img_top_res
+    global img_top, img_top_res
     while img_top is None and not rospy.is_shutdown():
         img_is_none()
-    mask = get_object(img=img_top,color="red")
+    mask = get_object(img=img_top, color="red")
     ROI = get_ROI_hole(mask)
-    
-    ROI = sorted(ROI,key=cv.contourArea)
+
+    ROI = sorted(ROI, key=cv.contourArea)
 
     if ROI == []:
         mode = 1
@@ -193,50 +152,93 @@ def find_red_hole(size):
     elif len(ROI) == 1:
         mode = 2
         hole = ROI[0]
-        print_result("FOUND ONE HOLE", color_text.CYAN)
+        print_result("FOUND ONE HOLE", color_text.GREEN)
     elif len(ROI) == 2:
         mode = 3
-        ROI = ROI[-2:]
-        big_hole = ROI[0]
-        small_hole = ROI[1]
-        print_result("FOUND TWO HOLE",color_text.GREEN)
+        if size == 'big':
+            hole = ROI[0]
+        elif size == 'small':
+            hole = ROI[1]
+        else:
+            print_result("ERROR SIZE", color_text.RED_HL)
+        print_result("FOUND TWO HOLE", color_text.GREEN+color_text.UNDERLINE)
     elif len(ROI) > 2:
         mode = 4
-        ROI = ROI[-2:]
-        big_hole = ROI[0]
-        small_hole = ROI[1]
+        if size == 'big':
+            hole = ROI[-1]
+        elif size == 'small':
+            hole = ROI[-2]
+        else:
+            print_result("ERROR SIZE", color_text.RED_HL)
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
-        
-
+    if mode == 1:
+        publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
+        publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        return message()
+    elif mode == 2 or mode == 3 or mode == 4:
+        himg, wimg = img_top.shape[:2]
+        x, y, w, h = cv.boundingRect(hole)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
+        w_h_ratio = 1.0*w/h
+        if w_h_ratio > 0.89:
+            print_result('ASSUME AS '+color_text.GREEN_HL +
+                         'SMALL'+color_text.DEFAULT+' HOLE')
+        else:
+            print_result('ASSUME AS '+color_text.YELLOW_HL +
+                         'BIG'+color_text.DEFAULT+'HOLE')
+        cx = int(x + (w/2))
+        cy = int(y + (h/2))
+        area = float(w*h)/float(wimg*himg)
+        cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
+        cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
+        cv.line(img_top_res, (cx-15, cy), (cx+15, cy), (0, 0, 255), 1)
+        cv.line(img_top_res, (cx, cy-15), (cx, cy+15), (0, 0, 255), 1)
+        cx = Aconvert(cx, wimg)
+        cy = -1.0*Aconvert(cy, himg)
+        publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
+        publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 
 def find_yellow_hole():
-    pass
+    global img_top, img_top_res
+    while img_top is None and not rospy.is_shutdown():
+        img_is_none()
+    mask = get_object(img=img_top, color="yellow")
+    ROI = get_ROI_hole(mask)
+    if ROI == []:
+        mode = 1
+        print_result("NOT FOUND", color_text.RED)
+    elif len(ROI) == 1:
+        mode = 2
+        hole = ROI[0]
+        print_result("FOUND ONE HOLE", color_text.GREEN)
+    elif len(ROI) > 1:
+        mode = 3
+        hole = max(ROI, key=cv.contourArea)
+        print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
-
-# def find_hole(color):
-#     global img, img_res
-#     while img is None and not rospy.is_shutdown():
-#         img_is_none()
-
-#     mask = get_object(color)
-#     cx, cy, area, appear = get_cx_hole(mask)
-#     if not(appear):
-#         mode = 1
-#         print_result("NOT FOUND", color_text.RED)
-#     else:
-#         mode = 2
-#         print_result("FOUND HOLE", color_text.GREEN)
-
-#     if mode == 1:
-#         publish_result(img_res, 'bgr', pub_topic + 'img_res')
-#         publish_result(mask, 'gray', pub_topic + 'mask')
-#         return message(cx, cy, area, appear)
-#     elif mode == 2:
-#         publish_result(img_res, 'bgr', pub_topic + 'img_res')
-#         publish_result(mask, 'gray', pub_topic + 'mask')
-#         return message(cx, cy, area, appear)
+    if mode == 1:
+        publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
+        publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        return message()
+    elif mode == 2 or mode == 3:
+        himg, wimg = img_top.shape[:2]
+        x, y, w, h = cv.boundingRect(hole)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
+        cx = int(x + (w/2))
+        cy = int(y + (h/2))
+        area = float(w*h)/float(wimg*himg)
+        cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
+        cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
+        cv.line(img_top_res, (cx-15, cy), (cx+15, cy), (0, 0, 255), 1)
+        cv.line(img_top_res, (cx, cy-15), (cx, cy+15), (0, 0, 255), 1)
+        cx = Aconvert(cx, wimg)
+        cy = -1.0*Aconvert(cy, himg)
+        publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
+        publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 
 def get_ROI_handle(mask):
@@ -278,7 +280,7 @@ def find_handle():
         handle = ROI[0]
         print_result("FOUND HANDLE", color_text.GREEN)
     elif len(ROI) > 1:
-        mode = 2
+        mode = 3
         handle = max(ROI, key=cv.contourArea)
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
@@ -286,18 +288,18 @@ def find_handle():
         publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
         return message()
-    elif mode == 2:
+    elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
-        cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 0, 255))
+        cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         area = 1.0*w*h/(wimg*himg)
         cx = x+(w/2)
         cy = y+(h/2)
-        cv.circle(img_bot_res, (cx, cy), 3, (255, 0, 0), -1)
+        cv.circle(img_bot_res, (cx, cy), 3, (0, 0, 255), -1)
         cx = Aconvert(cx, wimg)
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
-        return message(cx=cx, cy=cy, area=area, appear=True)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 
 if __name__ == '__main__':
