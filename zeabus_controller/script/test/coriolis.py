@@ -103,9 +103,9 @@ class coriolis_a:
 
 		print( " In input value A")
 		
+		self.dynamic_matrix = numpy.matrix.copy( self.constant_matrix)
 		print( "\n\n ------------- original matrix ")
 		print( self.dynamic_matrix )
-		self.dynamix_matrix = numpy.matrix.copy( self.constant_matrix)
 
 		self.dynamic_matrix[ 0 , 4 ] *= self.a_3(u , w , q)  
 		self.dynamic_matrix[ 0 , 5 ] *= self.a_2(v , p , r)

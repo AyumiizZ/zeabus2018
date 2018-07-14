@@ -65,7 +65,9 @@ class hydrodynamic_q:
 		return self.dynamic_matrix
 
 	def absolute( self, data):
-		if( data => 0 ) return data
-		else return -1 * data  
+		if( data >= 0 ): 
+			return data
+		else:
+			return -1 * data  
 		
 
