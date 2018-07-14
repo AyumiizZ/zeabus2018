@@ -61,6 +61,7 @@ int main(int argc , char **argv){
 
 // ----------------------------------- part of publisher --------------------------------------
 	ros::Publisher tell_force = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
+//	ros::Publisher tell_force = nh.advertise<geometry_msgs::Twist>("/cmd_vel_blank", 1000);
 // -------------------------------------- end part --------------------------------------------
 
 // ------------------------------- part of dynamic reconfiure ---------------------------------
@@ -245,7 +246,9 @@ int main(int argc , char **argv){
 				}
 //                if( count == 5 ) sum_force[count] *= -1;
                 if( count == 2 ){
-                    if( robot_error[count] < -0.1) sum_force[ count ] = -3.7;
+                    if( robot_error[count] < -0.1) sum_force[ count ] = -2.5;
+                    if( ( target_position[2] < epsilon ) && (target_position[2] > -1*epsilon) )
+                        sum_force[count] = 0;
                 }
 			}
 			for( int count = 0 ; count < 6 ; count++){

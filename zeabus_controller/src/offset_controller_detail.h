@@ -366,7 +366,7 @@ bool service_ok_position(
 				&& absolute(robot_error[2]) < ok_error[2] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
-				message = manage_message::ok_three_case( request.user.data, "false",
+				message = manage_message::ok_three_case( request.user.data, "true",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1], 
@@ -377,7 +377,7 @@ bool service_ok_position(
 		else{
 			response.ok = false;
 			#ifdef save_log_service
-				message = manage_message::ok_three_case( request.user.data, "true",
+				message = manage_message::ok_three_case( request.user.data, "false",
 						request.type.data, request.adding,
 						target_position[0] , current_position[0] , robot_error[0],  
 						target_position[1] , current_position[1] , robot_error[1], 
@@ -410,11 +410,11 @@ bool service_ok_position(
 			#endif
 //			message = "response.ok is false \n";
 		}
-		#ifdef save_log_service
-			log_file.write_log( message );
-		#endif
 	}
     else response.ok = false;
+	#ifdef save_log_service
+		log_file.write_log( message );
+	#endif
 	#ifdef test_02
     	std::cout << "Result is " << response.ok << std::endl;
 	#endif

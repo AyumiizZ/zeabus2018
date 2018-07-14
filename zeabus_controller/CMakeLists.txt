@@ -4,7 +4,7 @@ project(zeabus_controller)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roslib roscpp rospy dynamic_reconfigure geometry_msgs sensor_msgs nav_msgs tf genmsg actionlib_msgs actionlib message_generation )
+find_package(catkin REQUIRED COMPONENTS roslib roscpp rospy dynamic_reconfigure geometry_msgs sensor_msgs nav_msgs tf genmsg actionlib_msgs actionlib message_generation std_msgs)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread)
