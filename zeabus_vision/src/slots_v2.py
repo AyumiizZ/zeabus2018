@@ -120,9 +120,29 @@ def get_ROI_hole(mask):
     for cnt in contours:
         if cv.contourArea(cnt) < 100:
             continue
+        have_hole = False
         x, y, w, h = cv.boundingRect(cnt)
         mask_crop = mask[y:y+h, x:x+w]
         not_mask_crop = cv.bitwise_not(mask_crop)
+        hole_contours = cv.findContours(
+            not_mask_crop, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
+        # print len(hole_contours)
+        for hole_cnt in hole_contours:
+            # print cv.contourArea(hole_cnt)
+            if cv.contourArea(hole_cnt) < 100 :
+                continue
+            hole_himg,hole_wimg = not_mask_crop.shape[:2]
+            x_hole,y_hole,w_hole,h_hole = cv.boundingRect(hole_cnt)
+            top_excess = (y_hole < 0.05*hole_himg)
+            bot_excess = ((y_hole+h_hole) > (0.95*hole_himg))
+            right_excess = ((x_hole+w_hole) > (0.95*hole_wimg))
+            left_excess = (x_hole < (0.05*hole_wimg))
+            window_excess = top_excess or bot_excess or right_excess or left_excess
+            print top_excess , bot_excess , right_excess , left_excess
+            print float(w_hole*h_hole)/float(w*h)
+            print not (window_excess)
+            if float(w_hole*h_hole)/float(w*h) > 0.35 and not(window_excess):
+                have_hole = True
         mask_area = cv.countNonZero(mask_crop)
         not_mask_area = cv.countNonZero(not_mask_crop)
         percent_not_mask = float(not_mask_area) / \
@@ -132,8 +152,9 @@ def get_ROI_hole(mask):
         right_excess = ((x+w) > 0.95*wimg)
         left_excess = (x < 0.05*wimg)
         window_excess = top_excess or bot_excess or right_excess or left_excess
-        if not window_excess and (percent_not_mask < 0.75 and percent_not_mask > 0.25):
+        if not window_excess and (percent_not_mask < 0.65 and percent_not_mask > 0.35) and have_hole :
             ROI.append(cnt)
+            print percent_not_mask
     return ROI
 
 
