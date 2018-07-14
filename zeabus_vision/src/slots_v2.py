@@ -93,13 +93,13 @@ def get_object(img, color):
     elif color == "red":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower1 = np.array([0, 85, 12], dtype=np.uint8)
-            upper1 = np.array([11, 234, 234], dtype=np.uint8)
-            lower2 = np.array([158, 85, 12], dtype=np.uint8)
-            upper2 = np.array([180, 234, 234], dtype=np.uint8)
-            mask1 = cv.inRange(hsv, lower1, upper1)
-            mask2 = cv.inRange(hsv, lower2, upper2)
-            mask = cv.bitwise_or(mask1, mask2)
+            lower = np.array([110, 0, 0], dtype=np.uint8)
+            upper = np.array([180, 255, 255], dtype=np.uint8)
+            # lower2 = np.array([158, 85, 12], dtype=np.uint8)
+            # upper2 = np.array([180, 234, 234], dtype=np.uint8)
+            mask = cv.inRange(hsv, lower, upper)
+            # mask2 = cv.inRange(hsv, lower2, upper2)
+            # mask = cv.bitwise_or(mask1, mask2)
         if world == "sim":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
             lower1 = np.array([0, 85, 12], dtype=np.uint8)
@@ -202,7 +202,8 @@ def find_red_hole(size):
         x, y, w, h = cv.boundingRect(hole)
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         w_h_ratio = 1.0*w/h
-        if w_h_ratio > 0.89:
+        print w_h_ratio
+        if w_h_ratio < 0.93:
             print_result('ASSUME AS '+color_text.GREEN_HL +
                          'SMALL'+color_text.DEFAULT+' HOLE')
         else:
