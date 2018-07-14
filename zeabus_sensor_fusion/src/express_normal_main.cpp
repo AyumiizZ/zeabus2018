@@ -9,7 +9,7 @@ int main( int argc , char** argv){
 	ros::NodeHandle nh;
 
 	ros::Subscriber sub_baro_odom = nh.subscribe( "/baro/odom" , 1000 , &listen_baro_odom);
-	ros::Subscriber sub_dvl_data = nh.subscribe( "/dvl/data" , 10 , &listen_dvl_data);
+	ros::Subscriber sub_dvl_data = nh.subscribe( "/dvl/data" , 1000 , &listen_dvl_data);
 	ros::Subscriber sub_imu_data = nh.subscribe( "/gx4_45_imu/data" , 1000 , &listen_imu_data);
 
 	#ifdef test_01
