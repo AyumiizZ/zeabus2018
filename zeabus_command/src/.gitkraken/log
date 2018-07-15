@@ -1,0 +1,144 @@
+{
+  "log": [
+    {
+      "actionName": "registration_action_check_for_eula_update",
+      "count": 1,
+      "totalMS": 6
+    },
+    {
+      "actionName": "refresh_action_refresh_repo",
+      "count": 13,
+      "totalMS": 2100
+    },
+    {
+      "actionName": "app_settings_action_set",
+      "count": 39,
+      "totalMS": 6
+    },
+    {
+      "actionName": "git_config_action_refresh",
+      "count": 1,
+      "totalMS": 319
+    },
+    {
+      "actionName": "stash_action_refresh",
+      "count": 12,
+      "totalMS": 255
+    },
+    {
+      "actionName": "submodule_action_refresh",
+      "count": 12,
+      "totalMS": 386
+    },
+    {
+      "actionName": "git_flow_action_refresh",
+      "count": 12,
+      "totalMS": 546
+    },
+    {
+      "actionName": "workdir_action_refresh",
+      "count": 16,
+      "totalMS": 718
+    },
+    {
+      "actionName": "hosting_service_action_get_ssh_key_info",
+      "count": 1,
+      "totalMS": 7
+    },
+    {
+      "actionName": "pull_request_action_fetch_all",
+      "count": 4,
+      "totalMS": 1539
+    },
+    {
+      "actionName": "ref_action_update_merge_head",
+      "count": 16,
+      "totalMS": 354
+    },
+    {
+      "actionName": "commit_action_refresh",
+      "count": 3,
+      "totalMS": 194
+    },
+    {
+      "actionName": "refresh_action_refresh_success",
+      "count": 19,
+      "totalMS": 2
+    },
+    {
+      "actionName": "refresh_action_queue_refresh_types",
+      "count": 19,
+      "totalMS": 2316
+    },
+    {
+      "actionName": "profile_settings_action_set",
+      "count": 1,
+      "totalMS": 1
+    },
+    {
+      "actionName": "repo_action_open",
+      "count": 1,
+      "totalMS": 372
+    },
+    {
+      "actionName": "search_action_update_index",
+      "count": 3,
+      "totalMS": 1113
+    },
+    {
+      "actionName": "registration_action_check_password_strength",
+      "count": 1,
+      "totalMS": 2
+    },
+    {
+      "actionName": "hosting_service_action_get_user",
+      "count": 1,
+      "totalMS": 929
+    },
+    {
+      "actionName": "hosting_service_action_refresh_hosting_service_data_via_api",
+      "count": 1,
+      "totalMS": 950
+    },
+    {
+      "actionName": "diff_action_calc_diff",
+      "count": 2,
+      "totalMS": 954
+    },
+    {
+      "actionName": "commit_action_select",
+      "count": 2,
+      "totalMS": 967
+    },
+    {
+      "actionName": "repo_action_find_parent",
+      "count": 1,
+      "totalMS": 400
+    },
+    {
+      "actionName": "registration_action_phone_home",
+      "count": 1,
+      "totalMS": 1222
+    },
+    {
+      "actionName": "pull_request_action_fetch",
+      "count": 3,
+      "totalMS": 1459
+    },
+    {
+      "actionName": "ref_action_fetch",
+      "count": 3,
+      "totalMS": 4479
+    },
+    {
+      "actionName": "ref_action_fetch_all",
+      "count": 3,
+      "totalMS": 5040
+    },
+    {
+      "actionName": "ref_action_autoFetch",
+      "count": 3,
+      "totalMS": 5045
+    }
+  ]
+}

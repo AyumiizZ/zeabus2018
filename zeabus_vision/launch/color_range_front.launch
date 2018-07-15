@@ -1,0 +1,15 @@
+<launch>
+	<arg name="mission"/>
+	<arg name="number"/>
+	<rosparam ns="color_range_front_$(arg number)_$(arg mission)" command="load" file="$(find zeabus_vision)/params/$(arg number)/color_front_$(arg mission).yaml"></rosparam>
+	<node pkg="zeabus_vision" name="color_range_front_$(arg number)_$(arg mission)" type="color_range_main.py" args="color_range_front_$(arg number)_$(arg mission)" output="screen">
+		<!-- 
+			Now use right camera for detection if u want to use left camera please comment line 9 and uncomment line 10
+		 -->
+		<param name="camera_topic" type='str' value='/stereo/right/image_rect_color/compressed'/>
+		<!-- <param name="camera_topic" type='str' value='/stereo/left/image_rect_color/compressed'/> -->
+		<param name="camera_position" type='str' value='front'/>
+		<param name="mission" type="str" value="$(arg mission)"/>
+		<param name="number" type="str" value="$(arg number)"/>
+	</node>
+</launch>

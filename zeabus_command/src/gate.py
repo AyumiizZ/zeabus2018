@@ -3,8 +3,8 @@
 import rospy
 import constants as cons
 from aicontrol import AIControl
-from zeabus_example.srv import vision_srv_gate
-from zeabus_example.msg import vision_gate
+from zeabus_vision.srv import vision_srv_casino_gate
+from zeabus_vision.msg import vision_casino_gate
 from std_msgs.msg import String
 
 class Gate(object):
@@ -14,14 +14,23 @@ class Gate(object):
 
         # wait for vision service and declare variables for store data from vision
         print '---wait for vision service---'
-        rospy.wait_for_service('vision_gate')
-        self.gate_req = rospy.ServiceProxy('vision_gate', vision_srv_gate)
-        self.gate_data = vision_gate()
+        rospy.wait_for_service('vision_casino_gate')
+        print("found frist time")
+        self.gate_req = rospy.ServiceProxy('vision_casino_gate', vision_srv_casino_gate)
+        self.gate_data = vision_casino_gate()
+
 
     def detectGate(self):
         # store all data from vision service into gate_data
-        self.gate_data = self.gate_req(String('gate'), String('gate'))
-        self.gate_data = self.gate_data.data
+        try:
+            print("will find service vision_casino_gate")
+            rospy.wait_for_service('vision_casino_gate' , 2)
+            print("found service vision_casino_gate")
+            self.gate_data = self.gate_req(String('casino_gate'))
+            self.gate_data = self.gate_data.data
+            print("success convert data for use")
+        except:
+            print("don't found service vision_casino_gate")
 
     def run(self):
         # declare auv for shorter variable name
@@ -44,9 +53,8 @@ class Gate(object):
             self.detectGate()
             area = self.gate_data.area
             appear = self.gate_data.appear
-            cx = self.gate_data.cx
-            pos = self.data.gate_data.pos
-
+            cx1 = self.gate_data.cx1
+            cx2 = self.gate_data.cx2
             # find gate
             if mode == 0:
                 print '---mode 0---'
@@ -57,11 +65,12 @@ class Gate(object):
                     reset = 0
                     print 'FOUND GATE: %d'%(count)
                 elif not appear:
+                    auv.multiMove([0, 0, 0, 0, 0, -1])
                     reset += 1
                     print 'NOT FOUND GATE: %d'%(reset)
 
                 # check counter
-                if count >= 5:
+                if count >= 8:
                     count = 0
                     reset = 0
                     print '<<<Change to mode 1>>>'
@@ -70,15 +79,16 @@ class Gate(object):
                     reset = 0
                     count = 0
 
-                auv.move('forward', cons.AUV_M_SPEED)
 
             # move to center of the gate
             if mode == 1:
+                print
                 print '---mode 1---'
-                print 'POS: %d'%(pos)
-                print 'cx: %f'%(cx)
+                print 'cx1: %f'%(cx1)
+                print 'cx2: %f'%(cx2)
                 print 'area: %f'%(area)
-
+                print '-------------------'
+                '''
                 # found only left part
                 if pos == -1:
                     auv.move('right', cons.AUV_M_SPEED)
@@ -89,59 +99,51 @@ class Gate(object):
 
                 # found both left and right
                 elif pos == 0:
-                    if cx < 0:
-                        auv.move('left', cons.AUV_M_SPEED*abs(cx))
-                    elif cx > 0:
-                        auv.move('right', cons.AUV_M_SPEED*abs(cx))
-
-                    # check if gate is center or not
-                    if -cons.VISION_GATE_ERROR <= cx <= cons.VISION_GATE_ERROR:
-                        print '<<<CENTER>>>'
-                        center += 1
-                        auv.stop()
-                    elif -cons.VISION_GATE_ERROR > cx > cons.VISION_GATE_ERROR:
-                        reset += 1
-
-                # check center's counter
-                    if center >= 3:
-                        print '<<<Change to mode 2>>>'
-                        mode = 2
-                    elif reset >= 10:
-                        center = 0
-                        reset = 0
-
+                '''
                 # check if auv is too close or too far from the gate
-                if area > 0.01:
+                if area > 0.2:
                     print 'TOO CLOSE'
-                    back += 1
-                    forward = 0
-                    auv.stop()
-                elif 0 < area < 0.005:
+                    auv.move('backward', cons.AUV_M_SPEED)
+                elif 0 < area < 0.16:
                     print 'TOO FAR'
-                    forward += 1
-                    back = 0
-                    auv.stop()
-                elif 0.005 <= area <= 0.01:
-                    forward = 0
-                    back = 0
+                    for i in range(15):
+                        auv.move('forward', cons.AUV_H_SPEED)
 
-                # check distance's counter
-                if forward >= 3:
-                    print 'MOVE CLOSER TO THE GATE'
-                    auv.driveX(0.3)
-                elif back >= 3:
-                    print 'MOVE FURTHUR FROM THE GATE'
-                    auv.driveX(-0.4)
+                if cx1 < 0:
+                    for i in range(10):
+                        auv.move('left', cons.AUV_H_SPEED*abs(cx1)*5)
+                elif cx1 > 0:
+                    for i in range(10):
+                        auv.move('right', cons.AUV_H_SPEED*abs(cx1))
+
+                # check if gate is center or not
+                if -cons.VISION_GATE_ERROR <= cx1 <= cons.VISION_GATE_ERROR:
+                    print '<<<CENTER>>>'
+                    center += 1
+                    auv.stop()
+                elif -cons.VISION_GATE_ERROR > cx1 > cons.VISION_GATE_ERROR:
+                    reset += 1
+
+            # check center's counter
+                if center >= 8 and area > 0.16:
+                    print '<<<Change to mode 2>>>'
+                    mode = 2
+                elif reset >= 3:
+                    center = 0
+                    reset = 0
 
             # go through the gate
             if mode == 2:
                 print '---mode 2---'
-                auv.driveX(8)
+                auv.driveX(7)
                 mode = -1
+
+            rospy.sleep(0.2)
 
         # passed through gate
         auv.stop()
         print 'Gate completed'
+        
 
 if __name__=='__main__':
     rospy.init_node('gate_node', anonymous=False)

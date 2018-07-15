@@ -12,6 +12,7 @@ img = None
 img_res = None
 sub_sampling = 1
 pub_topic = "/vision/roulette/"
+world = "real"
 
 def mission_callback(msg):
     print_result('mission_callback')
@@ -41,19 +42,12 @@ def message(cx=-1, cy=-1,area = -1,appear = False):
     m.cy = cy
     m.area = area
     m.appear = appear
-    # print(m)
+    print(m)
     return m
 
 def get_object(color):
-    """
-        get mask from picture and remove some noise
-        Returns:
-            mask (ONLY PATH AREA)
-    """
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-    # sim
     if color == 'red' :
         lower = np.array([139, 0, 0], dtype=np.uint8)
         upper = np.array([255, 255, 255], dtype=np.uint8)
@@ -87,7 +81,10 @@ def get_cx(mask):
     cx2 = []
     cy1 = []
     cy2 = []
+    area = -1
     appear = False
+    mask[mask>254] = 255
+    mask[mask<=254] =0
     # sum_area = 
     count = 0
     cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
@@ -98,27 +95,27 @@ def get_cx(mask):
     if len(cnt) == 1 :
         # appear = True
         area = cv.contourArea(cnt[0])
-        if area > 5000:
+        if area > 500:
             M = cv.moments(cnt[0])
             ROI_cx1 = int(M["m10"]/M["m00"])
             ROI_cy1 = int(M['m01']/M['m00']) 
             if ROI_cx1 >= 0.05 * wimg and ROI_cx1 <= 0.95 * wimg:
-                cv.circle(img_res, (ROI_cx1, ROI_cy1), 10, (0, 0, 255), -1)
+                cv.circle(img_res, (ROI_cx1, ROI_cy1), 5, (0, 0, 255), -1)
                 cx1.append(ROI_cx1)
                 cy1.append(ROI_cy1)
                 appear = True
                 # sum_area += tarea
                 # count += 1
         # avg_area = 0 if count == 0 else sum_area/count
-        area = area/(wimg*himg)
-        cx1 = cx1[::-1]
-        cy1 = cy1[::-1]
-        return cx1, cy1 , area ,appear
-    elif len(cnt) == 2 :    
+                area = area/(wimg*himg)
+                cx1 = cx1[::-1]
+                cy1 = cy1[::-1]
+                return cx1, cy1 , area ,appear
+    elif len(cnt) == 2 :
         # appear = True
         area_1 = cv.contourArea(cnt[0])
         area_2 = cv.contourArea(cnt[1])
-        if area_1 > 5000 and area_2 > 5000 :
+        if area_1 > 500 or area_2 > 500 :
             M_1= cv.moments(cnt[0])
             ROI_cx1 = int(M_1["m10"]/M_1["m00"])
             ROI_cy1 = int(M_1['m01']/M_1['m00']) 
@@ -135,13 +132,13 @@ def get_cx(mask):
                 M_2 = cv.moments(cnt[1])
                 ROI_cx2 = int(M_2["m10"]/M_2["m00"])
                 ROI_cy2 = int(M_2['m01']/M_2['m00'])
-                if abs(ROI_cx1 - (wing/2)) < abs(ROI_cx2 - (wing/2)) :
+                if abs(ROI_cx1 - (wimg/2)) < abs(ROI_cx2 - (wimg/2)) :
                     ROI_cx2 = ROI_cx1 
                     ROI_cy2 = ROI_cy1
                 # if abs(ROI_cy1) < abs(ROI_cy2) :
                 #     ROI_cy2 = ROI_cy1
                 if ROI_cx2 >= 0.05 * wimg and ROI_cx2 <= 0.95 * wimg:
-                    cv.circle(img_res, (ROI_cx2, ROI_cy2), 3, (0, 0, 255), -1)
+                    cv.circle(img_res, (ROI_cx2, ROI_cy2), 5, (0, 0, 255), -1)
                     cx2.append(ROI_cx2)
                     cy2.append(ROI_cy2)
                     # sum_area += area_2
@@ -149,7 +146,8 @@ def get_cx(mask):
         # avg_area = 0 if count == 0 else sum_area/count
                     cx2 = cx2[::-1]
                     cy2 = cy2[::-1]
-                return cx2,cy2,area,appear
+                    area = (area_1+area_2)/(wimg*himg)
+                    return cx2,cy2,area,appear
     return cx2,cy2,area,appear
 
 
@@ -178,18 +176,18 @@ def find_roulette(color) :
         # return_area = (1.0*area*16)/(himg*wimg)
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
-        return message(cx1=return_cx1, cy1=return_cy1, area = area ,appear=True)
+        return message(cx=return_cx1, cy=return_cy1, area = area ,appear=True)
 
 if __name__ == '__main__':
-    rospy.init_node('vision_roulette', anonymous=True)
+    rospy.init_node('node_roulette', anonymous=False)
     print_result("INIT NODE")
 
     # sim
     # TOPIC = "/syrena/bottom_cam/image_raw/compressed"
     # real world
     TOPIC = "/bottom/left/image_raw/compressed"
-
-    rospy.Subscriber(TOPIC, CompressedImage, image_callback)
+    image_topic = get_topic("bottom",world)
+    rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print_result("INIT SUBSCRIBER")
 
     rospy.Service('vision_roulette', vision_srv_roulette(),

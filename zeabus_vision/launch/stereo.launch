@@ -22,6 +22,7 @@
 	<arg name="camera_name_left" value="/stereo/left" />
 	<arg name="nodelet_manager_name_right" value="stereo_right" />
 	<arg name="camera_name_right" value="/stereo/right" />
+
 	<!-- =================== LEFT CAMERA =================== -->
 	<node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name_left)" args="manager" output="screen" />
 	<node pkg="nodelet" type="nodelet" name="ueye_cam_nodelet_$(arg nodelet_manager_name_left)" args="load ueye_cam/ueye_cam_nodelet $(arg nodelet_manager_name_left)">
@@ -47,6 +48,7 @@
 		<param name="pixel_clock" type="int" value="$(arg pixel_clock)" />
 		<param name="flip_lr" type="bool" value="$(arg flip_lr)" />
 	</node>
+
 	<!-- =================== RIGHT CAMERA =================== -->
 	<node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name_right)" args="manager" output="screen" />
 	<node pkg="nodelet" type="nodelet" name="ueye_cam_nodelet_$(arg nodelet_manager_name_right)" args="load ueye_cam/ueye_cam_nodelet $(arg nodelet_manager_name_right)">
@@ -72,5 +74,15 @@
 		<param name="pixel_clock" type="int" value="$(arg pixel_clock)" />
 		<param name="flip_lr" type="bool" value="$(arg flip_lr)" />
 	</node>
+
+	<!-- =================== STEREO CAMERA =================== -->	
 	<node pkg="stereo_image_proc" name="stereo_image_proc" type="stereo_image_proc" output="screen" ns="stereo" args="_approximate_sync:=True _queue_size:=10"></node>
+	
+	<!-- =================== EXPOSURE FRONT CAMERA =================== -->
+	<node pkg="zeabus_vision" name="auto_exposure_front" type="auto_exposure_front.py" output="screen">
+		<param name="topic_right" type="str" value="/stereo/right/image_rect_color/compressed"/>
+		<param name="client_right" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_right)/"/>
+		<!-- <param name="topic_left" type="str" value="/stereo/left/image_rect_color/compressed"/>
+		<param name="client_left" type="str" value="ueye_cam_nodelet_$(arg nodelet_manager_name_left)/"/> -->
+	</node>
 </launch>
