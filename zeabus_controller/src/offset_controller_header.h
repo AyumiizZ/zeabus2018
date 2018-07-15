@@ -2,8 +2,10 @@
 
 // ------------------------------------define for debug code -------------------------------- //
 #define	test_01 // test state
-#define test_02 // print test
+//#define test_02 // print test
 #define print_data // print data
+#define print_all_value // print all normal value
+#define save_log_service // for save log service
 // ------------------------------------------------------------------------------------------ //
 
 // standard include
@@ -15,6 +17,7 @@
 // include other file
 #include	"calculate_velocity.cpp" // will use pid of this file to calculate force out
 #include	"manage_file.cpp" // this file about save / load value of dynamic reconfigure
+#include	"helping_function.cpp" // this file about manage string to write log
 
 #include 	<math.h> // for math
 
@@ -53,6 +56,7 @@ static	std::string tune_file = "offset_ku.yaml"; // this for save and load tune 
 double	pid_force[6] = {0, 0, 0, 0, 0, 0}; // force output part 01 have calculate by pid
 double 	offset_force[6] = {0, 0, 0, 0, 0, 0}; // force output part 02 have offset {tuning}
 double	sum_force[6] = {0, 0, 0, 0, 0, 0}; // sum force of 2 part
+double	old_force[6] = {0, 0, 0, 0, 0, 0}; // sum force of 2 part
 
 // for tuning pid calculate
 double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
@@ -65,7 +69,7 @@ double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 4, 4, 8, 1.5, 1.5, 1};
+double	bound_force[6] = { 4, 8, 4.5, 1.5, 1.5, 0.4};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};
@@ -73,7 +77,7 @@ double	target_position[6] = {0, 0, 0, 0, 0, 0};
 double	world_error[6] = {0, 0, 0, 0, 0, 0}; // this part will calculate error from sensor
 double	robot_error[6] = {0, 0, 0, 0, 0, 0}; // this part will use to calculate force and calculate form
 									 // world_error
-double ok_error[6] = { 0.05 , 0.05 , 0.05 , 0.1 , 0.1 , 0.1}; // for calculate error you ok
+double ok_error[6] = { 0.01 , 0.01 , 0.1 , 0.05 , 0.05 , 0.01}; // for calculate error you ok
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
@@ -87,7 +91,7 @@ double diff_yaw = 0;
 // this part use to think about should reset target and save new state to target_position
 ros::Time last_target_velocity;
 ros::Time current_time;
-double diff_time = 1; // this variable 
+double diff_time = 0.1; // this variable 
 void reset_want_fix();
 
 bool start_run = true; // this tell to save target state in first time
@@ -123,10 +127,18 @@ bool service_target_yaw(
 		zeabus_controller::fix_abs_yaw::Request &request ,
 		zeabus_controller::fix_abs_yaw::Response &response
 	); // for get want yaw
+bool service_rel_yaw(
+		zeabus_controller::fix_abs_yaw::Request &request ,
+		zeabus_controller::fix_abs_yaw::Response &response
+	); // for get want yaw
 bool service_target_depth(
 		zeabus_controller::fix_abs_depth::Request &request ,
 		zeabus_controller::fix_abs_depth::Response &response
 	); // for get want depth
+bool service_rel_depth(
+		zeabus_controller::fix_abs_depth::Request &request ,
+		zeabus_controller::fix_abs_depth::Response &response
+	); // for get want add depth
 bool service_ok_position(
 		zeabus_controller::ok_position::Request &request ,
 		zeabus_controller::ok_position::Response &response
@@ -146,10 +158,17 @@ bool service_change_mode(
 find_velocity::second_case *PID_position; // use to calculate force
 find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
+#ifdef save_log_service
+	manage_log log_file; // use to save log service
+#endif
 
 double convert_min_radian( double problem); // convert to [ -PI , PI]
 double convert_range_radian( double problem);// convert [ -PI , PI] to [0 , 2PI]
 double bound_value_radian( double problem);// bound value to in [0 , 2PI]
+double find_min_angular( double current , double target);// find by old code
+double left_yaw = 0;
+double right_yaw = 0;
 
 double absolute( double problem);
+double find_direction( double problem);
 geometry_msgs::Twist create_msg_force();

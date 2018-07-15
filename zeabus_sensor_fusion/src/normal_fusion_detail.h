@@ -7,6 +7,7 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 								, message_orientation.orientation.w );
 	tfScalar roll , pitch , yaw;
 	tf::Matrix3x3( quaternion ).getRPY( roll , pitch ,yaw);
+    roll += PI/2;
 
 //	current_time = ros::Time::now();
 	current_time = message_twist.header.stamp;
@@ -46,9 +47,9 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 	else{
 		double diff_time = (current_time - previous_time).toSec();
 		add_robot_x = ( previous_velocity_x + message_twist.twist.twist.linear.x) 
-							/ 2 * diff_time * cos(pitch);
+							/ 1 * diff_time * cos(pitch);
 		add_robot_y = ( previous_velocity_y + message_twist.twist.twist.linear.y) 
-							/ 2 * diff_time * cos(roll);
+							/ 1 * diff_time * cos(roll);
 		add_world_x = add_robot_x * cos( yaw ) + add_robot_y * cos( yaw + PI/2 );
 		add_world_y = add_robot_x * sin( yaw ) + add_robot_y * sin( yaw + PI/2 );
 		world_x += add_world_x;
@@ -73,7 +74,14 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 // form pressure sensor
 		msgs_auv_state.pose.pose.position.z = message_odometry.pose.pose.position.z;
 // from Imu
-		msgs_auv_state.pose.pose.orientation = message_orientation.orientation;
+//		msgs_auv_state.pose.pose.orientation = message_orientation.orientation;
+        tf::Quaternion test = tf::createQuaternionFromRPY( roll , pitch , yaw);
+        msgs_auv_state.pose.pose.orientation.x = (double)test[0];
+        msgs_auv_state.pose.pose.orientation.y = (double)test[1];
+        msgs_auv_state.pose.pose.orientation.z = (double)test[2];
+        msgs_auv_state.pose.pose.orientation.w = (double)test[3];
+
+//        msgs_auv_state.pose.pose.orientation = tf::createQuaternionFromRPY( roll , pitch , yaw);
 // from dvl
 		msgs_auv_state.twist.twist.linear.x = message_twist.twist.twist.linear.x;
 		msgs_auv_state.twist.twist.linear.y = message_twist.twist.twist.linear.y;
@@ -82,7 +90,6 @@ void fusion_depth_velocity_imu( const nav_msgs::Odometry message_odometry,
 											  - previous_depth ) / diff_time;
 // from Imu
 		msgs_auv_state.twist.twist.angular = message_orientation.angular_velocity;
-		
 		msgs_auv_state.header.stamp = ros::Time::now();
 		std::cout << "send auv_state \n";
 		tell_auv_state.publish( msgs_auv_state );

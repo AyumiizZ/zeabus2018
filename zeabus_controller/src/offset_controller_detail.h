@@ -11,7 +11,7 @@ void listen_current_state( const nav_msgs::Odometry message){
 			target_position[0] = message.pose.pose.position.x;
 			target_position[1] = message.pose.pose.position.y;
 		}
-		if( ( not want_fix[2] ) || reset_position ){
+		if( ( not want_fix[2] ) ){
 			target_position[2] = message.pose.pose.position.z;
 		}
         if( start_run ){
@@ -78,7 +78,23 @@ double convert_min_radian( double problem){
 
 double convert_range_radian( double problem){
 	if( problem < 0 ) return problem + 2*PI;
+    else if( problem > 2*PI) return problem - 2*PI;
 	else return problem;
+}
+
+double find_min_angular(double current, double target){
+	if(current > target){
+		right_yaw = -(current - target);
+		left_yaw = (2*PI)+right_yaw; 
+	}
+	else{
+		left_yaw = target-current;
+		right_yaw = -((2*PI)-left_yaw);
+	}
+	double abs_right_yaw = abs(right_yaw);
+	double abs_left_yaw = abs(left_yaw);
+	if(abs_right_yaw<abs_left_yaw) return right_yaw;
+	else return left_yaw;
 }
 
 double bound_value_radian( double problem){
@@ -167,8 +183,13 @@ void config_constant_PID( zeabus_controller::OffSetConstantConfig &config,	uint3
 bool service_target_xy(
 		zeabus_controller::fix_abs_xy::Request &request ,
 		zeabus_controller::fix_abs_xy::Response &response){
-	target_position[0] += request.x;
-	target_position[1] += request.y;
+	target_position[0] = request.x;
+	target_position[1] = request.y;
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute xy"
+									, target_position[0] , target_position[1]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -176,10 +197,21 @@ bool service_target_xy(
 bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
 		zeabus_controller::fix_rel_xy::Response &response){
+	#ifdef save_log_service
+		double origin_01 = target_position[0];
+		double origin_02 = target_position[1];
+	#endif
 	target_position[0] += request.distance_x * cos( target_position[5]);
-	target_position[1] += request.distance_y * sin( target_position[5]);
-	target_position[0] += request.distance_x * cos( target_position[5] + PI/2);
+	target_position[1] += request.distance_x * sin( target_position[5]);
+	target_position[0] += request.distance_y * cos( target_position[5] + PI/2);
 	target_position[1] += request.distance_y * sin( target_position[5] + PI/2);
+
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative xy"
+									, origin_01 , request.distance_x , target_position[0]
+									, origin_02 , request.distance_y , target_position[1]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -188,6 +220,29 @@ bool service_target_yaw(
 		zeabus_controller::fix_abs_yaw::Request &request ,
 		zeabus_controller::fix_abs_yaw::Response &response){
 	target_position[5] = convert_range_radian( request.fix_yaw );
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute yaw"
+									, target_position[5]);
+		log_file.write_log( message );
+	#endif
+	response.success = true;
+	return true;
+}
+
+bool service_rel_yaw(
+		zeabus_controller::fix_abs_yaw::Request &request ,
+		zeabus_controller::fix_abs_yaw::Response &response){
+//    double previous_target = target_position[5];
+//	target_position[5] += convert_range_radian( request.fix_yaw );
+	#ifdef save_log_service
+		double origin = target_position[5];
+	#endif
+	target_position[5] = convert_range_radian( target_position[5] + request.fix_yaw );
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
+									, origin , request.fix_yaw , target_position[5]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -196,6 +251,27 @@ bool service_target_depth(
 		zeabus_controller::fix_abs_depth::Request &request , 
 		zeabus_controller::fix_abs_depth::Response &response){
 	target_position[2] = request.fix_depth;
+	#ifdef save_log_service
+		std::string message = manage_message::absolute_target( request.user.data , "absolute depth"
+									, target_position[2]);
+		log_file.write_log( message );
+	#endif
+	response.success = true;
+	return true;
+}
+
+bool service_rel_depth(
+		zeabus_controller::fix_abs_depth::Request &request , 
+		zeabus_controller::fix_abs_depth::Response &response){
+	#ifdef save_log_service
+	    double previous_target = target_position[2];
+	#endif
+	target_position[2] += request.fix_depth;
+	#ifdef save_log_service
+		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
+									, previous_target , request.fix_depth , target_position[2]);
+		log_file.write_log( message );
+	#endif
 	response.success = true;
 	return true;
 }
@@ -218,6 +294,9 @@ bool service_ok_position(
 	    std::cout << "service check " << request.type.data 
 					<< "and use adding is " << request.adding << std::endl;
 	#endif
+	#ifdef save_log_service
+		std::string message = "";
+	#endif
     if(request.type.data == "xy"){
 		#ifdef print_data
 			std::cout 	<< "------------------ check position "
@@ -228,8 +307,24 @@ bool service_ok_position(
 						<< " ok_error + adding " << ok_error[1] + request.adding << "\n";
 		#endif
         if( absolute(robot_error[0]) < ok_error[0] + request.adding 
-			&& absolute(robot_error[1]) < ok_error[1] + request.adding) response.ok = true;
-        else response.ok = false;
+				&& absolute(robot_error[1]) < ok_error[1] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_two_case( request.user.data, "true",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1] ); 
+			#endif
+			}
+        else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_two_case( request.user.data , "false",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1] ); 
+			#endif
+		}
     }
     else if(request.type.data == "z"){
 		#ifdef print_data
@@ -238,8 +333,22 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[2]
 						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
 		#endif
-        if( absolute(robot_error[1]) < ok_error[2] + request.adding) response.ok = true;
-        else response.ok = false;
+        if( absolute(robot_error[2]) < ok_error[2] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( request.user.data, "true",
+						request.type.data, request.adding,
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
+        else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( request.user.data, "false",
+						request.type.data, request.adding,
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
     }
 	else if(request.type.data == "xyz"){
 		#ifdef print_data
@@ -253,9 +362,28 @@ bool service_ok_position(
 						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
 		#endif
 		if( absolute(robot_error[0]) < ok_error[0] + request.adding
-			&& absolute(robot_error[1]) < ok_error[1] + request.adding
-			&& absolute(robot_error[2]) < ok_error[2] + request.adding) response.ok = true;
-		else response.ok = false;
+				&& absolute(robot_error[1]) < ok_error[1] + request.adding
+				&& absolute(robot_error[2]) < ok_error[2] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_three_case( request.user.data, "true",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1], 
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+
+		}
+		else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_three_case( request.user.data, "false",
+						request.type.data, request.adding,
+						target_position[0] , current_position[0] , robot_error[0],  
+						target_position[1] , current_position[1] , robot_error[1], 
+						target_position[2] , current_position[2] , robot_error[2] ); 
+			#endif
+		}
 	}
 	else if(request.type.data == "yaw"){
 		#ifdef print_data
@@ -264,10 +392,29 @@ bool service_ok_position(
 			std::cout 	<< "for z : robot " << robot_error[5]
 						<< " ok_error + adding " << ok_error[5] + request.adding << "\n";
 		#endif
-		if( absolute(robot_error[5]) < ok_error[5] + request.adding) response.ok = true;
-		else response.ok = false;
+		if( absolute(robot_error[5]) < ok_error[5] + request.adding){
+			response.ok = true;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( request.user.data, "true",
+								request.type.data, request.adding,
+								target_position[5] , current_position[5] , robot_error[5] ); 
+			#endif
+//			message = "response.ok is true \n";
+		}
+		else{
+			response.ok = false;
+			#ifdef save_log_service
+				message = manage_message::ok_one_case( request.user.data, "false",
+								request.type.data, request.adding,
+								target_position[5] , current_position[5] , robot_error[5] );
+			#endif
+//			message = "response.ok is false \n";
+		}
 	}
     else response.ok = false;
+	#ifdef save_log_service
+		log_file.write_log( message );
+	#endif
 	#ifdef test_02
     	std::cout << "Result is " << response.ok << std::endl;
 	#endif
@@ -305,6 +452,11 @@ void reset_specific_velocity( int number){
 
 // -------------------------------------- end part --------------------------------------------
 
+double find_direction( double problem){
+    if(problem < 0) return -1;
+    else return 1;
+}
+
 double absolute( double problem){
 	if(problem < 0) return -1*problem;
 	else return problem;
@@ -314,7 +466,14 @@ geometry_msgs::Twist create_msg_force(){
 	geometry_msgs::Twist message;
 	message.linear.x = sum_force[0];
 	message.linear.y = sum_force[1];
-	message.linear.z = sum_force[2];
+    if( sum_force[2] < 0 && old_force[2] < 0){
+	    message.linear.z = old_force[2];
+        old_force[2] = sum_force[2];
+    }
+    else{
+	    message.linear.z = sum_force[2]; 
+        old_force[2] = sum_force[2];
+    }
 	message.angular.x = sum_force[3];
 	message.angular.y = sum_force[4];
 	message.angular.z = sum_force[5];
