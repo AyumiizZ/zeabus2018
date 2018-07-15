@@ -9,7 +9,9 @@ import constant as CONST
 from vision_lib import *
 
 
+
 class AutoExposure:
+
 
     def __init__(self, subTopic, clientName, EVdefault=1, EVmin=0.5, camera_position='front'):
         print_result("init_node_auto_exposure")
@@ -32,10 +34,19 @@ class AutoExposure:
         print_result('set_client')
         self.set_param('exposure', self.EVdefault)
 
+    def get_mode(self,data):
+        if len(data.shape) > 1:
+            data = data.ravel()
+        count = np.bincount(data)
+        max = count.max()
+        count = list(count)
+        return count.index(max)
+
+    
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
         self.image = cv2.resize(cv2.imdecode(
-            arr, 1), (self.imageW, self.imageH))
+            arr, 1), (0,0),fx=0.5,fy=0.5)
         self.hsv = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
     def set_param(self, param, value):
@@ -55,16 +66,18 @@ class AutoExposure:
 
             h, s, v = cv2.split(self.hsv)
             vOneD = v.ravel()
-            vMean = cv2.mean(vOneD)[0]
-            vMode = get_mode(vOneD)
+            # vMean = cv2.mean(vOneD)[0]
+            vMode = self.get_mode(vOneD)
             if vMode is None:
                 vMode = 127
-            vCV = get_cv(v)
-            _, vSD = cv2.meanStdDev(vOneD, vMean)
-            vSD = vSD[0]
+            # vCV = get_cv(v)
+            # _, vSD = cv2.meanStdDev(vOneD, vMean)
+            # vSD = vSD[0]
             ev = self.get_param('exposure')
             print_result('Exposure')
             print_result(ev)
+            print_result('V mode')
+            print_result(vMode)
             if ev is None:
                 continue
             if vMode >= 235:

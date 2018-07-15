@@ -74,23 +74,16 @@ def get_object():
             mask (ONLY PATH AREA)
     """
     global img
-    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-    # sim
-    # lower = np.array([0, 120, 0], dtype=np.uint8)
-    # upper = np.array([37, 255, 255], dtype=np.uint8)
-    # # real world
-    # lower = np.array([20, 120, 0], dtype=np.uint8)
-    # upper = np.array([62, 255, 255], dtype=np.uint8)
-
-    lower,upper = get_color("path","yellow",world)
-    mask = cv.inRange(hsv, lower, upper)
-    kernel = np.ones((5, 5), dtype=np.uint8)
-    mask = cv.GaussianBlur(mask, (5, 5), 0)
-    mask = cv.erode(mask, kernel)
-    mask = cv.erode(mask, kernel)
-    mask = cv.dilate(mask, kernel)
-    mask = cv.dilate(mask, kernel)
+    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
+    h , s ,v = cv.split(hsv)
+    dark = np.mean(v,dtype='uint64')
+    v = np.array(v) - dark
+    gray = cv.merge((h,s,v))
+    gray = cv.cvtColor(gray,cv.COLOR_HSV2BGR)
+    gray = cv.cvtColor(gray,cv.COLOR_BGR2GRAY)
+    # gray[gray > 169] = 0
+    # gray[gray <= 77] = 0
+    mask = cv.inRange(gray,np.array([77]),np.array([169]))
     return mask
 
 
