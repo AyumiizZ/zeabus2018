@@ -3,14 +3,14 @@ void listen_baro_odom( const nav_msgs::Odometry message_odometry){
 					- message_odometry.pose.pose.position.z ) / diff_time;
     if(  (! get_pressure ) || 
                         ( absolute_detect( auv_state.pose.pose.position.z 
-                                        - message_odometry.pose.pose.position.z , 0.5) ) ){
-	    auv_state.pose.pose.position.z = message_odometry.pose.pose.position.z;
+                                        - (message_odometry.pose.pose.position.z  ) , 0.5) ) ){
+	    auv_state.pose.pose.position.z = (message_odometry.pose.pose.position.z );
         count_detect_depth = 0;
     }
     else{
         count_detect_depth++;
         if( count_detect_depth > limit_detect_depth){
-            auv_state.pose.pose.position.z = message_odometry.pose.pose.position.z;
+            auv_state.pose.pose.position.z = (message_odometry.pose.pose.position.z );
             count_detect_depth = 0;
         }
     }
@@ -21,8 +21,11 @@ void listen_baro_odom( const nav_msgs::Odometry message_odometry){
 }
 
 void listen_dvl_data( const geometry_msgs::TwistWithCovarianceStamped message_twist){
-	auv_state.twist.twist.linear.y = message_twist.twist.twist.linear.y;
-	auv_state.twist.twist.linear.x = message_twist.twist.twist.linear.x;
+//	auv_state.twist.twist.linear.y = message_twist.twist.twist.linear.y;
+//	auv_state.twist.twist.linear.x = message_twist.twist.twist.linear.x;
+
+    auv_state.twist.twist.linear.y = message_twist.twist.twist.linear.x;
+	auv_state.twist.twist.linear.x = -1*message_twist.twist.twist.linear.y;
     #ifdef data_02
         std::cout << "Receive dvl data\n";
     #endif
