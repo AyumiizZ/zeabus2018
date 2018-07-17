@@ -88,11 +88,13 @@ class Path(object) :
 
     def run(self) :
             auv = self.aicontrol
+            checkpoint_x = auv.auv_state[0]
+            checkpoint_y = auv.auv_state[1]
 
             print '<===DOING PATH===>'
 
-
             mode = 0
+            not_found = 0
             reset_turn = 0
             count_turn = 0
             count = 0
@@ -130,10 +132,97 @@ class Path(object) :
                         auv.depthAbs(-2.5, 0.5)
                         mode = 1
                     elif reset >= 5:
+                        not_found += 1
                         reset = 0
                         count = 0
 
-                    auv.move('forward', cons.AUV_M_SPEED)
+                    elif not_found >= 5:
+                        print 'Path not found'
+                        mode = 99
+                        count = 0
+                        reset = 0
+                    rospy.sleep(0.2)
+                    for _ in range(10):
+                        auv.move('forward', cons.AUV_M_SPEED)
+
+                if mode == 99:
+                    auv.depthAbs(1)
+                    auv.fixXY(checkpoint_x, checkpoint_y)
+                    for _ in range(20):
+                        self.detectPath()
+                        appear = self.data.appear
+                        cx = self.data.cx
+                        cy = self.data.cy
+                        if appear:
+                            for _ in range(5):
+                                auv.move('right', cons.AUV_M_SPEED*cx)
+                            count += 1
+                            print 'Found path: %d'%(count)
+                        else:
+                            for _ in range(5):
+                                auv.move('right', cons.AUV_H_SPEED)
+                            reset += 1
+
+                        if reset >= 5:
+                            count = 0
+                            reset = 0
+                        if count >= 10:
+                            mode = 1
+                            auv.depthAbs(-2.5)
+                            break
+                    if count >= 10:
+                        continue
+
+                    for _ in range(20):
+                        self.detectPath()
+                        appear = self.data.appear
+                        cx = self.data.cx
+                        cy = self.data.cy
+                        if appear:
+                            for _ in range(5):
+                                auv.move('forward', cons.AUV_M_SPEED*cy)
+                            count += 1
+                            print 'Found path: %d'%(count)
+                        else:
+                            for _ in range(5):
+                                auv.move('forward', cons.AUV_H_SPEED)
+                            reset += 1
+
+                        if reset >= 5:
+                            count = 0
+                            reset = 0
+                        if count >= 10:
+                            mode = 1
+                            auv.depthAbs(-2.5)
+                            break
+                    if count >= 10:
+                        continue
+
+                    for _ in range(20):
+                        self.detectPath()
+                        appear = self.data.appear
+                        cx = self.data.cx
+                        cy = self.data.cy
+                        if appear:
+                            for _ in range(5):
+                                auv.move('left', cons.AUV_M_SPEED*cx*(-1))
+                            count += 1
+                            print 'Found path: %d'%(count)
+                        else:
+                            for _ in range(5):
+                                auv.move('left', cons.AUV_H_SPEED)
+                            reset += 1
+
+                        if reset >= 5:
+                            count = 0
+                            reset = 0
+                        if count >= 10:
+                            mode = 1
+                            auv.depthAbs(-2.5)
+                            break
+                    if count >= 10:
+                        continue
+
                 #go on path
                 if mode == 1 :
                     ###############################
