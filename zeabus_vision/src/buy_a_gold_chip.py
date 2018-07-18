@@ -20,7 +20,7 @@ def mission_callback(msg):
         Returns:
             a group of process value from this program
     """
-    print_result('mission_callback',color_text.CYAN)
+    print_result('mission_callback', color_text.CYAN)
     task = msg.task.data
     req = msg.req.data
     print('task:', str(task))
@@ -43,7 +43,7 @@ def image_callback(msg):
     img_res = img.copy()
 
 
-def message(cx=-1, cy=-1, hit=-1, area=-1, appear=False):
+def message(cx=-1, cy=-1, hit=-1, area=-1, appear=False, w_h_ratio=0):
     """
         Convert value into a message (from vision_buy_a_gold_chip.msg)
         Returns:
@@ -55,6 +55,7 @@ def message(cx=-1, cy=-1, hit=-1, area=-1, appear=False):
     m.area = area
     m.hit = hit
     m.appear = appear
+    m.w_h_ratio = w_h_ratio
     print(m)
     return m
 
@@ -162,6 +163,7 @@ def get_cx(cnt):
     global img_res
     himg, wimg = img.shape[:2]
     x, y, w, h = cv.boundingRect(cnt)
+    w_h_ratio = 1.0*w/h
     cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
     cx = x + (w/2)
     cy = y + (h/2)
@@ -173,7 +175,7 @@ def get_cx(cnt):
     cx = Aconvert(cx, wimg)
     cy = -1.0*Aconvert(cy, himg)
     area = (1.0*w*h)/(wimg*himg)
-    return cx, cy, area
+    return cx, cy, area, w_h_ratio
 
 
 def find_chip():
@@ -212,7 +214,7 @@ def find_chip():
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
     elif mode == 2:
-        cx, cy, area = get_cx(chip)
+        cx, cy, area,_ = get_cx(chip)
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx=cx, cy=cy, area=area, appear=True)
@@ -225,7 +227,7 @@ def find_tray():
     global img, img_res
     while img is None and not rospy.is_shutdown():
         img_is_none()
-    
+
     mask = get_object("tray")
     cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     if cnt > 1:
@@ -273,10 +275,10 @@ def find_plate():
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(hit=hit)
     elif mode == 2:
-        cx, cy, area = get_cx(plate)
+        cx, cy, area, w_h_ratio = get_cx(plate)
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
-        return message(cx=cx, cy=cy, hit=hit, area=area, appear=True)
+        return message(cx=cx, cy=cy, hit=hit, area=area, appear=True, w_h_ratio=w_h_ratio)
 
 
 if __name__ == '__main__':
@@ -284,8 +286,8 @@ if __name__ == '__main__':
     print_result("INIT NODE", color_text.GREEN)
     image_topic = get_topic("front", world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    image_topic = get_topic("bottom", world)
-    rospy.Subscriber(image_topic, CompressedImage, image_callback)
+    # image_topic = get_topic("bottom", world)
+    # rospy.Subscriber(image_topic, CompressedImage, image_callback)
     print_result("INIT SUBSCRIBER", color_text.GREEN)
     rospy.Service('vision_buy_a_gold_chip', vision_srv_buy_a_gold_chip(),
                   mission_callback)

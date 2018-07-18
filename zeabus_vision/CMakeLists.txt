@@ -27,6 +27,7 @@ add_message_files(
   vision_qualifying_marker.msg
   vision_casino_gate.msg
   vision_roulette.msg
+  vision_buy_a_gold_chip.msg
   vision_slots.msg
 )
 
