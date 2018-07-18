@@ -44,15 +44,12 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
-    size = 500
-    r = 1.0*size / img.shape[1]
-    dim = (size, int(img.shape[0] * r))
-    resized = cv.resize(img, dim, interpolation=cv.INTER_AREA)
-    img = resized
+    himg, wimg = img.shape[:2]
+    img = cv.resize(img, (int(wimg/3), int(himg/3)))
     img_res = img.copy()
 
 
-def message(cx1=-1, cx2=-1, area=-1, appear=False):
+def message(cx1=-1, cx2=-1, area=-1, appear=False, w_h_ratio=0, right_excess=False, left_excess=False):
     """
         Convert value into a message (from vision_qualifying_gate.msg)
         Returns:
@@ -63,6 +60,9 @@ def message(cx1=-1, cx2=-1, area=-1, appear=False):
     m.cx2 = cx2
     m.area = area
     m.appear = appear
+    m.w_h_ratio = w_h_ratio
+    m.left_excess = left_excess
+    m.right_excess = right_excess
     print(m)
     return m
 
@@ -107,13 +107,13 @@ def get_ROI(mask):
         x, y, w, h = cv.boundingRect(cnt)
         area = (1.0*w*h)/(1.0*wimg*himg)
         w_h_ratio = 1.0*w/h
-        top_excess = (y < 0.05*himg)
-        bot_excess = ((y+h) > 0.95*himg)
-        right_excess = (x+w > 0.95*wimg)
-        left_excess = (x < 0.05*wimg)
-        window_excess = top_excess or bot_excess or right_excess or left_excess
+        # top_excess = (y < 0.05*himg)
+        # bot_excess = ((y+h) > 0.95*himg)
+        # right_excess = (x+w > 0.95*wimg)
+        # left_excess = (x < 0.05*wimg)
+        # window_excess = top_excess or bot_excess or right_excess or left_excess
         # print (w_h_ratio,area,window_excess)
-        if area > 0.05 and w_h_ratio <= 3 and w_h_ratio >= 1 and not window_excess:
+        if area > 0.05 and w_h_ratio <= 3 and w_h_ratio >= 1:
             ROI.append(cnt)
     return ROI
 
@@ -160,7 +160,7 @@ def find_gate():
         print_result("FOUND A GATE", color_text.GREEN)
     elif len(ROI) > 1:
         mode = 2
-        gate = max(ROI,key=cv.contourArea)
+        gate = max(ROI, key=cv.contourArea)
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
     if mode == 1:
@@ -168,6 +168,9 @@ def find_gate():
         return message()
     elif mode == 2:
         x, y, w, h = cv.boundingRect(gate)
+        w_h_ratio = 1.0*w/h
+        right_excess = (x+w > 0.95*wimg)
+        left_excess = (x < 0.05*wimg)
         cv.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255))
         area = 1.0*w*h/(wimg*himg)
         return_cx1 = x+(w/4)
@@ -178,18 +181,18 @@ def find_gate():
         return_cx1 = Aconvert(return_cx1, wimg)
         return_cx2 = Aconvert(return_cx2, wimg)
         publish_result(img, 'bgr', pub_topic + 'result')
-        return message(cx1=return_cx1, cx2=return_cx2, area=area, appear=True)
+        return message(cx1=return_cx1, cx2=return_cx2, area=area, appear=True, w_h_ratio=w_h_ratio)
 
 
 if __name__ == '__main__':
     rospy.init_node('vision_casino_gate', anonymous=False)
-    print_result("INIT NODE")
+    print_result("INIT NODE",color_text.GREEN)
     # image_topic = "/stereo/right/image_color/compressed"
     image_topic = get_topic("front", world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    print_result("INIT SUBSCRIBER")
+    print_result("INIT SUBSCRIBER",color_text.GREEN)
     rospy.Service('vision_casino_gate',
                   vision_srv_casino_gate(), mission_callback)
-    print_result("INIT SERVICE")
+    print_result("INIT SERVICE",color_text.GREEN)
     rospy.spin()
-    print_result("END PROGRAM")
+    print_result("END PROGRAM",color_text.YELLOW_HL+color_text.RED)
