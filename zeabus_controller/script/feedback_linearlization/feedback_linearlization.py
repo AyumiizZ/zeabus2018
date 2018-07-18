@@ -24,6 +24,74 @@ class feedback_linearlization:
 
 		self.publish_thruster = rospy.Publisher('/cmd_vel' , Twist , queue_size = 1)
 
+##############################################################################################
+# test get param
+#		if rospy.has_param('test'):
+#			print('have param test')
+#		else:
+#			print('don\'t have param test')
+#		self.test = rospy.get_param("/feedback_linearlization/test" , [4 , 5 ,6])
+#		print( self.test )
+#		self.mass = rospy.get_param("mass" , 25)
+#		print( self.mass )
+##############################################################################################
+
+#----------------------------- this part for get value param --------------------------------
+
+		self.mass = rospy.get_param("/feedback_linearlization/mass" , 45 )
+		self.i_xx = rospy.get_param("/feedback_linearlization/i_xx" , 1.03 )
+		self.i_yy = rospy.get_param("/feedback_linearlization/i_yy" , 0.038 )
+		self.i_zz = rospy.get_param("/feedback_linearlization/i_zz" , 0.06)
+
+		self.x_u_dot = rospy.get_param("/feedback_linearlization/x_u_dot" , 3 )
+		self.x_w_dot = rospy.get_param("/feedback_linearlization/x_w_dot" , 0.0 )
+		self.x_q_dot = rospy.get_param("/feedback_linearlization/x_q_dot" , 0.0)
+		
+		self.y_u_dot = rospy.get_param("/feedback_linearlization/y_u_dot" , 3 )
+		self.y_w_dot = rospy.get_param("/feedback_linearlization/y_w_dot" , 0.0 )
+		self.y_q_dot = rospy.get_param("/feedback_linearlization/y_q_dot" , 0.0)
+		
+		self.z_u_dot = rospy.get_param("/feedback_linearlization/z_u_dot" , 0 )
+		self.z_w_dot = rospy.get_param("/feedback_linearlization/z_w_dot" , 3.0 )
+		self.z_q_dot = rospy.get_param("/feedback_linearlization/z_q_dot" , 0.0)
+		
+		self.k_u_dot = rospy.get_param("/feedback_linearlization/k_u_dot" , 0 )
+		self.k_w_dot = rospy.get_param("/feedback_linearlization/k_w_dot" , 0.001 )
+		self.k_q_dot = rospy.get_param("/feedback_linearlization/k_q_dot" , 0.0)
+		
+		self.m_u_dot = rospy.get_param("/feedback_linearlization/m_u_dot" , 0.0 )
+		self.m_w_dot = rospy.get_param("/feedback_linearlization/m_w_dot" , 0.0 )
+		self.m_q_dot = rospy.get_param("/feedback_linearlization/m_q_dot" , 0.001)
+		
+		self.n_u_dot = rospy.get_param("/feedback_linearlization/n_u_dot" , 0.0 )
+		self.n_w_dot = rospy.get_param("/feedback_linearlization/n_w_dot" , 0.0 )
+		self.n_q_dot = rospy.get_param("/feedback_linearlization/n_q_dot" , 0.001)
+	
+		self.x_u = rospy.get_param("/feedback_linearlization/x_u" , 0.3 )
+		self.y_u = rospy.get_param("/feedback_linearlization/y_u" , 0.3 )
+		self.z_u = rospy.get_param("/feedback_linearlization/z_u" , 0.3 )
+		self.k_u = rospy.get_param("/feedback_linearlization/k_u" , 0.001 )
+		self.m_u = rospy.get_param("/feedback_linearlization/m_u" , 0.001 )
+		self.n_u = rospy.get_param("/feedback_linearlization/n_u" , 0.001 )
+	
+		self.x_abs_u = rospy.get_param("/feedback_linearlization/x_abs_u" , 85.25 )
+		self.y_abs_u = rospy.get_param("/feedback_linearlization/y_abs_u" , 100 )
+		self.z_abs_u = rospy.get_param("/feedback_linearlization/z_abs_u" , 173.975 )
+		self.k_abs_u = rospy.get_param("/feedback_linearlization/k_abs_u" , 0.399 )
+		self.m_abs_u = rospy.get_param("/feedback_linearlization/m_abs_u" , 8.925 )
+		self.n_abs_u = rospy.get_param("/feedback_linearlization/n_abs_u" , 23.296 )
+		
+		self.weight = rospy.get_param("/feedback_linearlization/weight" , 85.25 )
+		self.buoyancy = rospy.get_param("/feedback_linearlization/buoyancy" , 100 )
+		self.x_cm = rospy.get_param("/feedback_linearlization/x_cm" , 173.975 )
+		self.x_cb = rospy.get_param("/feedback_linearlization/x_cb" , 0.399 )
+		self.y_cm = rospy.get_param("/feedback_linearlization/y_cm" , 8.925 )
+		self.y_cb = rospy.get_param("/feedback_linearlization/y_cb" , 23.296 )
+		self.z_cm = rospy.get_param("/feedback_linearlization/z_cm" , 8.925 )
+		self.z_cb = rospy.get_param("/feedback_linearlization/z_cb" , 23.296 )
+
+##############################################################################################	
+
 # ( m , i_xx , i_yy , i_zz ) argument of coriolis_rb
 		self.c_rb = coriolis_rb(	45	,1.03		,0.038		,0.06		)
 
