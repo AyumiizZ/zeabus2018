@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 
-<launch>
+<launch> <group ns="Controller">
 	<node pkg="zeabus_controller"	type="pure_thrust_mapper.py"
-			name="thruster"				output="log">
+			name="thruster"				output="log"/>
 
 	<node pkg="zeabus_controller" 	type="feedback_linearlization.py" 
-			name="feedback_linearlization" output="log">
+			name="feedback" output="log">
 
 		<!-- for Coriolis effect and centripetal RB /-->
 			<param name="mass"		value="45"		/>
@@ -76,6 +76,23 @@
 	</node>
 
 	<node pkg="zeabus_controller"	type="offset_control"
-			name="controller"			output="screen">
+			name="controller"			output="screen">	
 
-</launch>
+		<!-- component of controller offset code/-->
+			<param name="bound_force"	value="{0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00}"/>
+			<param name="ok_error"	value="{0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00}"	/>
+			<param name="yes_error"	value="{0.00 , 0.00 , 0.00 , 0.00 , 0.00 , 0.00}"	/>
+			<param name="can_fix"	value="{true , true , true , true , true , true}}"	/>
+
+		<!-- if else condition /-->
+			<param name="use_down"	value="true"	/>
+			<param name="force_down"	value="-1"		/>
+
+		<!-- if else tune or not/-->
+			<param name="tune"	value="true"/>
+			<param name="Kp_position">
+			
+
+	</node>
+
+</group> </launch>

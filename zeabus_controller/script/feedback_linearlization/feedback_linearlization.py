@@ -93,20 +93,28 @@ class feedback_linearlization:
 ##############################################################################################	
 
 # ( m , i_xx , i_yy , i_zz ) argument of coriolis_rb
-		self.c_rb = coriolis_rb(	45	,1.03		,0.038		,0.06		)
+		self.c_rb = coriolis_rb( self.mass	, self.i_xx	, self.i_yy	, self.i_zz	)
 
 # ( a_1 , a_2 , a_3 , b_1 , b_2 , b_3 ) argument for input constant
-		self.c_a = coriolis_a( 	[3 ,  0, 0]		, [3 , 0 , 0]			, [0 , 3 , 0],
-								[0 , 0.001 , 0]		, [0 , 0 , 0.001]	, [0 , 0 , 0.001]
-							 )
+		self.c_a = coriolis_a( 	[	self.x_u_dot , self.x_w_dot , self.x_q_dot]		
+							, 	[	self.y_u_dot , self.y_w_dot , self.y_q_dot]			
+							, 	[	self.z_u_dot , self.z_w_dot , self.z_q_dot]
+							, 	[	self.k_u_dot , self.k_w_dot , self.k_q_dot]		
+							, 	[	self.m_u_dot , self.m_w_dot , self.m_q_dot]	
+							, 	[	self.n_u_dot , self.n_w_dot , self.n_q_dot] )
 
 # ( x , y , z , k , m , n)
-		self.d_i = hydrodynamic_i(	0.3,	0.3,	0.3,	0.001,	0.001,	0.001)
+		self.d_i = hydrodynamic_i(	self.x_u,	self.y_u,	self.z_u,	
+									self.k_u,	self.m_u,	self.n_u)
 # ( x , y , z , k , m , n)
-		self.d_q = hydrodynamic_q( 	85.25,	100,	173.975,	0.399,	8.925,	23.296)
+		self.d_q = hydrodynamic_q( 	self.x_abs_u,	self.y_abs_u,	self.z_abs_u,	
+									self.k_abs_u,	self.m_abs_u,	self.n_abs_u)
 
 # (w , b , x_cm , x_cb , y_cm , y_cb , z_cm , z_cb):
-		self.g_n = gravitational_buoyancy_force( 441 , 390 , 0 , 0 , 0 , 0 , 0 , 0)
+		self.g_n = gravitational_buoyancy_force( 	self.weight , self.buoyancy , 
+													self.x_cm 	, self.x_cb		,
+													self.y_cm	, self.y_cb		,
+													self.z_cm	, self.z_cb		)
 
 		rospy.spin()
 
