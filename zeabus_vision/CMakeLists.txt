@@ -29,6 +29,7 @@ add_message_files(
   vision_roulette.msg
   vision_buy_a_gold_chip.msg
   vision_slots.msg
+  vision_cash_in_your_chip.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -42,6 +43,7 @@ add_service_files(
   vision_srv_roulette.srv
   vision_srv_buy_a_gold_chip.srv
   vision_srv_slots.srv
+  vision_srv_cash_in_your_chip.srv
 )
 
 
