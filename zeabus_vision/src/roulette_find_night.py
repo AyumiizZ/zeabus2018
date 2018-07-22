@@ -92,7 +92,6 @@ def find_roulette() :
         roulette = max(ROI,key = cv.contourArea)
         print_result("MODE 3: CAN FIND BUT HAVE SOME NOISE",color_text.YELLOW)
 
-
     if mode == 1:
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')

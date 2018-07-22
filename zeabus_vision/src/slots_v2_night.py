@@ -67,7 +67,7 @@ def image_bot_callback(msg):
     img_bot_res = img_bot.copy()
 
 
-def message(cx=-1, cy=-1, area=-1, appear=False, mode=1,right_excess=False):
+def message(cx=-1, cy=-1, area=-1, appear=False, mode=1,right_excess=False,w_h_ratio=0):
     m = vision_slots()
     m.cx = cx
     m.cy = cy
@@ -75,6 +75,7 @@ def message(cx=-1, cy=-1, area=-1, appear=False, mode=1,right_excess=False):
     m.appear = appear
     m.mode = mode
     m.right_excess = right_excess
+    m.w_h_ratio = w_h_ratio
     print(m)
     return m
 
@@ -145,10 +146,10 @@ def get_ROI_hole(mask):
             right_excess = ((x_hole+w_hole) > (0.95*hole_wimg))
             left_excess = (x_hole < (0.05*hole_wimg))
             window_excess = top_excess or bot_excess or right_excess or left_excess
-            print top_excess , bot_excess , right_excess , left_excess
-            print float(w_hole*h_hole)/float(w*h)
-            print not (window_excess)
-            if not(window_excess) and float(w_hole*h_hole)/float(w*h) > 0.2:
+            #print top_excess , bot_excess , right_excess , left_excess
+            #print float(w_hole*h_hole)/float(w*h)
+            #print not (window_excess)
+            if not(window_excess) and float(w_hole*h_hole)/float(w*h) > 0.3:
                 have_hole = True
         mask_area = cv.countNonZero(mask_crop)
         not_mask_area = cv.countNonZero(not_mask_crop)
@@ -159,10 +160,10 @@ def get_ROI_hole(mask):
         right_excess = ((x+w) > 0.95*wimg)
         left_excess = (x < 0.05*wimg)
         window_excess = top_excess or bot_excess or right_excess or left_excess
-        if not window_excess:
+        if not window_excess and have_hole:
         #and (percent_not_mask < 0.65 and percent_not_mask > 0.35) and have_hole :
             ROI.append(cnt)
-            print percent_not_mask
+            #print percent_not_mask
     return ROI
 
 
@@ -174,6 +175,11 @@ def find_red_hole(size):
     ROI = get_ROI_hole(mask)
 
     ROI = sorted(ROI, key=cv.contourArea)
+    himg,wimg = img_top.shape[:2]
+    cv.circle(img_top_res,(int(0.28*wimg),int(0.65*himg)),3,(0,255,0),-1)
+    cv.rectangle(img_top_res,(int(0.21*wimg),int(0.55*himg)),(int(0.34*wimg),int(0.75*himg)),(255,0,0),3)
+    cv.line(img_top_res,(int(0.5*wimg),0),(int(0.5*wimg),himg),(255,0,0),3)
+    cv.line(img_top_res,(0,int(0.5*himg)),(wimg,int(0.5*himg)),(255,255,0),3)
 
     if ROI == []:
         mode = 1
@@ -210,7 +216,7 @@ def find_red_hole(size):
         x, y, w, h = cv.boundingRect(hole)
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         w_h_ratio = 1.0*w/h
-        print w_h_ratio
+        # print w_h_ratio
         if w_h_ratio < 0.93:
             print_result('ASSUME AS '+color_text.GREEN_HL +
                          'SMALL'+color_text.DEFAULT+' HOLE')
@@ -228,7 +234,7 @@ def find_red_hole(size):
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
-        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
 def find_yellow_hole():
@@ -237,6 +243,11 @@ def find_yellow_hole():
         img_is_none()
     mask = get_object(img=img_top, color="yellow")
     ROI = get_ROI_hole(mask)
+    himg,wimg = img_top.shape[:2]
+    cv.circle(img_top_res,(int(0.28*wimg),int(0.65*himg)),3,(0,255,0),-1)
+    cv.rectangle(img_top_res,(int(0.21*wimg),int(0.55*himg)),(int(0.34*wimg),int(0.75*himg)),(255,0,0),3)
+    cv.line(img_top_res,(int(0.5*wimg),0),(int(0.5*wimg),himg),(255,0,0),3)
+    cv.line(img_top_res,(0,int(0.5*himg)),(wimg,int(0.5*himg)),(255,255,0),3)
     if ROI == []:
         mode = 1
         print_result("NOT FOUND", color_text.RED)
@@ -256,7 +267,9 @@ def find_yellow_hole():
     elif mode == 2 or mode == 3:
         himg, wimg = img_top.shape[:2]
         x, y, w, h = cv.boundingRect(hole)
+        w_h_ratio = 1.0*w/h
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
+        print ('x',x,w)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
         area = float(w*h)/float(wimg*himg)
@@ -264,11 +277,12 @@ def find_yellow_hole():
         cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
         cv.line(img_top_res, (cx-15, cy), (cx+15, cy), (0, 0, 255), 1)
         cv.line(img_top_res, (cx, cy-15), (cx, cy+15), (0, 0, 255), 1)
+        print (cx,wimg)
         cx = Aconvert(cx, wimg)
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
-        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
 def get_ROI_handle(mask):
@@ -277,7 +291,7 @@ def get_ROI_handle(mask):
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
-        if cv.contourArea(cnt) < 100:
+        if cv.contourArea(cnt) < 1000:
             continue
         x, y, w, h = cv.boundingRect(cnt)
         mask_crop = mask[y:y+h, x:x+w]
@@ -309,8 +323,8 @@ def find_handle(cam):
     while img is None and not rospy.is_shutdown():
         img_is_none()
     himg, wimg = img.shape[:2]
-    cv.line(img_res,(0,300),(640,300),(255,0,0),3)
-    cv.line(img_res,(480,0),(480,480),(255,255,0),3)
+    cv.line(img_res,(int(0.75*wimg),0),(int(0.75*wimg),himg),(255,0,0),3)
+    cv.line(img_res,(0,int(0.6*himg)),(wimg,int(0.6*himg)),(255,255,0),3)
     mask = get_object(img=img, color="yellow",cam=cam)
     ROI = get_ROI_handle(mask)
     if ROI == []:
@@ -331,7 +345,7 @@ def find_handle(cam):
         return message()
     elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
-        right_excess = ((x+w) > 0.95*wimg)
+        right_excess = ((x+w) > 0.90*wimg)
         cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
         area = 1.0*w*h/(wimg*himg)
         cx = x+(w/2)
