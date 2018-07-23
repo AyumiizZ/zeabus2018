@@ -2,8 +2,8 @@
 import rospy
 import numpy as np
 import cv2 as cv
-from zeabus_vision.msg import vision_roulette
-from zeabus_vision.srv import vision_srv_roulette
+from zeabus_vision.msg import vision_cash_in_your_chip
+from zeabus_vision.srv import vision_srv_cash_in_your_chip
 from cv_bridge import CvBridge, CvBridgeError
 from vision_lib import *
 from sensor_msgs.msg import CompressedImage, Image
@@ -103,7 +103,8 @@ def find_bin():
     ROI = get_ROI(mask)
     ROI = sorted(ROI, key=cv.contourArea)[::1]
     mode = len(ROI)
-
+    cv.line(img_bot_res,(int(0.5*wimg),0),(int(0.5*wimg),himg),(220,209,255),3)
+    cv.line(img_bot_res,(0,int(0.5*himg)),(wimg,int(0.5*himg)),(207,198,207),3)
     if mode == 0:
         print_result("CANNOT FIND ROULETTE", color_text.RED)
         publish_result(img_bot_res, 'bgr', pub_topic + 'result')
