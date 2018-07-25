@@ -3,21 +3,22 @@
 import rospy
 from std_msgs.msg       import String
 from control_auv	import auv_control
-from zeabus_vision.srv	import vision_srv_roulette
-from zeabus_vision.msg	import vision_roulette
+from zeabus_vision.srv	import vision_srv_cash_in_your_chip
+from zeabus_vision.msg	import vision_cash_in_your_chip
 
-class find_roulette:
+class find_cash_in_your_chip:
 
-	def __init__( self , world_yaw_slot , world_distance_x , world_distance_y , 
+	def __init__( self , world_yaw_cash_in_your_chip , world_distance_x , world_distance_y , 
                             limit_distance , move_distance , start_depth):
 
 #------------------ setup handle for use control ------------------------------------
-		self.auv = auv_control( "find a roulette")
+		self.auv = auv_control( "find a cash_in_your_chip")
 
 #------------------ setup service for call data from vision -------------------------
-		print "wait service /vision_roulette"
-		self.information 	= rospy.ServiceProxy('vision_roulette' , vision_srv_roulette)
-		print "have service /vision_roulette"
+		print "wait service /vision_cash_in_your_chip"
+		self.information 	= rospy.ServiceProxy('vision_cash_in_your_chip' , 
+													vision_srv_cash_in_your_chip)
+		print "have service /vision_cash_in_your_chip"
 #------------------------------------------------------------------------------------
 		self.checkpoint 	= [0 , 0 , 0 , 0 , 0 , 0]
 		
@@ -135,7 +136,7 @@ class find_roulette:
 					self.count = 0
 #------------------------------------------ end -------------------------------------------------
 
-			elif(self.mode == 5 ): # for when find a roulette
+			elif(self.mode == 5 ): # for when find a cash in your chip
 				print "Now mode 05"
 				self.found , self.roulette_x , self.roulette_y = self.target_for_roulette()
 				if( self.found ) :
@@ -191,70 +192,29 @@ class find_roulette:
 	def result_of_roulette(self):
 		# service for call vision for find roulette	
 		# how to use --> result = self.information( tast , request)
-		# result must return cx xy area appear
+		# result must return cx1 cy1 cx2 cx2 area mode
 		print "------------------------ find roulette -----------------------------"
-		count_found = 0 
-		count_false = 0
-		move_x = 0
-		move_y = 0
- 		while( count_found < 10 and count_false < 10 and not rospy.is_shutdown() ):
-			print "count_found : " + str(count_found) + " count_false : " + str(count_false)
+#		result = self.information( String("cash_in" , String("bin")))
+		count_found_0 = 0
+		count_found_1 = 0
+		count_found_2 = 0
+		found_1_cx = 0
+		found_1_cy = 0
+		found_2_01 = [0,0]
+		found_2_02 = [0,0]
+		while( count_found_0 < 10 and count_found_1 < 10 and count_found_2 < 10):
+#			result = self.information( String("cash_in" , String("bin")))
 			if not self.auv.check_position( "xy" , 0.06) :
-				rospy.sleep( self.time)
-				print "false position"
+				rospy.sleep( self.time )
+				print("False position")
 				continue
-			result = self.information( String("roulette") , String("find") )
-			if( result.data.appear ):
-				move_x *= count_found
-				move_y *= count_found
-				count_found += 1
-				move_x = ( move_x + (  1 * result.data.cy ) ) / count_found
-				move_y = ( move_y + ( -1 * result.data.cx ) ) / count_found
-				print( "Round " + str(count_found) + " ( move_x,move_y ) : " + str(move_x) + ","
-						+ str(move_y) )
-			else:
-				count_false += 1
-				print( "False " + str(count_false) )
-		if( count_found == 10 ):
-			print( "see all roulette at " + str(move_x) + " " + str(move_y) )
-			return True , move_x , move_y
-		else:
-			print( "Don't see all roulette")
-			return False , 0 , 0 		
+						
+		
 
 
 	def target_for_roulette(self):
 		# service for call vision for move to above roulette
 		print "------------------------ find roulette -----------------------------"
-		count_found = 0 
-		count_false = 0
-		move_x = 0
-		move_y = 0
-		area = 0
- 		while( count_found < 10 and count_false < 10 and not rospy.is_shutdown() ):
-			print "count_found : " + str(count_found) + " count_false : " + str(count_false)
-			if not self.auv.check_position( "xy" , 0.06) :
-				rospy.sleep( self.time)
-				print "false position"
-				continue
-			result = self.information( String("roulette") , String("find") )
-			if( result.data.appear ):
-				move_x *= count_found
-				move_y *= count_found
-				count_found += 1
-				move_x = ( move_x + (  1 * result.data.cy )) / count_found
-				move_y = ( move_y + ( -1 * result.data.cx )) / count_found
-				print( "Round " + str(count_found) + " ( move_x,move_y ) : " + str(move_x) + ","
-						+ str(move_y) )
-			else:
-				count_false += 1
-				print( "False " + str(count_false) )
-		if( count_found == 10 ):
-			print( "see target roulette at " + str(move_x) + " " + str(move_y) )
-			return True , move_x , move_y
-		else:
-			print( "Don't see target roulette")
-			return False , 0 , 0 		
 
 
 	def center_or_not( self , problem):

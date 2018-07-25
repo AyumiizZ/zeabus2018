@@ -105,6 +105,9 @@ class find_roulette:
 				result , move_x , move_y = self.result_of_roulette()
 				if  result :
 					self.auv.relative_xy( move_x , move_y ) 
+					temporary = self.auv.find_target( "xy")
+					self.checkpoint[0] = temporary[0]
+					self.checkpoint[1] = temporary[1]
 					self.past_mode = 3
 					self.mode = 5
 					self.count = 0
@@ -130,63 +133,131 @@ class find_roulette:
 				result , move_x , move_y = self.result_of_roulette()
 				if  result :
 					self.auv.relative_xy( move_x , move_y ) 
+					temporary = self.auv.find_target( "xy")
+					self.checkpoint[0] = temporary[0]
+					self.checkpoint[1] = temporary[1]
 					self.past_mode = 4
 					self.mode = 5
 					self.count = 0
 #------------------------------------------ end -------------------------------------------------
 
-			elif(self.mode == 5 ): # for when find a roulette
-				print "Now mode 05"
-				self.found , self.roulette_x , self.roulette_y = self.target_for_roulette()
-				if( self.found ) :
-					if( self.roulette_x < self.agree_center 
-							and self.roulette_x > -1 * self.agree_center ):	
-						self.x_ok = True
-						self.x_direction = 0
-					elif (self.x_direction == 0 
-							or self.x_direction == self.find_direction( self.roulette_x )):
-						self.auv.relative_xy(self.roulette_x , 0)
-						self.x_reverse = -1 * self.roulette_x / 2
-						self.x_ok = False
-					else:
-						self.x_direction = self.find_direction( self.x_reverse )
-						self.x_ok = False
-						self.auv.relative_xy( self.x_reverse , 0)
-						self.x_reverse = -1 * self.x_reverse / 2
+			elif( self.mode == 5 ):
+				print( "Now mode 05" )
+				if not self.auv.check_position( "xy", 0.05):
+					print("Waiting for constant position")
+				else:	
+					self.move_to_roulette():
 
-					if( self.roulette_y < self.agree_center 
-							and self.roulette_y > -1 * self.agree_center ):	
-						self.y_ok = True
-						self.y_direction = 0
-					elif (self.y_direction == 0 
-							or self.y_direction == self.find_direction( self.roulette_y )):
-						self.auv.relative_xy( 0 , self.roulette_y )
-						self.y_ok = False
-						self.y_reverse = -1 * self.roulette_y / 2
-					else:
-						self.y_direction = self.find_direction( self.y_reverse )
-						self.y_ok = False
-						self.auv.relative_xy( self.y_reverse , 0)
-						self.y_reverse = -1 * self.y_reverse / 2
-
-				else:
-					self.mode = self.past_mode
-					self.x_direction = 0
-					self.y_direction = 0
-
-				temporary_z = self.auv.find_target("z")
-
-				if( temporary_z > -1.1 and self.found and self.x_ok and self.y_ok):
-					print "now target depth is -2.1"
-					self.auv.absolute_depth( -3.1 )
-                                        break
-                                        
+			elif( self.mode == 7):
+				print( "finish move" )
+				self.auv.relative_depth( -1 )
+				break
+######################################### old code ##############################################
+#			elif(self.mode == 5 ): # for when find a roulette
+#				print "Now mode 05"
+#				self.found , self.roulette_x , self.roulette_y = self.target_for_roulette()
+#				if( self.found ) :
+#					if( self.roulette_x < self.agree_center 
+#							and self.roulette_x > -1 * self.agree_center ):	
+#						self.x_ok = True
+#						self.x_direction = 0
+#					elif (self.x_direction == 0 
+#							or self.x_direction == self.find_direction( self.roulette_x )):
+#						self.auv.relative_xy(self.roulette_x , 0)
+#						self.x_reverse = -1 * self.roulette_x / 2
+#						self.x_ok = False
+#					else:
+#						self.x_direction = self.find_direction( self.x_reverse )
+#						self.x_ok = False
+#						self.auv.relative_xy( self.x_reverse , 0)
+#						self.x_reverse = -1 * self.x_reverse / 2
+#
+#					if( self.roulette_y < self.agree_center 
+#							and self.roulette_y > -1 * self.agree_center ):	
+#						self.y_ok = True
+#						self.y_direction = 0
+#					elif (self.y_direction == 0 
+#							or self.y_direction == self.find_direction( self.roulette_y )):
+#						self.auv.relative_xy( 0 , self.roulette_y )
+#						self.y_ok = False
+#						self.y_reverse = -1 * self.roulette_y / 2
+#					else:
+#						self.y_direction = self.find_direction( self.y_reverse )
+#						self.y_ok = False
+#						self.auv.relative_xy( self.y_reverse , 0)
+#						self.y_reverse = -1 * self.y_reverse / 2
+#
+#				else:
+#					self.mode = self.past_mode
+#					self.x_direction = 0
+#					self.y_direction = 0
+#
+#				temporary_z = self.auv.find_target("z")
+#
+#				if( temporary_z > -1.1 and self.found and self.x_ok and self.y_ok):
+#					print "now target depth is -2.1"
+#					self.auv.absolute_depth( -3.1 )
+#                                       break
+#                                        
 #				if( temporary_z < -1.9 and self.found and self.x_ok and self.y_ok):
 #					print "finish move "
 #					self.auv.absolute_depth( -3.5 )
 #					break
+#################################################################################################
 
 			rospy.sleep( self.time )
+
+	def move_to_roulette( self ):
+		count_found = 0
+		count_false = 0
+		now_center = False
+		x_ok = False
+		y_ok = False
+		print "---------------------function of move to roulette------------------------------"
+		while( not rospy.is_shutdown() ):
+			result = self.information( String("roulette") , String("find"))
+			if( result.data.appear ):
+				print( "data appear and "
+						+ " cx for move is " + str(result.data.cy) 
+						+ " : cy for move is " + str( -1 * result.data.cx) )
+				count_false = 0
+				if( self.center_or_not( result.data.cy ) ):
+					velocity_x = 0
+					x_ok = True
+					print("OK move X")
+				else:		
+					x_ok = False		
+					velocity_x = result.data.cy * 0.5
+					print "move x is " + velocity_x
+				if( self.center_or_not( result.data.cx ) ):
+					velocity_y = 0
+					y_ok = True
+					print("OK move y")
+				else:
+					y_ok = True
+					velocity_y = result.data.cx * -1 * 0.5
+					print "move y is " + velocity_y
+				
+				if( x_ok and y_ok ):
+					now_center = True
+					self.auv.send_velocity( [0 , 0 , 0 , 0 , 0 , 0])
+					self.auv.relative_depth("-0.3")
+				else:
+					now_center = False
+					self.auv.send_velocity( [ velocity_x , velocity_y , 0 , 0 , 0 , 0] )
+			else:
+				if(now_center):
+					self.mode =7
+					break
+				else:
+					if( count_false > 4):
+						print( "False in move return check point")
+						self.auv.absolute_xy( self.check_position[0] , self.check_position[1] )
+						self.mode = self.past_mode
+					else:
+						count_false += 1
+						print("print count_false is " + str(count_false))
+			rospy.sleep(0.1)
 
 	def result_of_roulette(self):
 		# service for call vision for find roulette	
@@ -276,6 +347,7 @@ if __name__=='__main__':
 
 # first argument please enter absolute yaw of robot
 # second arguments
+	rospy.init_node("find_roulette")
 	find_roulette = find_roulette( -1.57 , 2 , 3 , 5 , 0.5 , -1)
 #	find_roulette = find_roulette( -1.57 , 0 , 0 , 5 , 0.6 , -1)
 	find_roulette.main()
