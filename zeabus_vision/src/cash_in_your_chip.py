@@ -25,6 +25,10 @@ def mission_callback(msg):
     print('task: ', str(task), 'req: ', str(req))
     if task == 'cash_in' and req == 'bin':
         return find_bin()
+    elif task == 'cash_in_top' and req in color:
+        return find_cone_top(str(req))
+    elif task == 'cash_in_bottom' and req in color:
+        return find_cone_bot(str(req))
 
 
 def image_top_callback(msg):
@@ -103,10 +107,13 @@ def find_bin():
     ROI = get_ROI(mask)
     ROI = sorted(ROI, key=cv.contourArea)[::1]
     mode = len(ROI)
-    cv.line(img_bot_res,(int(0.5*wimg),0),(int(0.5*wimg),himg),(220,209,255),3)
-    cv.line(img_bot_res,(0,int(0.5*himg)),(wimg,int(0.5*himg)),(207,198,207),3)
+    himg,wimg = img_bot.shape[:2]
+    cv.line(img_bot_res, (int(0.5*wimg), 0),
+            (int(0.5*wimg), himg), (220, 209, 255), 3)
+    cv.line(img_bot_res, (0, int(0.5*himg)),
+            (wimg, int(0.5*himg)), (207, 198, 207), 3)
     if mode == 0:
-        print_result("CANNOT FIND ROULETTE", color_text.RED)
+        print_result("CANNOT FIND BIN", color_text.RED)
         publish_result(img_bot_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
@@ -122,7 +129,7 @@ def find_bin():
         cx1 = Aconvert(cx1, wimg)
         cy1 = -1.0*Aconvert(cy1, himg)
         area = (1.0*w*h)/(wimg*himg)
-        publish_result(img_bot_res, 'bgr', pub_topic + 'img_res')
+        publish_result(img_bot_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx1=cx1, cy1=cy1, area=area, mode=mode)
 
@@ -151,16 +158,18 @@ def find_bin():
         cx2 = Aconvert(cx2, wimg)
         cy2 = -1.0*Aconvert(cy2, himg)
         area2 = (1.0*w2*h2)/(wimg*himg)
-        publish_result(img_bot_res, 'bgr', pub_topic + 'img_res')
+        publish_result(img_bot_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         area = (area1+area2)/2
         return message(cx1=cx1, cy1=cy1, cx2=cx2, cy2=cy2, area=area, mode=mode)
-def find_cone () :
-    global img_bot, img_bot_res
-    while img_bot is None and not rospy.is_shutdown():
+
+
+def find_cone_top(color):
+    global img_top, img_top_res
+    while img_top is None and not rospy.is_shutdown():
         img_is_none()
 
-    mask = get_object(img=img_bot, obj='cone', color='yellow')
+    mask = get_object(img=img_top, obj='cone', color=color)
     ROI = get_ROI(mask)
     ROI = sorted(ROI, key=cv.contourArea)[::1]
     mode = len(ROI)
@@ -170,56 +179,86 @@ def find_cone () :
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
     elif mode == 1:
-        print_result("CAN FIND ONLY ONE BIN", color_text.YELLOW)
-        Bin1 = ROI[0]
-        himg, wimg = img_bot.shape[:2]
-        x, y, w, h = cv.boundingRect(Bin1)
-        cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        print_result("CAN FIND ONLY ONE CONE", color_text.YELLOW)
+        cone1 = ROI[0]
+        himg, wimg = img_top.shape[:2]
+        x, y, w, h = cv.boundingRect(cone1)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
         cx1 = x+(w/2)
         cy1 = y+(h/2)
-        cv.circle(img_bot_res, (cx1, cy1), 3, (0, 0, 255), -1)
+        cv.circle(img_top_res, (cx1, cy1), 3, (0, 0, 255), -1)
         cx1 = Aconvert(cx1, wimg)
         cy1 = -1.0*Aconvert(cy1, himg)
         area = (1.0*w*h)/(wimg*himg)
-        publish_result(img_bot_res, 'bgr', pub_topic + 'img_res')
+        publish_result(img_top_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx1=cx1, cy1=cy1, area=area, mode=mode)
 
     elif mode >= 2:
         if mode == 2:
-            print_result("CAN FIND TWO BINS", color_text.GREEN)
+            print_result("CAN FIND TWO CONE", color_text.GREEN)
         else:
             print_result("CAN FIND BUT HAVE NOISE",
                          color_text.RED_HL+color_text.YELLOW)
-    x, y, w, h = cv.boundingRect(cnt)
-    mask_crop_top = mask[y:y+h/3, x:x+w]
-    mask_crop_bot = mask[y+h/3:y+h, x:x+w]
-    x_t, y_t, w_t, h_t = cv.boundingRect(mask_crop_top)
-    x_b, y_b, w_b, h_b = cv.boundingRect(mask_crop_bot)
-    
-    cnt_top = cv.findContours(mask_crop_top, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
-    cnt_bot = cv.findContours(mask_crop_bot, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
-    area_top = max(cnt_top,key=cv.contourArea(cnt_top))
-    area_bot = max(cnt_bot,key=cv.contourArea(cnt_bot))   
-    if area_bot < area_top :
-        cv.rectangle(img_bot_res, (x_t, y_t), (x_t+w_t, y_t+h_t), (0, 255, 0), 2)
-        cv.rectangle(img_bot_res, (x_b, y_b), (x_b+w_b, y_b+h_b), (0, 0, 255), 2)
-        cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1] 
-        for i in cnt :
-            cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
-            cx = x+w/2
-            cy = y+h/2
-            cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
-            cx = Aconvert(cx, wimg)
-            cy = -1.0*Aconvert(cy, himg)
-            
-            return 
+        cone1 = ROI[0]
+        cone2 = ROI[1]
+        himg, wimg = img_top.shape[:2]
+        x1, y1, w1, h1 = cv.boundingRect(cone1)
+        cv.rectangle(img_top_res, (x1, y1), (x1+w1, y1+h1), (0, 255, 0), 2)
+        cx1 = x1+(w1/2)
+        cy1 = y1+(h1/2)
+        cv.circle(img_top_res, (cx1, cy1), 3, (0, 0, 255), -1)
+        cx1 = Aconvert(cx1, wimg)
+        cy1 = -1.0*Aconvert(cy1, himg)
+        area1 = (1.0*w1*h1)/(wimg*himg)
+        x2, y2, w2, h2 = cv.boundingRect(cone2)
+        cv.rectangle(img_top_res, (x2, y2), (x2+w2, y2+h2), (0, 255, 0), 2)
+        cx2 = x2+(w2/2)
+        cy2 = y2+(h2/2)
+        cv.circle(img_top_res, (cx2, cy2), 3, (0, 0, 255), -1)
+        cx2 = Aconvert(cx2, wimg)
+        cy2 = -1.0*Aconvert(cy2, himg)
+        area2 = (1.0*w2*h2)/(wimg*himg)
+        publish_result(img_top_res, 'bgr', pub_topic + 'result')
+        publish_result(mask, 'gray', pub_topic + 'mask')
+        area = (area1+area2)/2
+        return message(cx1=cx1, cy1=cy1, cx2=cx2, cy2=cy2, area=area, mode=mode)
 
 
-    
+def find_cone_bot(color):
+    global img_bot, img_bot_res
+    while img_bot is None and not rospy.is_shutdown():
+        img_is_none()
 
+    mask = get_object(img=img_bot, obj='cone', color=color)
+    ROI = get_ROI(mask)
+    ROI = sorted(ROI, key=cv.contourArea)[::1]
+    mode = len(ROI)
 
-    
+    if mode == 0:
+        print_result("CANNOT FIND CONE", color_text.RED)
+        publish_result(img_bot_res, 'bgr', pub_topic + 'result')
+        publish_result(mask, 'gray', pub_topic + 'mask')
+        return message()
+    elif mode >= 1:
+        if mode <= 3:
+            print_result("CAN FIND BUT NOT SURE BIN OR CONE", color_text.GREEN)
+        else:
+            print_result("CAN FIND BUT HAVE A LOT OF NOISE", color_text.YELLOW)
+        cone = ROI[0]
+        himg, wimg = img_top.shape[:2]
+        x, y, w, h = cv.boundingRect(cone1)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cx1 = x+(w/2)
+        cy1 = y+(h/2)
+        cv.circle(img_top_res, (cx1, cy1), 3, (0, 0, 255), -1)
+        cx1 = Aconvert(cx1, wimg)
+        cy1 = -1.0*Aconvert(cy1, himg)
+        area = (1.0*w*h)/(wimg*himg)
+        publish_result(img_top_res, 'bgr', pub_topic + 'result')
+        publish_result(mask, 'gray', pub_topic + 'mask')
+        return message(cx1=cx1, cy1=cy1, area=area, mode=mode)
+
 
 if __name__ == '__main__':
     rospy.init_node('vision_cash_in_your_chip', anonymous=False)

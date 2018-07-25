@@ -43,11 +43,8 @@ def image_callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv.resize(cv.imdecode(arr, 1), (0, 0),
                     fx=sub_sampling, fy=sub_sampling)
-    size = 500
-    r = 1.0*size / img.shape[1]
-    dim = (size, int(img.shape[0] * r))
-    resized = cv.resize(img, dim, interpolation = cv.INTER_AREA)
-    img = resized
+    himg, wimg = img.shape[:2]
+    img = cv.resize(img, (int(wimg/3), int(himg/3)))
     img_res = img.copy()
 
 
@@ -75,22 +72,9 @@ def get_object():
     """
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-    # sim
-    # lower = np.array([0, 120, 0], dtype=np.uint8)
-    # upper = np.array([37, 255, 255], dtype=np.uint8)
-    # # real world
-    # lower = np.array([20, 120, 0], dtype=np.uint8)
-    # upper = np.array([62, 255, 255], dtype=np.uint8)
-
-    lower,upper = get_color("path","yellow",world)
+    lower = np.array([0, 0, 31], dtype=np.uint8)
+    upper = np.array([69, 190, 150], dtype=np.uint8)
     mask = cv.inRange(hsv, lower, upper)
-    kernel = np.ones((5, 5), dtype=np.uint8)
-    mask = cv.GaussianBlur(mask, (5, 5), 0)
-    mask = cv.erode(mask, kernel)
-    mask = cv.erode(mask, kernel)
-    mask = cv.dilate(mask, kernel)
-    mask = cv.dilate(mask, kernel)
     return mask
 
 
@@ -118,11 +102,7 @@ def get_cx(mask):
         if len(cnt) >= 1:
             cnt = max(cnt, key=cv.contourArea)
             this_area = cv.contourArea(cnt)
-            # sim
-            # if this_area > 2000:
-            # real world
             if this_area > 200:
-                print this_area
                 M = cv.moments(cnt)
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + begin
@@ -191,35 +171,27 @@ def find_path():
 
     if cx == [] and cy == []:
         mode = 1
+        print_result("MODE 1: CANNOT FIND PATH",color_text.RED)
     elif len(cx) == 1 and len(cy) == 1:
         mode = 2
-        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
+        return_degrees = 0
+        print_result("MODE 2: CAN FIND 1 CX AND 1 CY",color_text.YELLOW)
     elif len(cx) >= 2 and len(cy) >= 2:
         mode = 3
-        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
+        return_degrees = find_angle(cx, cy)
+        print_result("MODE 3: CAN FIND DEGREE (2 POINT OR MORE)",color_text.GREEN)
 
     if mode == 1:
-        print_result("MODE 1: CANNOT FIND PATH",color_text.RED)
-        publish_result(img_res, 'bgr', pub_topic + 'img_res')
+        publish_result(img_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
-    elif mode == 2:
-        print_result("MODE 2: CAN FIND 1 CX AND 1 CY",color_text.YELLOW)
+    elif mode == 2 or mode == 3:
+        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
         himg, wimg = img.shape[:2]
         return_cx = Aconvert(cx[0],wimg)
-        return_cy = Aconvert(cy[0],himg)
+        return_cy = -1.0*Aconvert(cy[0],himg)
         return_area = (1.0*area*16)/(himg*wimg)
-        publish_result(img_res, 'bgr', pub_topic + 'img_res')
-        publish_result(mask, 'gray', pub_topic + 'mask')
-        return message(cx=return_cx, cy=return_cy, area=return_area, appear=True)
-    elif mode == 3:
-        print_result("MODE 3: CAN FIND DEGREE (2 POINT OR MORE)",color_text.GREEN)
-        himg, wimg = img.shape[:2]
-        return_cx = 1.0*(cx[0] - (wimg/2))/(1.0*wimg/2)
-        return_cy = -1.0*(cy[0] - (himg/2))/(1.0*himg/2)
-        return_area = (1.0*area*16)/(himg*wimg)
-        return_degrees = find_angle(cx, cy)
-        publish_result(img_res, 'bgr', pub_topic + 'img_res')
+        publish_result(img_res, 'bgr', pub_topic + 'result')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx=return_cx, cy=return_cy, area=return_area, degrees=return_degrees, appear=True)
 
