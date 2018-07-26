@@ -16,7 +16,7 @@ class GatePath(object) :
     def run(self) :
         auv = self.aicontrol
         self.gate.run()
-        auv.driveY(0.5)
+        #auv.driveY(0.5)
         self.path.run()
 if __name__ == '__main__' :
     rospy.init_node('gate_path_node')

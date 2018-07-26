@@ -2,7 +2,7 @@
 import rospy
 from zeabus_vision.msg import vision_buy_a_gold_chip
 from zeabus_vision.srv import vision_srv_buy_a_gold_chip
-from aicontrol_sim import AIControl
+from aicontrol import AIControl
 from std_msgs.msg import String, Float64, Bool
 import constants as cons
 class BuyGoldChip(object) :
@@ -45,12 +45,12 @@ class BuyGoldChip(object) :
                 auv.stop()
                 return True
             elif -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and not-cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
-                auv.multiMove([0, 0, cy/20, 0, 0, 0])
+                auv.multiMove([0, 0, cy, 0, 0, 0])
             elif not -cons.VISION_PLATE_ERROR <= cx <= cons.VISION_PLATE_ERROR and -cons.VISION_PLATE_ERROR <= cy <= cons.VISION_PLATE_ERROR :
-                auv.multiMove([0, cx/20, 0, 0, 0, 0])
+                auv.multiMove([0, cx, 0, 0, 0, 0])
             else:
                 self.reset +=1
-                auv.multiMove([0, -cx/20, cy/20, 0, 0, 0])
+                auv.multiMove([0, -cx, cy, 0, 0, 0])
                 print 'NOT CENTER'
                 return False
         else:
@@ -83,19 +83,12 @@ class BuyGoldChip(object) :
 
         while not rospy.is_shutdown() and not mode == -1 :
             #find plate
-            if mode <= 2:
-                self.detectPlate()
-                cx = self.plate.cx
-                cy = self.plate.cy
-                appear = self.plate.appear
-                area = self.plate.area
-                hit = self.plate.hit
-            if mode >= 3:
-                self.detectBall()
-                cx = self.ball.cx
-                cy = self.ball.cy
-                appear = self.ball.appear
-                area = self.ball.area
+            self.detectPlate()
+            cx = self.plate.cx
+            cy = self.plate.cy
+            appear = self.plate.appear
+            area = self.plate.area
+            hit = self.plate.hit
 
             if mode == 0 :
                 print '<---mode 0--->'
@@ -109,10 +102,10 @@ class BuyGoldChip(object) :
                 elif not appear:
                     if side_x == 0 and side_y == 0:
                         print 'not found'
-                        auv.move('forward', cons.AUV_M_SPEED)
+                        auv.move('forward', cons.AUV_L_SPEED)
                     else:
                         print 'find plate'
-                        auv.multiMove([0, cons.AUV_M_SPEED*side_x, cons.AUV_M_SPEED*side_y, 0, 0, 0])
+                        auv.multiMove([0, cons.AUV_L_SPEED*side_x, cons.AUV_L_SPEED*side_y, 0, 0, 0])
 
                     reset += 1
                     print 'NOT FOUND PLATE: %d'%(reset)
@@ -141,19 +134,19 @@ class BuyGoldChip(object) :
                 print '-----------------------'
                 ################################
                 if appear :
-                    if area <= 0.005:
-                        auv.move('forward', cons.AUV_M_SPEED)
-                    elif area >= 0.006 or hit >= 0.006:
-                        auv.move('backward', cons.AUV_M_SPEED)
+                    if area <= 0.02:
+                        auv.move('forward', cons.AUV_L_SPEED)
+                    elif area >= 0.03 or hit >= 0.03:
+                        auv.move('backward', cons.AUV_L_SPEED)
                     if self.checkCenter() :
                         print 'center'
-                        if area <= 0.002:
-                            auv.move('forward', cons.AUV_M_SPEED)
-                        elif area >= 0.004 or hit >= 0.004:
-                            auv.move('backward', cons.AUV_M_SPEED)
+                        if area <= 0.02:
+                            auv.move('forward', cons.AUV_L_SPEED)
+                        elif area >= 0.03 or hit >= 0.03:
+                            auv.move('backward', cons.AUV_L_SPEED)
                     else:
                         auv.stop()
-                    if 0.005 <= area <= 0.006 and self.checkCenter():
+                    if 0.02 <= area <= 0.03 and self.checkCenter():
                         print 'colliding with plate'
                         count += 1
                         reset = 0
@@ -165,20 +158,20 @@ class BuyGoldChip(object) :
                     print 'sidey: %f'%(side_y)
                 else:
                     print 'move back'
-                    auv.multiMove([-cons.AUV_M_SPEED, cons.AUV_M_SPEED*side_x, cons.AUV_M_SPEED*side_y, 0, 0, 0])
+                    auv.multiMove([-cons.AUV_L_SPEED, cons.AUV_L_SPEED*side_x, cons.AUV_L_SPEED*side_y, 0, 0, 0])
                 '''
                 elif not appear :
                     reset = 0
                     count += 1
                     print 'NOT FOUND PLATE: %d'%(reset)
                     if sidex > 0 :
-                        auv.move('right', cons.AUV_M_SPEED*abs(sidex))
+                        auv.move('right', cons.AUV_L_SPEED*abs(sidex))
                     elif sidex < 0 :
-                        auv.move('left', cons.AUV_M_SPEED*abs(sidex))
+                        auv.move('left', cons.AUV_L_SPEED*abs(sidex))
                     if sidey > 0 :
-                        auv.move('forward', cons.AUV_M_SPEED*abs(sidey))
+                        auv.move('forward', cons.AUV_L_SPEED*abs(sidey))
                     elif sidey < 0 :
-                        auv.move('backward', cons.AUV_M_SPEED*abs(sidey))
+                        auv.move('backward', cons.AUV_L_SPEED*abs(sidey))
                 '''
 
                 # check counter
@@ -194,45 +187,7 @@ class BuyGoldChip(object) :
 
             if mode == 2 :
                 print '---mode 2---'
-                if appear:
-                    if self.checkCenter():
-                        print 'checkcenter'
-                if hit <= 0.9:
-                    print 'collided'
-                    auv.move('forward', cons.AUV_M_SPEED)
-                    reset += 1
-                elif hit > 0.9:
-                    count += 1
-                    reset = 0
-
-                if count >= 5:
-                    mode = -1
-                    count = 0
-                    reset = 0
-
-            # check ball
-            if mode == 3:
-                if appear:
-                    count += 1
-                    prev_mode = 0
-                    reset = 0
-                else:
-                    reset += 1
-                if count >= 5:
-                    mode = 4
-                    count = 0
-                    reset = 0
-
-                if reset >= 5:
-                    count = 0
-                    reset = 0
-                    prev_mode += 1
-                if prev_mode >= 5:
-                    mode = 1
-                    auv.driveX(-1)
-                    prev_mode = 0
-                    count = 0
-                    reset = 0
+                auv.driveX(1.1)
 
 if __name__ == '__main__' :
     rospy.init_node('buy_gold_chip_node')

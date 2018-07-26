@@ -26,7 +26,7 @@ def mission_callback(msg):
         Returns:
             a group of process value from this program
     """
-    print_result('mission_callback')
+    print_result('mission_callback',color_text.CYAN)
 
     task = msg.task.data
 
@@ -199,12 +199,12 @@ def find_path():
         cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
 
     if mode == 1:
-        print_result("MODE 1: CANNOT FIND PATH")
+        print_result("MODE 1: CANNOT FIND PATH",color_text.RED)
         publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
     elif mode == 2:
-        print_result("MODE 2: CAN FIND 1 CX AND 1 CY")
+        print_result("MODE 2: CAN FIND 1 CX AND 1 CY",color_text.YELLOW)
         himg, wimg = img.shape[:2]
         return_cx = Aconvert(cx[0],wimg)
         return_cy = Aconvert(cy[0],himg)
@@ -213,7 +213,7 @@ def find_path():
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message(cx=return_cx, cy=return_cy, area=return_area, appear=True)
     elif mode == 3:
-        print_result("MODE 3: CAN FIND DEGREE (2 POINT OR MORE)")
+        print_result("MODE 3: CAN FIND DEGREE (2 POINT OR MORE)",color_text.GREEN)
         himg, wimg = img.shape[:2]
         return_cx = 1.0*(cx[0] - (wimg/2))/(1.0*wimg/2)
         return_cy = -1.0*(cy[0] - (himg/2))/(1.0*himg/2)
@@ -226,16 +226,16 @@ def find_path():
 
 if __name__ == '__main__':
     rospy.init_node('vision_path', anonymous=False)
-    print_result("INIT NODE")
+    print_result("INIT NODE",color_text.GREEN)
 
     image_topic = get_topic("bottom",world)
     rospy.Subscriber(image_topic, CompressedImage, image_callback)
-    print_result("INIT SUBSCRIBER")
+    print_result("INIT SUBSCRIBER",color_text.GREEN)
 
     rospy.Service('vision_path', vision_srv_path(),
                   mission_callback)
-    print_result("INIT SERVICE")
+    print_result("INIT SERVICE",color_text.GREEN)
 
     rospy.spin()
-    print_result("END PROGRAM")
+    print_result("END PROGRAM",color_text.YELLOW_HL+color_text.RED)
 

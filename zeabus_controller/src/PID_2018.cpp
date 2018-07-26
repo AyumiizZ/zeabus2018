@@ -13,7 +13,7 @@ class PID{
 		double previous_error;
 		double diff_time;
 		double diff_error;
-		double ttl;
+		double ttl;//ttl(time to live)
 
 	public: //this is publlic
 		double calculate_PID(double error, double velocity);
@@ -26,13 +26,13 @@ class PID{
 };
 //This is __init__ object you will see if that init file you don't see syntax about type of return
 	PID::PID(){
-		this->Kp = 0;
+		this->Kp = 0;//this(use in the class)
 		this->Ki = 0;
 		this->Kd = 0;
 		this->Kvs = 0;
 		this->ttl = 0;
-		this->previous_time = ros::Time::now();
-		this->use_ttl = false;
+		this->previous_time = ros::Time::now();//command(current_time)
+		this->use_ttl = false;//no enter
 	}
 
 	PID::PID(double Kp, double Ki, double Kd, double Kvs){
@@ -47,16 +47,16 @@ class PID{
 
 	double PID::calculate_PID(double error, double velocity){
 		ros::Time current_time = ros::Time::now();
-		this->diff_time = current_time.toSec() -this->previous_time.toSec();
+		this->diff_time = current_time.toSec() -this->previous_time.toSec();//time.toSec()(change time's unit to sec)
 		this->diff_error = error - previous_error;
-		this->sum_error += error*this->diff_time;
+		this->sum_error += error*this->diff_time;//sum_error use in Ki
 // calculate   Kp     Ki     Kd    Kvs
 		double result = ( this->Kp * error ) + ( this->Ki * this->sum_error ) + ( this->Kd * this->diff_error / this->diff_time) - (velocity*this->Kvs);
 		if(use_ttl){
 			if(this->ttl > default_ttl)
-				reset_I();
-			else
- 				this->ttl+= this->diff_time;
+				reset_I();//I(integrate)
+			else      
+ 				this->ttl+= this->diff_time;//ttl is time
 		}
 //		else{
 //			this->reset_I();
@@ -65,7 +65,7 @@ class PID{
 		return result;
 	}
 
-	double PID::calculate_PID(double error){
+	double PID::calculate_PID(double error){//error's variable from "new_controller_2018.cpp"
 		ros::Time current_time = ros::Time::now();
 		this->diff_time = current_time.toSec() - this->previous_time.toSec();
 		this->diff_error = error - this->previous_error;

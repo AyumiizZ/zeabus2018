@@ -7,14 +7,17 @@ import constant as CONST
 import math
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+import color_text
 
+def img_is_none():
+    print(color_text.RED+'img is none.\nPlease check topic name or check camera is running'+color_text.DEFAULT)
 
-def print_result(msg):
+def print_result(msg,color=color_text.DEFAULT):
     """
         print ('<----------') + str(msg) + ('---------->')
         #len of <---msg---> = 50
     """
-    print '<{:-^50}>'.format(' '+str(msg)+' ')
+    print '<{:-^50}>'.format(' '+color+str(msg)+color_text.DEFAULT+' ')
 
 
 def publish_result(img, type, topicName):

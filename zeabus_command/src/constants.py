@@ -1,14 +1,24 @@
 #!/usr/bin/python2.7
 
+#######################################
+# CHANGE THESE VAR
+#######################################
+
 GATE_DEPTH = -2.0
 QUALIFY_DEPTH = -2
 PATH_DEPTH = -1.5
 
+GATE_DEGREES = 0
+SLOTS_DEGREES = 0
+
+#######################################
+
+
 MARK = 2
 
-AUV_L_SPEED = 1
-AUV_M_SPEED = 1.5
-AUV_H_SPEED = 2
+AUV_L_SPEED = 0.2
+AUV_M_SPEED = 0.5
+AUV_H_SPEED = 1
 AUV_TURN_SPEED = 0.20
 
 VISION_GATE_ERROR = 0.15
@@ -17,3 +27,11 @@ VISION_PATH_ERROR = 0.5
 VISION_ROULETTE_ERROR = 0.3
 VISION_MARKER_ERROR = 0.4
 VISION_DICE_ERROR = 0.4
+VISION_HAND_ERROR = 0.8
+
+VISION_SLOTS_AREA = 0.055
+
+VISION_TORPEDO_CX = -0.45
+VISION_TORPEDO_CY = -0.3
+VISION_HAND_CX = 0.4
+VISION_HAND_CY = -0.5

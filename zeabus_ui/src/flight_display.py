@@ -102,12 +102,12 @@ class draw_flight_display(QtGui.QWidget):
 		drawing.setFont( QtGui.QFont('Times' , 20))
 		drawing.drawText(self.pixel_y + 20 , 30 , "current_state")
 		drawing.setFont( QtGui.QFont('Times' , 16))
-		drawing.drawText(self.pixel_y + 15 , 80 ,  "X\t= " + str(self.position[0]))
-		drawing.drawText(self.pixel_y + 15 , 110 ,  "Y\t= " + str(self.position[1]))
-		drawing.drawText(self.pixel_y + 15 , 140 , "Z\t= " + str(self.position[2]))
-		drawing.drawText(self.pixel_y + 15 , 200 , "Roll\t= " + str(self.position[3]))
-		drawing.drawText(self.pixel_y + 15 , 230 , "Pitch\t= " + str(self.position[4]))
-		drawing.drawText(self.pixel_y + 15 , 260 , "Yaw\t= " + str(self.position[5]))
+		drawing.drawText(self.pixel_y + 15 , 80 ,  "X\t= " + str( round( self.position[0],2 ) ) )
+		drawing.drawText(self.pixel_y + 15 , 110 ,  "Y\t= " + str( round( self.position[1],2 ) ) )
+		drawing.drawText(self.pixel_y + 15 , 140 , "Z\t= " + str( round( self.position[2],2 ) ) )
+		drawing.drawText(self.pixel_y + 15 , 200 , "Roll\t= " + str( round( self.position[3],2 ) ) )
+		drawing.drawText(self.pixel_y + 15 , 230 , "Pitch\t= " + str( round( self.position[4],2 ) ) )
+		drawing.drawText(self.pixel_y + 15 , 260 , "Yaw\t= " + str( round( self.position[5],2 ) ) )
 
 		drawing.end()
 

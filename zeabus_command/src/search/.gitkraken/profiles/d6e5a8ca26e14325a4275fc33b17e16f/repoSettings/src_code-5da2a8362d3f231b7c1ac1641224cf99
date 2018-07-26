@@ -1,0 +1,16 @@
+{
+  "remoteParents": {
+    "github": {
+      "zeabusTeam": {
+        "zeabus2017": {
+          "hostingServiceType": "github",
+          "owner": "zeabusTeam",
+          "name": "zeabus2017"
+        }
+      }
+    }
+  },
+  "collapsedSections": [
+    "PULL_REQUESTS"
+  ]
+}
