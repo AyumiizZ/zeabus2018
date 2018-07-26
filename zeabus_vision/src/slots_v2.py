@@ -218,7 +218,7 @@ def find_red_hole(size):
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
         rospy.sleep(0.1)
-        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
 def find_yellow_hole():
@@ -256,6 +256,7 @@ def find_yellow_hole():
     elif mode == 2 or mode == 3:
         himg, wimg = img_top.shape[:2]
         x, y, w, h = cv.boundingRect(hole)
+        w_h_ratio = 1.0*w/h
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
@@ -269,7 +270,7 @@ def find_yellow_hole():
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
         rospy.sleep(0.1)
-        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
 def get_ROI_handle(mask):
