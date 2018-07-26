@@ -113,7 +113,7 @@ def get_object(img, color):
 
 
 def get_ROI_hole(mask):
-    himg, wimg = mask.shape[:2]
+    hhimg, wimg = mask.shape[:2]
     ROI = []
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
@@ -126,37 +126,25 @@ def get_ROI_hole(mask):
         not_mask_crop = cv.bitwise_not(mask_crop)
         hole_contours = cv.findContours(
             not_mask_crop, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
-        # print len(hole_contours)
         for hole_cnt in hole_contours:
-            # print cv.contourArea(hole_cnt)
             if cv.contourArea(hole_cnt) < 100 :
                 continue
             hole_himg,hole_wimg = not_mask_crop.shape[:2]
             x_hole,y_hole,w_hole,h_hole = cv.boundingRect(hole_cnt)
             top_excess = (y_hole < 0.05*hole_himg)
-            bot_excess = ((y_hole+h_hole) > (0.95*hole_himg))
             right_excess = ((x_hole+w_hole) > (0.95*hole_wimg))
             left_excess = (x_hole < (0.05*hole_wimg))
-            window_excess = top_excess or bot_excess or right_excess or left_excess
-            print top_excess , bot_excess , right_excess , left_excess
-            print float(w_hole*h_hole)/float(w*h)
-            print not (window_excess)
-            if float(w_hole*h_hole)/float(w*h) > 0.35 and not(window_excess):
+            window_excess = top_excess or right_excess or left_excess
+            if not(window_excess) and float(w_hole*h_hole)/float(w*h) > 0.3:
                 have_hole = True
-        mask_area = cv.countNonZero(mask_crop)
-        not_mask_area = cv.countNonZero(not_mask_crop)
-        percent_not_mask = float(not_mask_area) / \
-            float(mask_area + not_mask_area)
         top_excess = (y < 0.05*himg)
         bot_excess = ((y+h) > 0.95*himg)
         right_excess = ((x+w) > 0.95*wimg)
         left_excess = (x < 0.05*wimg)
         window_excess = top_excess or bot_excess or right_excess or left_excess
-        if not window_excess and (percent_not_mask < 0.65 and percent_not_mask > 0.35) and have_hole :
+        if not window_excess and have_hole:
             ROI.append(cnt)
-            print percent_not_mask
     return ROI
-
 
 def find_red_hole(size):
     global img_top, img_top_res
@@ -172,7 +160,9 @@ def find_red_hole(size):
     ROI = get_ROI_hole(mask)
 
     ROI = sorted(ROI, key=cv.contourArea)
-
+    himg,wimg = img_top.shape[:2]
+    cv.circle(img_top_res,(int(0.28*wimg),int(0.65*himg)),7,(0,255,0),3)
+    cv.rectangle(img_top_res,(int(0.21*wimg),int(0.55*himg)),(int(0.34*wimg),int(0.75*himg)),(255,0,0),3)
     if ROI == []:
         mode = 1
         print_result("NOT FOUND", color_text.RED)
@@ -243,6 +233,9 @@ def find_yellow_hole():
     erode = cv.erode(dilate,kernel_y)
     mask = cv.dilate(erode,kernel_y)
     ROI = get_ROI_hole(mask)
+    himg,wimg = img_top.shape[:2]
+    cv.circle(img_top_res,(int(0.28*wimg),int(0.65*himg)),7,(255,255,0),3)
+    cv.rectangle(img_top_res,(int(0.21*wimg),int(0.55*himg)),(int(0.34*wimg),int(0.75*himg)),(255,0,0),3)
     if ROI == []:
         mode = 1
         print_result("NOT FOUND", color_text.RED)
@@ -285,36 +278,34 @@ def get_ROI_handle(mask):
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
-        if cv.contourArea(cnt) < 100:
+        if cv.contourArea(cnt) < 1000:
             continue
         x, y, w, h = cv.boundingRect(cnt)
-        mask_crop = mask[y:y+h, x:x+w]
-        not_mask_crop = cv.bitwise_not(mask_crop)
-        mask_area = cv.countNonZero(mask_crop)
-        not_mask_area = cv.countNonZero(not_mask_crop)
-        percent_mask = float(mask_area)/float(mask_area + not_mask_area)
         top_excess = (y < 0.05*himg)
         bot_excess = ((y+h) > 0.95*himg)
-        right_excess = ((x+w) > 0.95*wimg)
         left_excess = (x < 0.05*wimg)
-        window_excess = top_excess or bot_excess or right_excess or left_excess
-        if not window_excess and percent_mask > 0.9:
+        window_excess = top_excess or bot_excess or left_excess
+        window_excess = False
+        w_h_ratio = 1.0*w/h
+        if not window_excess and  w_h_ratio > 1.5:
             ROI.append(cnt)
     return ROI
 
 
 def find_handle():
-    global img_bot, img_bot_res
-    while img_bot is None and not rospy.is_shutdown():
+    global img_bot, img_bot_res,img_top,img_top_res
+    if cam == 'front':
+        img = img_top
+        img_res = img_top_res
+    elif cam == 'bottom':
+        img = img_bot
+        img_res = img_bot_res
+    while img is None and not rospy.is_shutdown():
         img_is_none()
-    himg, wimg = img_bot.shape[:2]
-    mask = get_object(img=img_bot, color="yellow")
-    kernel_x = np.ones((1,11),np.uint8)
-    kernel_y = np.ones((11,1),np.uint8)
-    erode = cv.erode(mask,kernel_x)
-    dilate = cv.dilate(erode,kernel_x)
-    erode = cv.erode(dilate,kernel_y)
-    mask = cv.dilate(erode,kernel_y)
+    himg, wimg = img.shape[:2]
+    cv.line(img_res,(int(0.75*wimg),0),(int(0.75*wimg),himg),(255,0,0),3)
+    cv.line(img_res,(0,int(0.6*himg)),(wimg,int(0.6*himg)),(255,0,0),3)
+    mask = get_object(img=img, color="yellow",cam=cam)
     ROI = get_ROI_handle(mask)
     if ROI == []:
         mode = 1
@@ -329,23 +320,22 @@ def find_handle():
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
     if mode == 1:
-        publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
+        publish_result(img_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
-        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
-        cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
+        right_excess = ((x+w) > 0.90*wimg)
+        cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
         area = 1.0*w*h/(wimg*himg)
         cx = x+(w/2)
         cy = y+(h/2)
-        cv.circle(img_bot_res, (cx, cy), 3, (0, 0, 255), -1)
+        cv.circle(img_res, (cx, cy), 3, (0, 0, 255), -1)
         cx = Aconvert(cx, wimg)
         cy = -1.0*Aconvert(cy, himg)
-        publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
+        publish_result(img_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
-        rospy.sleep(0.1)
-        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
+        return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,right_excess=right_excess)
 
 
 if __name__ == '__main__':
