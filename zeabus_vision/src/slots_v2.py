@@ -83,8 +83,8 @@ def get_object(img, color):
     if color == "yellow":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([0, 92, 24], dtype=np.uint8)
-            upper = np.array([60, 255, 201], dtype=np.uint8)
+            lower = np.array([20, 115, 0], dtype=np.uint8)
+            upper = np.array([60, 255, 255], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
         elif world == "sim":
             lower = np.array([0, 240, 240], dtype=np.uint8)
@@ -163,6 +163,12 @@ def find_red_hole(size):
     while img_top is None and not rospy.is_shutdown():
         img_is_none()
     mask = get_object(img=img_top, color="red")
+    kernel_x = np.ones((1,5),np.uint8)
+    kernel_y = np.ones((5,1),np.uint8)
+    erode = cv.erode(mask,kernel_x)
+    dilate = cv.dilate(erode,kernel_x)
+    erode = cv.erode(dilate,kernel_y)
+    mask = cv.dilate(erode,kernel_y)
     ROI = get_ROI_hole(mask)
 
     ROI = sorted(ROI, key=cv.contourArea)
@@ -196,6 +202,7 @@ def find_red_hole(size):
     if mode == 1:
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3 or mode == 4:
         himg, wimg = img_top.shape[:2]
@@ -220,6 +227,7 @@ def find_red_hole(size):
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        rospy.sleep(0.1)
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 
@@ -228,6 +236,12 @@ def find_yellow_hole():
     while img_top is None and not rospy.is_shutdown():
         img_is_none()
     mask = get_object(img=img_top, color="yellow")
+    kernel_x = np.ones((1,5),np.uint8)
+    kernel_y = np.ones((5,1),np.uint8)
+    erode = cv.erode(mask,kernel_x)
+    dilate = cv.dilate(erode,kernel_x)
+    erode = cv.erode(dilate,kernel_y)
+    mask = cv.dilate(erode,kernel_y)
     ROI = get_ROI_hole(mask)
     if ROI == []:
         mode = 1
@@ -244,6 +258,7 @@ def find_yellow_hole():
     if mode == 1:
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3:
         himg, wimg = img_top.shape[:2]
@@ -260,6 +275,7 @@ def find_yellow_hole():
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        rospy.sleep(0.1)
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 
@@ -293,6 +309,12 @@ def find_handle():
         img_is_none()
     himg, wimg = img_bot.shape[:2]
     mask = get_object(img=img_bot, color="yellow")
+    kernel_x = np.ones((1,11),np.uint8)
+    kernel_y = np.ones((11,1),np.uint8)
+    erode = cv.erode(mask,kernel_x)
+    dilate = cv.dilate(erode,kernel_x)
+    erode = cv.erode(dilate,kernel_y)
+    mask = cv.dilate(erode,kernel_y)
     ROI = get_ROI_handle(mask)
     if ROI == []:
         mode = 1
@@ -309,6 +331,7 @@ def find_handle():
     if mode == 1:
         publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
+        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
@@ -321,6 +344,7 @@ def find_handle():
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
+        rospy.sleep(0.1)
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
 

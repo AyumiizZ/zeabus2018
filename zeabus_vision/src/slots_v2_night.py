@@ -174,7 +174,7 @@ def find_red_hole(size):
     mask = get_object(img=img_top, color="red")
     ROI = get_ROI_hole(mask)
 
-    ROI = sorted(ROI, key=cv.contourArea)
+    ROI = sorted(ROI, key=cv.contourArea,reverse=True)
     himg,wimg = img_top.shape[:2]
     cv.circle(img_top_res,(int(0.28*wimg),int(0.65*himg)),3,(0,255,0),-1)
     cv.rectangle(img_top_res,(int(0.21*wimg),int(0.55*himg)),(int(0.34*wimg),int(0.75*himg)),(255,0,0),3)
@@ -210,6 +210,7 @@ def find_red_hole(size):
     if mode == 1:
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3 or mode == 4:
         himg, wimg = img_top.shape[:2]
@@ -234,12 +235,13 @@ def find_red_hole(size):
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/red/result')
         publish_result(mask, 'gray', pub_topic + 'hole/red/mask')
+        rospy.sleep(0.1)
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
 def find_yellow_hole():
     global img_top, img_top_res
-    while img_top is None and not rospy.is_shutdown():
+    while img_top is None and img_top.shape[0] > 1000 and not rospy.is_shutdown():
         img_is_none()
     mask = get_object(img=img_top, color="yellow")
     ROI = get_ROI_hole(mask)
@@ -263,6 +265,7 @@ def find_yellow_hole():
     if mode == 1:
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        rospy.sleep(0.1)
         return message()
     elif mode == 2 or mode == 3:
         himg, wimg = img_top.shape[:2]
@@ -282,6 +285,7 @@ def find_yellow_hole():
         cy = -1.0*Aconvert(cy, himg)
         publish_result(img_top_res, 'bgr', pub_topic + 'hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + 'hole/yellow/mask')
+        rospy.sleep(0.1)
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode,w_h_ratio=w_h_ratio)
 
 
