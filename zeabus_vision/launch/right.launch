@@ -1,13 +1,13 @@
 <launch>
 	<!-- =================== SET Argument =================== -->
-	<arg name="camera_id_right" value="2"/>
+	<arg name="camera_id_right" value="3"/>
 	<arg name="ext_trigger_mode" value="False" />
 	<arg name="color_mode" value="bgr8" />
 	<arg name="image_width" value="1936" />
 	<arg name="image_height" value="1216" />
 	<arg name="auto_gain" value="False"/>
 	<arg name="master_gain" value="10" />
-	<arg name="red_gain" value="100" />
+	<arg name="red_gain" value="70" />
 	<arg name="green_gain" value="0" />
 	<arg name="blue_gain" value="20" />
 	<arg name="auto_exposure" value="False"/>
