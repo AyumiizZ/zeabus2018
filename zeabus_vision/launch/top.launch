@@ -2,7 +2,7 @@
 	<!-- =================== SET Camera Status (ON/OFF) =================== -->
 	<arg name="status" default="True"/>
 	<!-- =================== SET Argument =================== -->
-	<arg name="camera_id_center" value="2" />
+	<arg name="camera_id_center" value="3" />
 	<arg name="nodelet_manager_name_center" value="top_center" />
 	<arg name="camera_name_center" value="/top/center" />
 	<!-- =================== SET Argument center CAMERA =================== -->
@@ -12,7 +12,7 @@
 	<arg name="image_height" value="874" />
 	<arg name="auto_gain" value="False"/>
 	<arg name="master_gain" value="10" />
-	<arg name="red_gain" value="100" />
+	<arg name="red_gain" value="70" />
 	<arg name="green_gain" value="0" />
 	<arg name="blue_gain" value="20" />
 	<arg name="auto_exposure" value="False"/>

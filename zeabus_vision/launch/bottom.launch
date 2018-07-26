@@ -3,7 +3,7 @@
 	<arg name="statusL" default="True"/>
 	<arg name="statusR" default="False"/>
 	<!-- =================== SET Argument =================== -->
-	<arg name="camera_id_left" value="3" />
+	<arg name="camera_id_left" value="2" />
 	<arg name="camera_id_right" value="2" />
 	<arg name="nodelet_manager_name_left" value="bottom_left" />
 	<arg name="nodelet_manager_name_right" value="bottom_right" />
@@ -15,10 +15,10 @@
 	<arg name="image_width" value="1800" />
 	<arg name="image_height" value="1100" />
 	<arg name="auto_gain" value="False"/>
-	<arg name="master_gain" value="0" />
-	<arg name="red_gain" value="100" />
+	<arg name="master_gain" value="10" />
+	<arg name="red_gain" value="70" />
 	<arg name="green_gain" value="0" />
-	<arg name="blue_gain" value="25" />
+	<arg name="blue_gain" value="20" />
 	<arg name="auto_exposure" value="False"/>
 	<arg name="exposure" value="33"/>
 	<arg name="auto_white_balance" value="False"/>
