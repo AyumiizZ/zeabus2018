@@ -96,3 +96,4 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 source /home/zeabus/.oh-my-zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.zsh_aliases
