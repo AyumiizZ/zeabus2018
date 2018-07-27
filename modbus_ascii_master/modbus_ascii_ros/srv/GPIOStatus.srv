@@ -1,5 +1,0 @@
-int32 command
----
-bool[16] controlBits
-int32 	adcMode
-int32   windowSize
