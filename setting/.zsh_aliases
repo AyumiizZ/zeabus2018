@@ -11,7 +11,7 @@ alias sensor='rosrun zeabus_sensor_fusion ex_normal_fusion'
 alias offset='rosrun zeabus_controller offset_control'
 alias thruster='rosrun zeabus_controller pure_thrust_mapper.py'
 alias feedback='rosrun zeabus_controller feedback_linearlization.py'
-alias cam_front='roslaunch zeabus_vision right.launch'
+alias cam_front='roslaunch zeabus_vision front.launch'
 alias cam_bottom='roslaunch zeabus_vision bottom.launch'
 
 alias bag_of_control='rosbag record /auv/state /dvl/data /pwm /cmd_vel /baro/odom /zeabus/elec/barometer /gx4_45_imu/data /feedback/cmd_vel'
