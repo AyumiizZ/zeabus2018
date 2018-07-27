@@ -10,18 +10,11 @@ def main():
         "/auto_exposure_bottom/imageTopicL", None)
     clientL = rospy.get_param(
         "/auto_exposure_bottom/imageClientL", None)
-    subTopicR = rospy.get_param(
-        "/auto_exposure_bottom/imageTopicR", None)
-    clientR = rospy.get_param(
-        "/auto_exposure_bottom/imageClientR", None)
+  
    
     if not subTopicL is None:
         AEL = AutoExposure(subTopicL, clientL, EVdefault, EVmin, 'bottom')
         AEL.adjust_exposure_time()
-
-    if not subTopicR is None:
-        AER = AutoExposure(subTopicR, clientR, EVdefault, EVmin, 'bottom')
-        AER.adjust_exposure_time()
 
 
 if __name__ == '__main__':

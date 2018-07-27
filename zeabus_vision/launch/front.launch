@@ -1,6 +1,6 @@
 <launch>
 	<!-- =================== SET Argument =================== -->
-	<arg name="camera_id_right" value="2"/>
+	<arg name="camera_id_right" value="3"/>
 	<arg name="ext_trigger_mode" value="False" />
 	<arg name="color_mode" value="bgr8" />
 	<arg name="image_width" value="1936" />
@@ -11,7 +11,7 @@
 	<arg name="green_gain" value="0" />
 	<arg name="blue_gain" value="20" />
 	<arg name="auto_exposure" value="False"/>
-	<arg name="exposure" value="40"/>
+	<arg name="exposure" value="10"/>
 	<arg name="auto_white_balance" value="False"/>
 	<arg name="auto_frame_rate" value="False"/>
 	<arg name="frame_rate" value="10.0"/>
@@ -27,8 +27,6 @@
 		<param name="camera_topic" type="str" value="image_raw" />
 		<param name="camera_id" type="int" value="$(arg camera_id_right)" />
 		<param name="ext_trigger_mode" type="bool" value="$(arg ext_trigger_mode)" />
-		<!-- <param name="camera_parameters_file" type="str" value="$(find zeabus_vision)/camera_info/right.ini"/>
-		<param name="camera_intrinsics_file" type="str" value="$(find zeabus_vision)/camera_info/right.yaml"/> -->
 		<param name="color_mode" type="str" value="$(arg color_mode)" />
 		<param name="image_width" type="int" value="$(arg image_width)" />
 		<param name="image_height" type="int" value="$(arg image_height)" />
@@ -46,9 +44,6 @@
 		<param name="flip_lr" type="bool" value="$(arg flip_lr)" />
 	</node>
 
-	<!-- =================== STEREO CAMERA =================== -->	
-	<!-- <node pkg="image_proc" name="image_proc" type="image_proc" output="screen" ns="$(arg camera_name_right)" ></node> -->
-	
 	<!-- =================== EXPOSURE FRONT CAMERA =================== -->
 	<node pkg="zeabus_vision" name="auto_exposure_front" type="auto_exposure_front.py" output="screen">
 		<param name="topic_right" type="str" value="/stereo/right/image_raw/compressed"/>

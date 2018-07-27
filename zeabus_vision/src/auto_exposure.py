@@ -15,19 +15,13 @@ class AutoExposure:
 
     def __init__(self, subTopic, clientName, EVdefault=1, EVmin=0.5, camera_position='front'):
         print_result("init_node_auto_exposure")
-        if camera_position == 'front':
-            self.imageW = CONST.IMAGE_FRONT_WIDTH
-            self.imageH = CONST.IMAGE_FRONT_HEIGHT
-        else:
-            self.imageW = CONST.IMAGE_BOTTOM_WIDTH
-            self.imageH = CONST.IMAGE_BOTTOM_HEIGHT
-
         self.hsv = None
         self.image = None
         self.subTopic = subTopic
         self.clientName = clientName
         self.EVdefault = EVdefault
         self.minEV = EVmin
+        self.subsampling = 0.5
         self.subImage = rospy.Subscriber(
             subTopic, CompressedImage, self.img_callback,  queue_size=10)
         self.client = dynamic_reconfigure.client.Client(self.clientName)
@@ -46,13 +40,14 @@ class AutoExposure:
     def img_callback(self, msg):
         arr = np.fromstring(msg.data, np.uint8)
         self.image = cv2.resize(cv2.imdecode(
-            arr, 1), (0,0),fx=0.5,fy=0.5)
+            arr, 1), (0,0),fx=self.subsampling,fy=self.subsampling)
         self.hsv = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
     def set_param(self, param, value):
         value = max(self.minEV, value)
         params = {str(param): value}
         config = self.client.update_configuration(params)
+
 
     def get_param(self, param):
         value = rospy.get_param("/" + str(self.clientName) + str(param), None)
@@ -64,15 +59,11 @@ class AutoExposure:
                 print_result('image is none')
                 continue
 
+          
             h, s, v = cv2.split(self.hsv)
             vOneD = v.ravel()
-            # vMean = cv2.mean(vOneD)[0]
             vMode = self.get_mode(vOneD)
-            if vMode is None:
-                vMode = 127
-            # vCV = get_cv(v)
-            # _, vSD = cv2.meanStdDev(vOneD, vMean)
-            # vSD = vSD[0]
+       
             ev = self.get_param('exposure')
             print_result('Exposure')
             print_result(ev)
@@ -80,16 +71,13 @@ class AutoExposure:
             print_result(vMode)
             if ev is None:
                 continue
-            if vMode >= 235:
-                ev -= 0.1
+            if vMode >= 200:
+                ev -= 0.04
                 self.set_param('exposure', ev)
-            elif 50 <= vMode <= 100:
-                ev += 0.05
+            elif vMode <= 50:
+                ev += 0.04
                 self.set_param('exposure', ev)
-            elif vMode <= 45:
-                ev += 0.1
-                self.set_param('exposure', ev)
-            
+            rospy.sleep(0.1)
 
     def inrange_ratio(self, min, ratio, max):
         if min <= ratio <= max:
