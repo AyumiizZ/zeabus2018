@@ -1,0 +1,17 @@
+<launch>
+	<arg name="bag"/>
+	<arg name="topic"/>
+	<arg name="republish"/>
+	<arg name="out"/>
+
+  	<node pkg="rosbag" type="play" name="rosbag" args="$(arg bag)"/>
+	
+	<node unless="$(arg republish)" name="republish" pkg="image_transport" type="republish" respawn="false" output="screen" args="compressed in:='$(arg topic)' raw out:='/image_decompressed'" />
+
+	<node name="extract" pkg="image_view" type="extract_images" respawn="false" output="screen" cwd="node">
+		<remap from="image" to="$(arg topic)"/>			
+		<remap unless="$(arg republish)" from="$(arg topic)" to="/image_decompressed" />			
+		<param name="filename_format" value="$(arg out)/image_%03i.jpg"/>
+	</node>
+
+</launch>

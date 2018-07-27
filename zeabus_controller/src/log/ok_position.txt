@@ -1,0 +1,767 @@
+----------------- start log control -----------------
+<<<<<<< HEAD
+=======
+------ Order by : mission_planner when Thu Jul 26 23:22:22 2018
+--- type is z and add is 0
+target is -0.804584
+current is -0.804584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:22 2018
+--- type is z and add is 0
+target is -0.804584
+current is -0.804584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:24 2018
+--- type is z and add is 0
+target is -0.754298
+current is -0.779441
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:25 2018
+--- type is z and add is 0
+target is -0.779441
+current is -0.754298
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:27 2018
+--- type is z and add is 0
+target is -0.754298
+current is -0.754298
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:28 2018
+--- type is z and add is 0
+target is -0.754298
+current is -0.754298
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:30 2018
+--- type is z and add is 0
+target is -0.704012
+current is -0.704012
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:30 2018
+--- type is z and add is 0
+target is -0.729155
+current is -0.729155
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:31 2018
+--- type is z and add is 0
+target is -0.729155
+current is -0.729155
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:31 2018
+--- type is z and add is 0
+target is -0.704012
+current is -0.704012
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:32 2018
+--- type is z and add is 0
+target is -0.653726
+current is -0.678869
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:33 2018
+--- type is z and add is 0
+target is -0.628583
+current is -0.628583
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:33 2018
+--- type is z and add is 0
+target is -0.578297
+current is -0.578297
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:34 2018
+--- type is z and add is 0
+target is -0.553154
+current is -0.553154
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:34 2018
+--- type is z and add is 0
+target is -0.452582
+current is -0.452582
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:35 2018
+--- type is z and add is 0
+target is -0.402296
+current is -0.402296
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:36 2018
+--- type is z and add is 0
+target is -0.326867
+current is -0.326867
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:36 2018
+--- type is z and add is 0
+target is -0.301724
+current is -0.301724
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:37 2018
+--- type is z and add is 0
+target is -0.226296
+current is -0.226296
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:37 2018
+--- type is z and add is 0
+target is -0.201153
+current is -0.201153
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:38 2018
+--- type is z and add is 0
+target is -0.125724
+current is -0.100581
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:22:38 2018
+--- type is z and add is 0
+target is -0.0754377
+current is -0.0754377
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:10 2018
+--- type is z and add is 0
+target is -0.804584
+current is -0.804584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:10 2018
+--- type is z and add is 0
+target is -0.804584
+current is -0.804584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:11 2018
+--- type is z and add is 0
+target is -0.704012
+current is -0.704012
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:12 2018
+--- type is z and add is 0
+target is -0.678869
+current is -0.678869
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:13 2018
+--- type is z and add is 0
+target is -0.578297
+current is -0.578297
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:13 2018
+--- type is z and add is 0
+target is -0.553154
+current is -0.553154
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:14 2018
+--- type is z and add is 0
+target is -0.452582
+current is -0.427439
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:14 2018
+--- type is z and add is 0
+target is -0.427439
+current is -0.402296
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:16 2018
+--- type is z and add is 0
+target is -0.301724
+current is -0.301724
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:16 2018
+--- type is z and add is 0
+target is -0.276581
+current is -0.251438
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:17 2018
+--- type is z and add is 0
+target is -0.150867
+current is -0.150867
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:17 2018
+--- type is z and add is 0
+target is -0.125724
+current is -0.125724
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:18 2018
+--- type is z and add is 0
+target is -0.125724
+current is -0.125724
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:28:19 2018
+--- type is z and add is 0
+target is -0.125724
+current is -0.100581
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:48 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.00573
+error is -0.0502859
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:48 2018
+--- type is z and add is 0
+target is -1.00573
+current is -0.980584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:49 2018
+--- type is z and add is 0
+target is -0.955441
+current is -0.930298
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:49 2018
+--- type is z and add is 0
+target is -0.905155
+current is -0.905155
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:50 2018
+--- type is z and add is 0
+target is -0.829727
+current is -0.829727
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:51 2018
+--- type is z and add is 0
+target is -0.804584
+current is -0.804584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:52 2018
+--- type is z and add is 0
+target is -0.729155
+current is -0.729155
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:52 2018
+--- type is z and add is 0
+target is -0.704012
+current is -0.704012
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:32:53 2018
+--- type is z and add is 0
+target is -0.678869
+current is -0.678869
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:35 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.05601
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:35 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.05601
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:36 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.03087
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:36 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.03087
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:38 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.08116
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:36:38 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.08116
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:39:26 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.08116
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:39:26 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.05601
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:39:29 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.05601
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:39:29 2018
+--- type is z and add is 0
+target is -1.05601
+current is -1.05601
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:00 2018
+--- type is z and add is 0
+target is -1.03087
+current is -1.03087
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:01 2018
+--- type is z and add is 0
+target is -1.03087
+current is -1.03087
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:02 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:02 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:03 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:04 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:05 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:40:05 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.05601
+error is 0.0502859
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:41:52 2018
+--- type is z and add is 0
+target is -1.30744
+current is -1.30744
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:41:52 2018
+--- type is z and add is 0
+target is -1.30744
+current is -1.30744
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:41:59 2018
+--- type is z and add is 0
+target is -1.08116
+current is -1.08116
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:41:59 2018
+--- type is z and add is 0
+target is -1.08116
+current is -1.08116
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:01 2018
+--- type is z and add is 0
+target is -1.08116
+current is -1.08116
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:01 2018
+--- type is z and add is 0
+target is -1.08116
+current is -1.08116
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:02 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:02 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:03 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.15659
+error is 0.0502859
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:04 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.15659
+error is 0.0502859
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:07 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:07 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:08 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:09 2018
+--- type is z and add is 0
+target is -1.13144
+current is -1.13144
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:10 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:10 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:11 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.08116
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:11 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.08116
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:13 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:13 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:14 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:14 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.15659
+error is 0.0502859
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:15 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:16 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:17 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.1063
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:17 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:18 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:18 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:19 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:20 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.13144
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:21 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.20687
+error is 0.100572
+--- result is false
+
+------ Order by : mission_planner when Thu Jul 26 23:42:21 2018
+--- type is z and add is 0
+target is -1.1063
+current is -1.23201
+error is 0.125715
+--- result is false
+
+------ Order by : mission_planner when Thu Jul 26 23:42:23 2018
+--- type is z and add is 0
+target is -0.955441
+current is -0.980584
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:23 2018
+--- type is z and add is 0
+target is -0.980584
+current is -0.980584
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:43 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:44 2018
+--- type is z and add is 0
+target is -0.980584
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:45 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:45 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:46 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:46 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:48 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.00573
+error is 0
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:48 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:49 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:42:49 2018
+--- type is z and add is 0
+target is -1.00573
+current is -1.03087
+error is 0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:45:27 2018
+--- type is z and add is 0
+target is -1.03087
+current is -1.03087
+error is -0.025143
+--- result is true
+
+------ Order by : mission_planner when Thu Jul 26 23:45:27 2018
+--- type is z and add is 0
+target is -0.980584
+current is -1.00573
+error is 0.025143
+--- result is true
+
+>>>>>>> 19d313d115b22474e19e31f0e2adeb12b1bd85bc
