@@ -48,17 +48,17 @@ class manage_log{
 		std::time_t time_now;
 		
 	public:
-		manage_log();
+		manage_log(std::string name);
 		std::string sub_directory;
 		std::string locate_file;
 		std::string cmd_string;
 		void write_log(std::string message);
 };
 
-	manage_log::manage_log(){
+	manage_log::manage_log(std::string name){
 		time_now = std::time(NULL);
 		sub_directory = ros::package::getPath("zeabus_controller") + "/src/log";
-		locate_file = "2018_06_19";
+		locate_file = name;
 		cmd_string = "echo \"----------------- start log control -----------------\" > " 
 					 + sub_directory + "/" + locate_file + ".txt";
 		std::system( cmd_string.c_str() );
