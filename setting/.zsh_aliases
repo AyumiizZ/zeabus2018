@@ -20,7 +20,7 @@ user:
   data: ''"'
 
 alias edit_zalias='nano ~/.zsh_aliases; source ~/.zsh_aliases;'
-alias edit_zrc='nano ~/.zshrc; source ~/.zhrc;'
+alias edit_zrc='nano ~/.zshrc; source ~/.zshrc;'
 
 alias sshzeabus01='ssh zeabus@zeabus01 -X'
 alias sshzeabus02='ssh zeabus@zeabus02 -X'
