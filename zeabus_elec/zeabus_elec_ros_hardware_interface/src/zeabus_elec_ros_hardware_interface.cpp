@@ -10,6 +10,7 @@
 
 #include <zeabus_elec_ros_hardware_interface/PowerSwitchCommand.h>
 #include <zeabus_elec_ros_hardware_interface/IOCommand.h>
+#include <zeabus_elec_ros_hardware_interface/Torpedo.h>
 
 #include <zeabus_elec_ros_power_dist/power_dist.h>
 #include <zeabus_elec_ros_peripheral_bridge/barometer.h>
@@ -18,9 +19,6 @@
 
 #define ONE_ATM_AS_PSI 14.6959
 #define PSI_PER_DEPTH 0.6859
-
-#define MAXIMUM_DEPTH_DIFFERENTIAL 0.5
-#define LAST_DEPTH_INITIAL_VALUE 0xFFFFFFFFFFFFFFFF
 
 static ros::Publisher odometry_publisher;
 static ros::Publisher planner_switch_publisher;
@@ -32,13 +30,13 @@ static ros::ServiceServer set_power_switch_on_service_server;
 static ros::ServiceServer set_power_switch_off_service_server;
 static ros::ServiceServer set_solenoid_on_service_server;
 static ros::ServiceServer set_solenoid_off_service_server;
+static ros::ServiceServer fire_torpedo_server;
+static ros::ServiceServer hold_torpedo_server;
 
 static ros::ServiceClient power_dist_service_client;
 static ros::ServiceClient solenoid_service_client;
 
 static double atm_pressure, depth_offset;
-
-static double last_depth;
 
 double barometer_value_to_depth(uint16_t barometer_value)
 {
@@ -63,21 +61,6 @@ void send_depth(const zeabus_elec_ros_peripheral_bridge::barometer::ConstPtr& ms
     double depth, depth_differential;
 
     depth = barometer_value_to_depth(msg->pressureValue);
-
-    if(last_depth == LAST_DEPTH_INITIAL_VALUE)
-    {
-        last_depth = depth;
-    }
-    depth_differential = depth - last_depth;
-
-    if(fabs(depth_differential) > MAXIMUM_DEPTH_DIFFERENTIAL)
-    {
-        depth = last_depth;
-    }
-    else
-    {
-        last_depth = depth;
-    }
 
     ROS_INFO("depth : %.4lf meter\n", -depth);
     
@@ -170,6 +153,41 @@ bool set_solenoid_off(zeabus_elec_ros_hardware_interface::IOCommand::Request &re
     return res.result;
 }
 
+bool fire_torpedo(zeabus_elec_ros_hardware_interface::Torpedo::Request &req,
+                zeabus_elec_ros_hardware_interface::Torpedo::Response &res)
+{
+    zeabus_elec_ros_peripheral_bridge::solenoid_sw solenoid_service;
+
+    solenoid_service.request.switchIndex = (uint8_t)0;
+    solenoid_service.request.isSwitchHigh = false;
+
+    res.result = solenoid_service_client.call(solenoid_service);
+
+    solenoid_service.request.switchIndex = (uint8_t)6;
+    solenoid_service.request.isSwitchHigh = true;
+
+    res.result = solenoid_service_client.call(solenoid_service) & res.result;
+
+    return res.result;
+}
+
+bool hold_torpedo(zeabus_elec_ros_hardware_interface::Torpedo::Request &req,
+                zeabus_elec_ros_hardware_interface::Torpedo::Response &res)
+{
+    zeabus_elec_ros_peripheral_bridge::solenoid_sw solenoid_service;
+
+    solenoid_service.request.switchIndex = (uint8_t)6;
+    solenoid_service.request.isSwitchHigh = false;
+
+    res.result = solenoid_service_client.call(solenoid_service);
+    solenoid_service.request.switchIndex = (uint8_t)0;
+    solenoid_service.request.isSwitchHigh = true;
+
+    res.result = solenoid_service_client.call(solenoid_service) & res.result;
+
+    return res.result;
+}
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Zeabus_Elec_Hardware_interface");
@@ -188,11 +206,11 @@ int main(int argc, char **argv)
     set_power_switch_off_service_server = nh.advertiseService("/power_distribution/switch_off", set_power_switch_off);
     set_solenoid_on_service_server = nh.advertiseService("/io_and_pressure/IO_ON", set_solenoid_on);
     set_solenoid_off_service_server = nh.advertiseService("/io_and_pressure/IO_OFF", set_solenoid_off);
+    fire_torpedo_server = nh.advertiseService("/fire_torpedo", fire_torpedo);
+    hold_torpedo_server = nh.advertiseService("/hold_torpedo", hold_torpedo);
 
     power_dist_service_client = nh.serviceClient<zeabus_elec_ros_power_dist::power_dist>("power_switch");
     solenoid_service_client = nh.serviceClient<zeabus_elec_ros_peripheral_bridge::solenoid_sw>("solenoid_sw");
-
-    last_depth = LAST_DEPTH_INITIAL_VALUE;
 
     ros::spin();
 

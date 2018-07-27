@@ -1,0 +1,48 @@
+source /opt/ros/kinetic/setup.zsh
+source /home/zeabus/catkin_ws/devel/setup.zsh
+
+alias roszeabus01='export ROS_MASTER_URI=http://zeabus01:11311'
+alias roszeabus02='export ROS_MASTER_URI=http://zeabus02:11311'
+alias roszeabus03='export ROS_MASTER_URI=http://zeabus03:11311'
+alias roszeabus04='export ROS_MASTER_URI=http://zeabus04:11311'
+
+alias minimal='roslaunch zeabus_bringup minimal.launch'
+alias sensor='rosrun zeabus_sensor_fusion ex_normal_fusion'
+alias offset='rosrun zeabus_controller offset_control'
+alias thruster='rosrun zeabus_controller pure_thrust_mapper.py'
+alias feedback='rosrun zeabus_controller feedback_linearlization.py'
+alias cam_front='roslaunch zeabus_vision right.launch'
+alias cam_bottom='roslaunch zeabus_vision bottom.launch'
+
+alias bag_of_control='rosbag record /auv/state /dvl/data /pwm /cmd_vel /baro/odom /zeabus/elec/barometer /gx4_45_imu/data /feedback/cmd_vel'
+alias depth0='rosservice call /fix_abs_depth "fix_depth: 0.0
+user:
+  data: ''"'
+
+alias edit_zalias='nano ~/.zsh_aliases; source ~/.zsh_aliases;'
+alias edit_zrc='nano ~/.zshrc; source ~/.zhrc;'
+
+alias sshzeabus01='ssh zeabus@zeabus01 -X'
+alias sshzeabus02='ssh zeabus@zeabus02 -X'
+alias sshzeabus03='ssh zeabus@zeabus03 -X'
+alias sshzeabus04='ssh zeabus@zeabus04 -X'
+
+
+zmake(){
+	cd ~/catkin_ws
+	catkin_make
+	cd -
+}
+
+alias fuck='sudo shutdown -P now'
+backup(){
+    cd /home/zeabus/backup
+    cp --recursive /home/zeabus/catkin_ws/src/src_code temp_from_backup
+    mv temp_from_backup $1
+    cd -
+}
+
+backup2(){
+    cp --recursive /home/zeabus/catkin_ws/src/src_code /home/zeabus/backup/temp_from_backup
+    mv /home/zeabus/backup/temp_from_backup /home/zeabus/backup/$(date + "%Y-%m-%d/%H:%M")
+}
