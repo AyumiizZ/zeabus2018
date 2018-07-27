@@ -81,18 +81,19 @@ def get_object():
             mask (ONLY GATE AREA)
     """
     global img
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    hsv_map = cv.applyColorMap(gray, cv.COLORMAP_HSV)
-    hsv = cv.cvtColor(hsv_map, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 0, 0], dtype=np.uint8)
-    upper = np.array([32, 255, 255], dtype=np.uint8)
-    map_mask = cv.inRange(hsv, lower, upper)
-    not_bg = rm_sure_bg(img)
-    if not_bg.shape[:2] != map_mask.shape[:2]:
-        return map_mask
-    all_mask = cv.bitwise_and(not_bg, map_mask)
-    publish_result(hsv_map, 'bgr', '/map_mask')
-    return all_mask
+    hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
+    r1 = np.array([0,0,0])
+    r2 = np.array([40,255,255])
+    r3 = np.array([130,0,0])
+    r4 = np.array([180,255,255])
+    mr1 = cv.inRange(hsv,r1,r2)
+    mr2 = cv.inRange(hsv,r3,r4)
+    mr = cv.bitwise_or(mr1,mr2)
+    b1 = np.array([0,0,0])
+    b2 = np.array([180,255,80])
+    mb = cv.inRange(hsv,b1,b2)
+    mask = cv.bitwise_or(mb,mr)
+    return mask
 
 
 def get_ROI(mask):
@@ -107,13 +108,13 @@ def get_ROI(mask):
         x, y, w, h = cv.boundingRect(cnt)
         area = (1.0*w*h)/(1.0*wimg*himg)
         w_h_ratio = 1.0*w/h
-        # top_excess = (y < 0.05*himg)
-        # bot_excess = ((y+h) > 0.95*himg)
-        # right_excess = (x+w > 0.95*wimg)
-        # left_excess = (x < 0.05*wimg)
-        # window_excess = top_excess or bot_excess or right_excess or left_excess
-        # print (w_h_ratio,area,window_excess)
-        if area > 0.05 and w_h_ratio <= 3 and w_h_ratio >= 1:
+        top_excess = (y < 0.05*himg)
+        bot_excess = ((y+h) > 0.95*himg)
+        right_excess = (x+w > 0.95*wimg)
+        left_excess = (x < 0.05*wimg)
+        window_excess = top_excess or bot_excess or right_excess or left_excess
+        #print (w_h_ratio,area,window_excess)
+        if area > 0.05 and w_h_ratio <= 3 and w_h_ratio >= 1 and not window_excess:
             ROI.append(cnt)
     return ROI
 

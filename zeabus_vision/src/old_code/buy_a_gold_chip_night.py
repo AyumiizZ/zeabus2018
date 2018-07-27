@@ -70,8 +70,8 @@ def get_object(obj):
     if obj == "plate":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([0, 92, 24], dtype=np.uint8)
-            upper = np.array([60, 255, 201], dtype=np.uint8)
+            lower = np.array([15, 146, 0], dtype=np.uint8)
+            upper = np.array([62, 255, 255], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
         elif world == "sim":
             lower = np.array([0, 240, 240], dtype=np.uint8)
@@ -131,7 +131,7 @@ def get_ROI(mask, task):
         area = cv.contourArea(cnt)
         if area > 10:
             hit += area
-        if area > 300:
+        if area > 1500:
             x, y, w, h = cv.boundingRect(cnt)
             if task == 'chip':
                 x_tray, y_tray, w_tray, h_tray = find_tray()

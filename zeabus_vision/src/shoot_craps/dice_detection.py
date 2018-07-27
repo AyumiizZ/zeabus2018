@@ -19,13 +19,18 @@ import constant_dice as CONST
 pattern_list = []
 pattern_predict = []
 img_result = None
-mask_extend_size = 80
+sub_sampling = 0.5
 table_position = create_table_position()
 position = [
     [10, 10], [10, 30], [10, 50],
     [30, 10], [30, 30], [30, 50],
     [50, 10], [50, 30], [50, 50]
 ]
+'''
+    Assume 5 and 6 is true 
+    if not true can swap 5 and 6 because may be fial detection
+'''
+order = [6,2,5]
 
 '''
     > Load Pattern
@@ -57,7 +62,7 @@ def matching(pattern):
 
     print('MATCHING Process...')
     not_match = False, 0, 0
-    if np.count_nonzero(pattern) < 3:
+    if np.count_nonzero(pattern) < 2:
         return not_match
     for (p, res) in zip(pattern_list, pattern_predict):
         if pattern == p:
@@ -74,6 +79,15 @@ def matching(pattern):
         - center middle
 '''
 
+def in_frame(top, left, bottom, right):
+    global sub_sampling
+    img_w = CONST.IMG_WIDTH * sub_sampling
+    img_h = CONST.IMG_HEIGHT * sub_sampling
+
+    if 0 <= top < img_h and 0 <= left < img_w and 0 <= bottom < img_h and 0 <= right < img_w:
+        return False
+    else:
+        return True
 
 def get_region(x, y, radius):
     global img_result
@@ -82,14 +96,15 @@ def get_region(x, y, radius):
 
     dice_size = radius * CONST.SIDE_PER_RADIUS
 
-    a, b = 0, 0
+    a, b = 2, 4
     region = []
     top = y - radius - a
     left = x - radius - a
     bottom = top + dice_size + b
     right = left + dice_size + b
     top, left, bottom, right = int(top), int(left), int(bottom), int(right)
-    region.append([top, left, bottom, right])
+    if not in_frame(top,left,bottom,right):
+        region.append([top, left, bottom, right])
     # cv.rectangle(img_result, (left - 40, top - 40),
     #              (right - 40, bottom - 40), (255, 0, 0), 1)
 
@@ -99,7 +114,8 @@ def get_region(x, y, radius):
     left = right - dice_size - a
     top, left, bottom, right = int(top), int(left), int(bottom), int(right)
 
-    region.append([top, left, bottom, right])
+    if not in_frame(top,left,bottom,right):
+        region.append([top, left, bottom, right])
     # cv.rectangle(img_result, (left - 40, top - 40),
     #              (right - 40, bottom - 40), (0, 255, 0), 1)
 
@@ -115,6 +131,11 @@ def get_region(x, y, radius):
 
     return region
 
+def get_mask_roi(img_roi):
+    gray = cv.cvtColor(img_roi, cv.COLOR_BGR2GRAY)
+    equ = cv.equalizeHist(gray)
+    _, mask = cv.threshold(equ, 20, 255, cv.THRESH_BINARY_INV)
+    return mask
 
 '''
     > What is pattern
@@ -167,8 +188,8 @@ def what_is_pattern(mask):
 '''
 
 
-def find_dice(mask, circles):
-    global mask_extend_size, img_result
+def find_dice(img, mask, circles):
+    global img_result
     data_list = []
 
     for cir in circles:
@@ -178,7 +199,12 @@ def find_dice(mask, circles):
         res_mask = mask.copy()
         for region in region_list:
             top, left, bottom, right = region
+            # roi = get_mask_roi(img.copy()[top:bottom, left:right])
+            # roi1 = mask[top:bottom, left:right]
             roi = mask.copy()[top:bottom, left:right]
+            # cv.imshow('roi1',roi1)
+            # cv.imshow('roi',roi)
+            # cv.waitKey(1)
             cv.rectangle(res_mask, (left, top), (right, bottom), (255), 2)
             try:
                 roi = cv.resize(roi, (CONST.DICE_SIZE, CONST.DICE_SIZE))
@@ -188,15 +214,17 @@ def find_dice(mask, circles):
 
             point = what_is_pattern(roi)
             is_match, dice, no = matching(point)
-
+            '''
+                is_match True, False
+                dice 2 5 6
+            '''
             if is_match == False:
                 continue
             # cv.imshow('mask', res_mask)
             cv.waitKey(1)
 
-            extend = mask_extend_size / 2.0
-            top, left, bottom, right = top - extend, left - \
-                extend, bottom - extend, right - extend
+          
+            area = (bottom - top) * (right - left)
             top, left, bottom, right = int(top), int(
                 left), int(bottom), int(right)
             center = (int((left + right) / 2.0), int((top + bottom) / 2.0))
@@ -207,19 +235,18 @@ def find_dice(mask, circles):
             cv.line(roi, (60, 0), (60, 90), (255, 255, 255), 1)
             cv.line(roi, (0, 30), (90, 30), (255, 255, 255), 1)
             cv.line(roi, (0, 60), (90, 60), (255, 255, 255), 1)
-
             data_list.append([center, radius,
-                              dice, np.count_nonzero(point)])
+                              dice, np.count_nonzero(point),area])
 
             ########### SAVE ROI THAT IS MAYBE DICE #########
-            prefix = 'dice-point-' + str(dice) + '-'
-            print(dice, no)
-            img_no = cv.imread(CONST.POINT_PATH + str(dice) +
-                               '/' + prefix + str(no) + '.jpg', 0)
-            roi = cv.resize(roi, (90, 90))
-            cv.imwrite(CONST.IMG_PATH + 'roi/dice_' + str(t) +
-                       '.jpg', np.concatenate((roi, img_no), axis=1))
-            #########################################################
+            # prefix = 'dice-point-' + str(dice) + '-'
+            # print(dice, no)
+            # img_no = cv.imread(CONST.POINT_PATH + str(dice) +
+            #                    '/' + prefix + str(no) + '.jpg', 0)
+            # roi = cv.resize(roi, (90, 90))
+            # cv.imwrite(CONST.IMG_PATH + 'roi/dice_' + str(t) +
+            #            '.jpg', np.concatenate((roi, img_no), axis=1))
+            # #########################################################
     data_dict = remove_redundant_dice(data_list)
     return data_dict
 
@@ -231,7 +258,7 @@ def find_dice(mask, circles):
 
 
 def remove_redundant_dice(data):
-    result = {'5': None, '6': None}
+    result = {'5': None, '6': None, '2': None}
     data = sorted(data, key=itemgetter(2))
     for d in data:
         index_dict = str(d[2])
@@ -258,12 +285,15 @@ def is_point(contour, hierarchy):
         - Solidity is the ratio of contour area to its convex hull area.
     '''
     ############################ Expected Value ##################################
-    area_upper = CONST.POINT_AREA_UPPER
+    area_upper = CONST.POINT_AREA_UPPER #* 0.5
     area_lower = CONST.POINT_AREA_LOWER * 0.1
     hierarchy_expected = [-1, -1]
+    # area_ratio_expected = 0.6
     area_ratio_expected = 0.6
     solidity_expected = 0.85
+    # solidity_expected = 0.75
     len_approx_expected = 6
+    # len_approx_expected = 5
     len_cnt_expected = 4
 
     ###########################################################################
@@ -326,7 +356,7 @@ def enclosing_circle(cnt):
 
 
 def find_point(img_bin):
-    global img_result, mask_extend_size
+    global img_result
     print('Find POint')
     r, c = img_bin.shape
     result = np.zeros((r, c), np.uint8)
@@ -344,8 +374,7 @@ def find_point(img_bin):
         cv.circle(result, (x, y), radius, (255, 255, 255), -1)
 
         ################ DISPLAY ###########################
-        x -= int(mask_extend_size / 2.0)
-        y -= int(mask_extend_size / 2.0)
+        
         cv.circle(img_result, (x, y), radius, (255, 255, 255), -1)
         ####################################################
 
@@ -358,7 +387,7 @@ def pre_processing(img_bgr):
 
 
 def find_mask_threshold(img_bgr):
-    global mask_extend_size, img_result
+    global img_result
     print('FIND MASK THRESH PROCESS...')
     gray = cv.cvtColor(img_bgr, cv.COLOR_BGR2GRAY)
     r, c = gray.shape
@@ -371,36 +400,29 @@ def find_mask_threshold(img_bgr):
     erode = cv.erode(mask, get_kernel('rect', (3, 3)))
     mask = cv.dilate(erode, get_kernel('rect', (3, 3)))
 
-    # img_result[mask < v_avg / 1.75] = 100
-
-    tmp = np.zeros((r + mask_extend_size, c + mask_extend_size), np.uint8)
-    extend = int(mask_extend_size / 2.0)
-    print(tmp.shape)
-    print(mask.shape)
-    tmp[extend:-extend, extend:-extend] = mask
-    print(tmp.shape)
-
     print('FIND MASK THRESH END')
 
-    return tmp
+    return mask
 
 
 def mask_dice(dict):
     global img_result
     color = {'2': (255, 0, 0), '5': (0, 255, 0), '6': (0, 0, 255)}
+    r,c,_ = img_result.shape
     for d in dict.keys():
         if dict[d] is None:
             continue
-        center, radius, dice, accuracy = dict[d]
+        center, radius, dice, accuracy, area = dict[d]
         cx, cy = center
         cx, cy = norm_center(cx, cy)
         cv.circle(img_result, center, radius, color[d], -1)
         cv.circle(img_result, center, radius * 9, color[d], 2)
+        area = area / (sub_sampling * r * c)
         font = cv.FONT_HERSHEY_SIMPLEX
-        cv.putText(img_result, str(dice) + ' ' + str("%.2f" % cx) + ' ' + str("%.2f" % cy), center,
+        cv.putText(img_result, str(dice) + ' ' + str("%.2f" % cx) + ' ' + str("%.2f" % cy)+ ' ' + str("%.2f" % area), center,
                    font, 1, color[d], 2, cv.LINE_AA)
         center = (cx,cy)
-        dict[d] = [center, radius, dice, accuracy]
+        dict[d] = [center, radius, dice, accuracy, area]
         # cv.imshow('image_result', img_result)
     return dict
 
@@ -419,6 +441,7 @@ def run(img):
     global img_result, table_position
     img_result = img.copy()
     load_pattern()
+    
     # table_position =
     '''
         Enhancement BGR image in pre_processing() before do anything.
@@ -434,7 +457,7 @@ def run(img):
         mask_circles
     '''
 
-    dice_dict = find_dice(mask_circles, circles)
+    dice_dict = find_dice(img, mask_circles, circles)
     dice_dict = mask_dice(dice_dict)
     # cv.imshow('mask_circles', mask_circles)
     # cv.imshow('result', img_result)
@@ -443,7 +466,7 @@ def run(img):
 
 
 def main():
-    global img_result, table_position
+    global img_result, table_position, sub_sampling
     load_pattern()
     table_position = create_table_position()
 
@@ -453,7 +476,7 @@ def main():
         if frame is None:
             continue
 
-        frame = cv.resize(frame, (0, 0), fx=0.5, fy=0.5)
+        frame = cv.resize(frame, (0, 0), fx=sub_sampling, fy=sub_sampling)
         img_result = frame.copy()
         run(frame)
         k = cv.waitKey(1) & 0xff

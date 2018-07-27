@@ -72,9 +72,24 @@ def get_object():
     """
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 0, 31], dtype=np.uint8)
-    upper = np.array([69, 190, 150], dtype=np.uint8)
+
+    if world == "sim":
+        lower = np.array([0, 120, 0], dtype=np.uint8)
+        upper = np.array([37, 255, 255], dtype=np.uint8)
+    elif world == "real":
+        lower = np.array([0, 154, 0], dtype=np.uint8)
+        upper = np.array([50, 255, 255], dtype=np.uint8)
+        #lower = np.array([20, 120, 0], dtype=np.uint8)
+        #upper = np.array([62, 255, 255], dtype=np.uint8)
+
+    # lower,upper = get_color("path","yellow",world)
     mask = cv.inRange(hsv, lower, upper)
+    kernel = np.ones((5, 5), dtype=np.uint8)
+    mask = cv.GaussianBlur(mask, (5, 5), 0)
+    mask = cv.erode(mask, kernel)
+    mask = cv.erode(mask, kernel)
+    mask = cv.dilate(mask, kernel)
+    mask = cv.dilate(mask, kernel)
     return mask
 
 
@@ -97,12 +112,13 @@ def get_cx(mask):
     for i in range(sli):
         begin = ((himg/2)*i/sli)
         end = ((himg/2)*(i+1)/sli)
-        ROI = mask[begin:end, ]
+        ROI = mask[begin:end,]
         cnt = cv.findContours(ROI, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
         if len(cnt) >= 1:
             cnt = max(cnt, key=cv.contourArea)
             this_area = cv.contourArea(cnt)
             if this_area > 200:
+                print this_area
                 M = cv.moments(cnt)
                 ROI_cx = int(M["m10"]/M["m00"])
                 ROI_cy = int(M['m01']/M['m00']) + begin
@@ -164,7 +180,7 @@ def find_path():
     """
     global img, img_res
     while img is None and not rospy.is_shutdown():
-        print('img is none.\nPlease check topic name or check camera is running')
+        img_is_none()
 
     mask = get_object()
     cx, cy, area = get_cx(mask)
@@ -174,7 +190,7 @@ def find_path():
         print_result("MODE 1: CANNOT FIND PATH",color_text.RED)
     elif len(cx) == 1 and len(cy) == 1:
         mode = 2
-        return_degrees = 0
+        return_degrees = 0 #default
         print_result("MODE 2: CAN FIND 1 CX AND 1 CY",color_text.YELLOW)
     elif len(cx) >= 2 and len(cy) >= 2:
         mode = 3
@@ -182,19 +198,18 @@ def find_path():
         print_result("MODE 3: CAN FIND DEGREE (2 POINT OR MORE)",color_text.GREEN)
 
     if mode == 1:
-        publish_result(img_res, 'bgr', pub_topic + 'result')
+        publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
         return message()
     elif mode == 2 or mode == 3:
-        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
         himg, wimg = img.shape[:2]
+        cv.circle(img_res, (cx[0], cy[0]), 2, (255, 0, 0), -1)
         return_cx = Aconvert(cx[0],wimg)
         return_cy = -1.0*Aconvert(cy[0],himg)
         return_area = (1.0*area*16)/(himg*wimg)
-        publish_result(img_res, 'bgr', pub_topic + 'result')
+        publish_result(img_res, 'bgr', pub_topic + 'img_res')
         publish_result(mask, 'gray', pub_topic + 'mask')
-        return message(cx=return_cx, cy=return_cy, area=return_area, degrees=return_degrees, appear=True)
-
+        return message(cx=return_cx, cy=return_cy, area=return_area,degrees=return_degrees, appear=True)
 
 if __name__ == '__main__':
     rospy.init_node('vision_path', anonymous=False)

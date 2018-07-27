@@ -12,13 +12,15 @@ import math
         RADIUS = 1
     DICE_SIZE must be divided by 3 
 '''
-
-IMG_WIDTH = 1152
-IMG_HEIGHT = 874
+SUB_SAMPLING = 0.5
+# IMG_WIDTH = 1152
+IMG_WIDTH = 1936
+# IMG_HEIGHT = 874
+IMG_HEIGHT = 1216
 DICE_SIZE = 90
 SIDE_PER_RADIUS = 9.0
 POINT_RADIUS = float(DICE_SIZE) / SIDE_PER_RADIUS
-POINT_AREA_LOWER = math.pi * ((POINT_RADIUS-1.5)**2)
+POINT_AREA_LOWER = math.pi * ((POINT_RADIUS * SUB_SAMPLING * 0.5)**2)
 POINT_AREA_UPPER = math.pi * ((min(IMG_WIDTH, IMG_HEIGHT) / SIDE_PER_RADIUS)**2) 
 ABS_PATH = '/home/skconan/catkin_ws/src/src_code/zeabus_vision/src/shoot_craps/'
 IMG_PATH = ABS_PATH + 'images/'
