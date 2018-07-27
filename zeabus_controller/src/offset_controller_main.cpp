@@ -247,7 +247,7 @@ int main(int argc , char **argv){
 					else sum_force[count] = PID_velocity[count].calculate_velocity(
 											target_velocity[count] - current_velocity[count]);
 //					if( count == 2 && target_velocity[2] < 0) sum_force[2] = -4.5;
-					else if( count == 2){
+					if( count == 2){
                         sum_force[2] = PID_velocity[2].calculate_velocity(
 											target_velocity[2]) + offset_force[count];
                     
@@ -312,6 +312,8 @@ int main(int argc , char **argv){
 						target_velocity[0] , target_velocity[1] , target_velocity[2],
 						target_velocity[3] , target_velocity[4] , target_velocity[5]);
 			ROS_INFO("current_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
+						current_velocity[0] , current_velocity[1] , current_velocity[2],
+						current_velocity[3] , current_velocity[4] , current_velocity[5]);
 		#endif
 		current_time = ros::Time::now();
 		if( (current_time - last_target_velocity).toSec() < diff_time){
