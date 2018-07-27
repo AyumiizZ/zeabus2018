@@ -31,6 +31,7 @@
 #include	<zeabus_controller/orientation.h>
 
 // include head of service
+#include    <zeabus_controller/target_service.h>
 #include	<zeabus_controller/fix_abs_xy.h>
 #include	<zeabus_controller/fix_rel_xy.h>
 #include 	<zeabus_controller/fix_abs_depth.h>
@@ -66,11 +67,10 @@ double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0};
 double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
 double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
-
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 4, 8, 4.5, 1.5, 1.5, 0.4};
+double	bound_force[6] = { 7, 7, 4.0, 0.2, 0.2, 0.2};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};
@@ -78,7 +78,8 @@ double	target_position[6] = {0, 0, 0, 0, 0, 0};
 double	world_error[6] = {0, 0, 0, 0, 0, 0}; // this part will calculate error from sensor
 double	robot_error[6] = {0, 0, 0, 0, 0, 0}; // this part will use to calculate force and calculate form
 									 // world_error
-double ok_error[6] = { 0.01 , 0.01 , 0.1 , 0.05 , 0.05 , 0.01}; // for calculate error you ok
+double ok_error[6] = { 0.01 , 0.01 , 0.01 , 0.0 , 0.0 , 0.0}; // for calculate error you ok
+double agree_error[6] = {0.04 , 0.04 , 0.1 , 0.05 , 0.05 , 0.03}; // for calculate error ok position
 
 bool can_fix[6] = {true , true , true , true , true , true}; // this tell we have sensor or not?
 bool want_fix[6] = {false , false , false , false , false , false}; //  want to go fix_position?
@@ -92,7 +93,11 @@ double diff_yaw = 0;
 // this part use to think about should reset target and save new state to target_position
 ros::Time last_target_velocity;
 ros::Time current_time;
-double diff_time = 0.1; // this variable 
+ros::Time velocity_z;
+ros::Time velocity_x;
+ros::Time velocity_y;
+double diff_time = 0.5; // this variable
+double z_diff_time = 1; // for velocity of z only
 void reset_want_fix();
 
 bool start_run = true; // this tell to save target state in first time
@@ -116,6 +121,10 @@ int mode_control = 5; // mode 1 , 2 is depth about offset and PID 3 ,4 roll pitc
 					  // 5 tune PID in normal situation
 
 // function for service
+bool service_know_target(
+		zeabus_controller::target_service::Request &request , 
+		zeabus_controller::target_service::Response &response
+	); // request target
 bool service_target_xy(
 		zeabus_controller::fix_abs_xy::Request &request , 
 		zeabus_controller::fix_abs_xy::Response &response
@@ -160,7 +169,8 @@ find_velocity::second_case *PID_position; // use to calculate force
 find_velocity::second_case *PID_velocity; // use to calculate force when calculate about r p y
 manage_PID_file PID_file(tune_file); // use to save or download
 #ifdef save_log_service
-	manage_log log_file; // use to save log service
+	manage_log log_file("ok_position"); // use to save log service
+    manage_log log_command_file("order_command");// use to save log service not ok position
 #endif
 
 double convert_min_radian( double problem); // convert to [ -PI , PI]

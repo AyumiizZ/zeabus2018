@@ -15,7 +15,8 @@ void listen_current_state( const nav_msgs::Odometry message){
 			target_position[2] = message.pose.pose.position.z;
 		}
         if( start_run ){
-			target_position[2] = -2;
+			target_position[2] = -0.5;
+			target_position[5] = 0;
         }
 		if( ( not want_fix[3] )){
 			target_position[3] = 0.0;
@@ -44,9 +45,33 @@ void listen_current_state( const nav_msgs::Odometry message){
 }
 
 void listen_target_velocity( const geometry_msgs::Twist message){
+	current_time = ros::Time::now();
 	target_velocity[0] = message.linear.x;
 	target_velocity[1] = message.linear.y;
-	target_velocity[2] = message.linear.z;
+	if(absolute (message.linear.x) > epsilon){
+		target_velocity[0] = message.linear.x;
+		velocity_x = ros::Time::now();
+	}
+	else{
+		if( (current_time - velocity_x).toSec() < diff_time )
+			target_velocity[0] = 0;
+	}
+	if(absolute (message.linear.y) > epsilon){
+		target_velocity[1] = message.linear.y;
+		velocity_y = ros::Time::now();
+	}
+	else{
+		if( (current_time - velocity_y).toSec() < diff_time )
+			target_velocity[1] = 0;
+	}
+	if(absolute (message.linear.z) > epsilon){
+		target_velocity[2] = message.linear.z;
+		velocity_z = ros::Time::now();
+	}
+	else{
+		if( (current_time - velocity_z).toSec() < z_diff_time )
+			target_velocity[2] = 0;
+	}
 	target_velocity[3] = message.angular.x;
 	target_velocity[4] = message.angular.y;
 	target_velocity[5] = message.angular.z;
@@ -188,11 +213,30 @@ bool service_target_xy(
 	#ifdef save_log_service
 		std::string message = manage_message::absolute_target( request.user.data , "absolute xy"
 									, target_position[0] , target_position[1]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
 }
+
+bool service_know_target(
+		zeabus_controller::target_service::Request &request , 
+		zeabus_controller::target_service::Response &response){
+    if( request.type.data == "xy" ){
+        response.target_01 = target_position[0];
+        response.target_02 = target_position[1];
+    }
+    else if( request.type.data == "yaw"){
+        response.target_01 = target_position[5];
+        response.target_02 = 0;
+    }
+    else if( request.type.data == "z"){
+        response.target_01 = target_position[2];
+        response.target_02 = 0;
+    }
+    return true;
+}
+
 
 bool service_target_distance(
 		zeabus_controller::fix_rel_xy::Request &request , 
@@ -210,7 +254,7 @@ bool service_target_distance(
 		std::string message = manage_message::relative_target( request.user.data , "relative xy"
 									, origin_01 , request.distance_x , target_position[0]
 									, origin_02 , request.distance_y , target_position[1]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
@@ -223,7 +267,7 @@ bool service_target_yaw(
 	#ifdef save_log_service
 		std::string message = manage_message::absolute_target( request.user.data , "absolute yaw"
 									, target_position[5]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
@@ -241,7 +285,7 @@ bool service_rel_yaw(
 	#ifdef save_log_service
 		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
 									, origin , request.fix_yaw , target_position[5]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
@@ -254,7 +298,7 @@ bool service_target_depth(
 	#ifdef save_log_service
 		std::string message = manage_message::absolute_target( request.user.data , "absolute depth"
 									, target_position[2]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
@@ -270,7 +314,7 @@ bool service_rel_depth(
 	#ifdef save_log_service
 		std::string message = manage_message::relative_target( request.user.data , "relative yaw"
 									, previous_target , request.fix_depth , target_position[2]);
-		log_file.write_log( message );
+		log_command_file.write_log( message );
 	#endif
 	response.success = true;
 	return true;
@@ -302,12 +346,12 @@ bool service_ok_position(
 			std::cout 	<< "------------------ check position "
 		 				<< "want to know ok xy--------------\n";
 			std::cout 	<< "for x : robot " << robot_error[0]
-						<< " ok_error + adding " << ok_error[0] + request.adding << "\n";
+						<< " ok_error + adding " << agree_error[0] + request.adding << "\n";
 			std::cout 	<< "for y : robot " << robot_error[1]
-						<< " ok_error + adding " << ok_error[1] + request.adding << "\n";
+						<< " ok_error + adding " << agree_error[1] + request.adding << "\n";
 		#endif
-        if( absolute(robot_error[0]) < ok_error[0] + request.adding 
-				&& absolute(robot_error[1]) < ok_error[1] + request.adding){
+        if( absolute(robot_error[0]) < agree_error[0] + request.adding 
+				&& absolute(robot_error[1]) < agree_error[1] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
 				message = manage_message::ok_two_case( request.user.data, "true",
@@ -331,9 +375,9 @@ bool service_ok_position(
 			std::cout 	<< "------------------ check position "
 		 				<< "want to know ok z--------------\n";
 			std::cout 	<< "for z : robot " << robot_error[2]
-						<< " ok_error + adding " << ok_error[2] + request.adding << "\n";
+						<< " ok_error + adding " << agree_error[2] + request.adding << "\n";
 		#endif
-        if( absolute(robot_error[2]) < ok_error[2] + request.adding){
+        if( absolute(robot_error[2]) < agree_error[2] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
 				message = manage_message::ok_one_case( request.user.data, "true",
@@ -390,9 +434,9 @@ bool service_ok_position(
 			std::cout 	<< "------------------ check position "
 		 				<< "want to know ok yaw--------------\n";
 			std::cout 	<< "for z : robot " << robot_error[5]
-						<< " ok_error + adding " << ok_error[5] + request.adding << "\n";
+						<< " ok_error + adding " << agree_error[5] + request.adding << "\n";
 		#endif
-		if( absolute(robot_error[5]) < ok_error[5] + request.adding){
+		if( absolute(robot_error[5]) < agree_error[5] + request.adding){
 			response.ok = true;
 			#ifdef save_log_service
 				message = manage_message::ok_one_case( request.user.data, "true",

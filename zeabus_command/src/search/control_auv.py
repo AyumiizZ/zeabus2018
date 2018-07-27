@@ -85,6 +85,7 @@ class	auv_control:
 		self.state[5] = euler_angular[2]
 
 	def send_velocity( self , velocity):
+		print("------------------------>you send velocity is " + velocity)
 		self.velocity.linear.x = velocity[0]
 		self.velocity.linear.y = velocity[1]
 		self.velocity.linear.z = velocity[2]
@@ -95,3 +96,19 @@ class	auv_control:
 	
 		for i in range(4):
 			self.pub_velocity.publish(self.velocity)
+
+	def continue_move( self , velocity , amont_round , time_sleep):
+		print("------------------------>you send velocity is " + velocity)
+		self.velocity.linear.x = velocity[0]
+		self.velocity.linear.y = velocity[1]
+		self.velocity.linear.z = velocity[2]
+
+		self.velocity.angular.x = velocity[3]
+		self.velocity.angular.y = velocity[4]
+		self.velocity.angular.z = velocity[5]
+
+		for i in range( amont_round ):
+			print("---------> count is " + str( i ))
+			self.pub_velocity.publish( self.velocity )
+			rospy.sleep( time_sleep )
+			

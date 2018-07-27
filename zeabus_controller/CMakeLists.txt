@@ -35,6 +35,7 @@ add_service_files(
   control_mode.srv
   message_service.srv
   ok_position.srv
+  target_service.srv
   navigation_srv.srv
   fix_abs_xy.srv
   fix_rel_xy.srv
@@ -74,12 +75,12 @@ add_executable(pwm_test src/test_code/loop_pwm_test.cpp)
 add_executable(origin_control src/new_controller_2018.cpp)
 #add_executable(control src/manage_control.cpp)
 add_executable(offset_control src/offset_controller_main.cpp)
-add_executable(sim_controller src/sim_controller.cpp)
+#add_executable(sim_controller src/sim_controller.cpp)
 add_executable(test_force src/calculate_force.cpp)
 add_executable(assign_close src/emergency_control.cpp)
 add_dependencies(zeabus_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(offset_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
-add_dependencies(sim_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
+#add_dependencies(sim_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(pwm_test ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(origin_control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 #add_dependencies(control ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
@@ -87,7 +88,7 @@ add_dependencies(test_force ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 add_dependencies(assign_close ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
 target_link_libraries(zeabus_controller ${catkin_LIBRARIES})
 target_link_libraries(offset_control ${catkin_LIBRARIES})
-target_link_libraries(sim_controller ${catkin_LIBRARIES})
+#target_link_libraries(sim_controller ${catkin_LIBRARIES})
 target_link_libraries(pwm_test ${catkin_LIBRARIES})
 target_link_libraries(origin_control ${catkin_LIBRARIES})
 #target_link_libraries(control ${catkin_LIBRARIES})

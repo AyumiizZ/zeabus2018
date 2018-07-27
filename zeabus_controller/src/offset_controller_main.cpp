@@ -48,6 +48,8 @@ int main(int argc , char **argv){
 		nh.advertiseService("/ok_position", service_ok_position);
 	ros::ServiceServer ser_cli_change_mode = // listen target mode
 		nh.advertiseService("/change_mode", service_change_mode); 
+	ros::ServiceServer ser_know_target = // listen target mode
+		nh.advertiseService("/know_target", service_know_target); 
 // ------------------------------------- end part ---------------------------------------------
 
 // ------------------------------------ test state --------------------------------------------
@@ -61,6 +63,7 @@ int main(int argc , char **argv){
 
 // ----------------------------------- part of publisher --------------------------------------
 	ros::Publisher tell_force = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
+//	ros::Publisher tell_force = nh.advertise<geometry_msgs::Twist>("/feedback/cmd_vel", 1000);
 //	ros::Publisher tell_force = nh.advertise<geometry_msgs::Twist>("/cmd_vel_blank", 1000);
 // -------------------------------------- end part --------------------------------------------
 
@@ -229,26 +232,39 @@ int main(int argc , char **argv){
 							PID_position[ count ].calculate_velocity( robot_error[ count]);
 						sum_force[ count ] = pid_force[count] + offset_force[count];
                     }
+                    if( count == 3 || count == 4) sum_force[count] *= -1;
 				}
 				else{
 					#ifdef test_02
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
-					if( count < 3 && use_K_velocity) 
+					if( count < 2 && use_K_velocity) 
 						sum_force[count] = K_velocity[count] * 
 												pow (target_velocity[count] , 2)
                                                 * find_direction( target_velocity[count]);
 //                    *
                         //sum_force[count] = target_velocity[ count ];
-					else sum_force[count] = PID_velocity[count].calculate_velocity(
+//					if( count == 2 && target_velocity[2] < 0) sum_force[2] = -4.5;
+					else if( count == 2){
+                        sum_force[2] = PID_velocity[2].calculate_velocity(
+											target_velocity[2]) + offset_force[count];
+                    
+                    }
+					else {
+                        sum_force[count] = PID_velocity[count].calculate_velocity(
 											target_velocity[count] - current_velocity[count]);
+
+                    }
                         //sum_force[count] = target_velocity[ count ];
 				}
 //                if( count == 5 ) sum_force[count] *= -1;
                 if( count == 2 ){
-                    if( robot_error[count] < -0.1) sum_force[ count ] = -2.5;
-                    if( ( target_position[2] < epsilon ) && (target_position[2] > -1*epsilon) )
-                        sum_force[count] = 0;
+//                    if( robot_error[count] < -0.1) sum_force[ count ] = -4.5;
+                    if( ( target_position[2] < epsilon ) && (target_position[2] > -1*epsilon) ){
+                        if( current_position[2] < -1 ) sum_force[2] = 1;
+                        else sum_force[count] = 0;
+
+                    }
                 }
 			}
 			for( int count = 0 ; count < 6 ; count++){
@@ -263,25 +279,25 @@ int main(int argc , char **argv){
 		#ifdef print_all_value
 			PID_file.clear();
 			ROS_INFO("-------------------------- print data -----------------------------");
-			ROS_INFO("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("target_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						target_position[0] , target_position[1] , target_position[2],
 						target_position[3] , target_position[4] , target_position[5]);
-			ROS_INFO("current_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("current_position:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						current_position[0] , current_position[1] , current_position[2],
 						current_position[3] , current_position[4] , current_position[5]);
-			ROS_INFO("world_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("world_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						world_error[0] , world_error[1] , world_error[2],
 						world_error[3] , world_error[4] , world_error[5]);
-			ROS_INFO("robot_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("robot_error:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						robot_error[0] , robot_error[1] , robot_error[2],
 						robot_error[3] , robot_error[4] , robot_error[5]);
 			ROS_INFO("offset_force:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
 						offset_force[0] , offset_force[1] , offset_force[2],
 						offset_force[3] , offset_force[4] , offset_force[5]);
-			ROS_INFO("pid_force:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("pid_force:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						pid_force[0] , pid_force[1] , pid_force[2],
 						pid_force[3] , pid_force[4] , pid_force[5]);
-			ROS_INFO("sum_force:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("sum_force:\t\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						sum_force[0] , sum_force[1] , sum_force[2],
 						sum_force[3] , sum_force[4] , sum_force[5]);
 			ROS_INFO("can_fix:\t\t%d\t%d\t%d\t%d\t%d\t%d" ,
@@ -290,10 +306,10 @@ int main(int argc , char **argv){
 			ROS_INFO("want_fix:\t\t%d\t%d\t%d\t%d\t%d\t%d" ,
 						want_fix[0] , want_fix[1] , want_fix[2],
 						want_fix[3] , want_fix[4] , want_fix[5]);
-			ROS_INFO("target_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("target_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						target_velocity[0] , target_velocity[1] , target_velocity[2],
 						target_velocity[3] , target_velocity[4] , target_velocity[5]);
-			ROS_INFO("current_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf" ,
+			ROS_INFO("current_velocity:\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.2lf\t%.4lf" ,
 						current_velocity[0] , current_velocity[1] , current_velocity[2],
 						current_velocity[3] , current_velocity[4] , current_velocity[5]);
 			ROS_INFO("----------------------------end print-----------------------------");
