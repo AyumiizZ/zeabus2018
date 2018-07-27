@@ -3,6 +3,7 @@
   <version>0.0.1</version>
   <description>zeabus_controller</description>
   <maintainer email="samoooop@gmail.com">Trairat Punyawatthananukool</maintainer>
+  <maintainer email="supasan.k@ku.th">Supasan Komonlit(2018)</maintainer>
   <license>BSD</license>
   <!-- Dependencies which this package needs to build itself. -->
   <buildtool_depend>catkin</buildtool_depend>

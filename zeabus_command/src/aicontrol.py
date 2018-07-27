@@ -1,9 +1,8 @@
 #!/usr/bin/python2
 
-
 import rospy, math, tf
 import constants as cons
-from zeabus_elec_ros_hardware_interface.srv import IOCommand
+from zeabus_elec_ros_hardware_interface.srv import IOCommand, Torpedo
 from zeabus_controller.msg import point_xy
 from zeabus_controller.srv import *
 from geometry_msgs.msg import Twist, Pose, Point
@@ -18,6 +17,7 @@ class AIControl:
         self.point = Point()
 
         self.auv_state = [0, 0, 0, 0, 0, 0]
+        self.checkpoint = [0, 0, 0, 0, 0, 0]
         rospy.Subscriber('/auv/state', Odometry, self.getState)
         # real
         self.pub_vel = rospy.Publisher('/zeabus/cmd_vel', Twist, queue_size=10)
@@ -39,22 +39,38 @@ class AIControl:
         rospy.wait_for_service('io_and_pressure/IO_OFF')
         print 'IO_OFF'
         '''
+        print 'wait for fix_abs_yaw'
         rospy.wait_for_service('fix_abs_yaw')
         print 'abs_yaw'
+        print 'wait for fix_rel_yaw'
         rospy.wait_for_service('fix_rel_yaw')
         print 'rel_yaw'
+        print 'wait for fix_rel_xy'
         rospy.wait_for_service('fix_rel_xy')
         print 'rel_xy'
+        print 'wait for fix_abs_xy'
         rospy.wait_for_service('fix_abs_xy')
         print 'abs_xy'
+        print 'wait for fix_abs_depth'
         rospy.wait_for_service('fix_abs_depth')
         print 'abs_depth'
+        print 'wait for fix_rel_depth'
         rospy.wait_for_service('fix_rel_depth')
         print 'rel_depth'
+        print 'wait for ok_position'
         rospy.wait_for_service('ok_position')
         print 'ok_position'
         #rospy.wait_for_service('fix_service')
         #print 'fix_service'
+        print 'wait for know_target'
+        rospy.wait_for_service('know_target')
+        print 'know_target'
+        print 'wait for fire_torpedo'
+        rospy.wait_for_service('fire_torpedo')
+        print 'fire_torpedo'
+        print 'wait for hold_torpedo'
+        rospy.wait_for_service('hold_torpedo')
+        print 'hold_torpedo'
 
         #self.srv_io_on = rospy.ServiceProxy('io_and_pressure/IO_ON', IOCommand)
         #self.srv_io_off = rospy.ServiceProxy('io_and_pressure/IO_OFF', IOCommand)
@@ -65,7 +81,16 @@ class AIControl:
         self.srv_abs_depth = rospy.ServiceProxy('fix_abs_depth', fix_abs_depth)
         self.srv_rel_depth = rospy.ServiceProxy('fix_rel_depth', fix_abs_depth)
         self.srv_ok_position = rospy.ServiceProxy('ok_position', ok_position)
+        self.fire_torpedo = rospy.ServiceProxy('fire_torpedo', Torpedo)
+        self.hold_torpedo = rospy.ServiceProxy('hold_torpedo', Torpedo)
+        self.target = rospy.ServiceProxy('know_target', target_service)
         #self.srv_full_speed = rospy.ServiceProxy('fix_service', message_service)
+
+    def getTarget(self, target):
+        print 'Request for %s'%(target)
+        data = self.target(String(target))
+        return [data.target_01, data.target_02]
+
 
     def fullSpeed(self, time):
         print 'WARNING: BE READY TO STOP THE CONTROL NODE, IF ANYTHING GOING WRONG'
@@ -89,11 +114,17 @@ class AIControl:
     def backTrack(self, point):
         print 'Backtracking'
         self.driveX(-2)
-        self.fixXY(point[0], point[1])
+        x = point[0]
+        y = point[1]
+        self.fixXY(x, y)
         print 'Back to checkpoint'
 
     def multiMove(self, speed):
         self.stop()
+        if speed[2] > 0:
+            speed[2] += 0.1
+        elif speed[2] < 0:
+            speed[2] -= 0.1
         temp = self.listToTwist(speed)
         print 'MOVE'
         print 'X: %f'%speed[0]
@@ -127,39 +158,96 @@ class AIControl:
         for _ in range(3):
             self.pub_vel.publish(self.vel)
 
-    def fixXY(self, x, y, err=0, user='mission_planner'):
+    def fixXY(self, x, y, err=0.05, user='mission_planner'):
         print 'Move to (%f, %f)'%(x, y)
         self.srv_abs_xy(x, y, String(user))
-        while not rospy.is_shutdown() and not self.srv_ok_position(String('xy'), err, String(user)).ok:
-            rospy.sleep(0.1)
 
+        count = 0
+        reset = 0
+
+        cur_x = self.auv_state[0]
+        cur_y = self.auv_state[1]
+
+        time_limit = ((5*math.sqrt(((x - cur_x)**2 + (y - cur_y)**2)) // 1) + 5) * 4
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+            else: reset += 1
+            if reset >= 5: 
+                count = 0
+                reset = 0
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
+        self.srv_rel_xy(x, 0, String(user))
+        self.checkpoint = self.auv_state
+
+        count = 0
+        reset = 0
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
+            if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
+                count += 1
+            else: reset += 1
+            if reset >= 5:
+                count = 0
+                reset = 0
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'finish moving'
+        self.checkpoint = self.auv_state
 
     def driveX(self, x, err=0.2, user='mission_planner'):
         print 'doing drive x'
         self.stop()
         count = 0
         reset = 0
-        while not rospy.is_shutdown() and count < 10:
+
+        if x < 1:
+            time_limit = 40
+        else:
+            time_limit = ((5 * x) // 1) * 4
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
-                rospy.sleep(0.2)
             else: reset += 1
             if reset >= 5: 
                 count = 0
                 reset = 0
-            print count
-            print 'Wait for xy'
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print('driveX already')
         self.srv_rel_xy(x, 0, String(user))
         count = 0
+        self.checkpoint = self.auv_state
 
-        while not rospy.is_shutdown() and count < 10:
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
-                rospy.sleep(0.2)
-            print count
-
+            else: reset += 1
+            if reset >= 5: 
+                count = 0
+                reset = 0
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'finish drive x'
 
     def driveY(self, y, err=0.2, user='mission_planner'):
@@ -167,27 +255,43 @@ class AIControl:
         self.stop()
         count = 0
         reset = 0
-        while not rospy.is_shutdown() and count < 10:
+
+        if y < 1:
+            time_limit = 40
+        else:
+            time_limit = ((5 * y) // 1) * 4
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
             print 'pos: %s'%check_pos
             if check_pos:
                 count += 1
-                print 'Wait for xy'
-                rospy.sleep(0.2)
             else: reset += 1
             if reset >= 5:
                 count = 0
                 reset = 0
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
         print('driveY already')
         self.srv_rel_xy(0, y, String(user))
+        self.checkpoint = self.auv_state
 
-        while not rospy.is_shutdown() and count < 10:
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
             print 'pos: %s'%check_pos
             if check_pos:
-                rospy.sleep(0.1)
                 count += 1
-
+            else: reset += 1
+            if reset >= 5: 
+                count = 0
+                reset = 0
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
         print 'finish drive y'
 
     def turnRelative(self, degree, err=0.05, user='mission_planner'):
@@ -195,66 +299,76 @@ class AIControl:
         print 'turning %f'%(degree)
         count = 0
         reset = 0
+
         rospy.sleep(1.5)
-        while not rospy.is_shutdown() and count < 10:
+
+        time_limit = 100
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err,String(user)).ok
             print 'pos: %s'%check_pos
             if check_pos:
-                print 'if'
                 count += 1
-                rospy.sleep(0.2)
-            else: 
-                print 'else'
+            else:
                 reset += 1
 
             if reset >= 5:
                 count = 0
                 reset = 0
-            print 'wait xy yaw'
-            print count
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            rospy.sleep(0.2)
+            if time_check >= time_limit:
+                print 'Timeout'
 
         print('turn already')
         rand = math.radians(degree)
         self.srv_rel_yaw(rand, String(user))
         count = 0
         reset = 0
+
         rospy.sleep(1.5)
-        while not rospy.is_shutdown() and count < 10:
+
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             check_pos = self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok
             if check_pos:
-                print 'if'
                 print 'pos: %s'%check_pos
                 count += 1
-                print('Wait for yaw')
-                rospy.sleep(0.2)
             elif not check_pos:
-                print 'else'
-                print 'pos: %s'%check_pos
                 reset = 0
 
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
-
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'finish turn rel'
+        self.checkpoint = self.auv_state
 
     def turnAbs(self, degree, err=0.05, user='mission_planner'):
         self.stop()
         print 'turning to %f'%(degree)
         count = 0
         reset = 0
-        rospy.sleep(1.2)
-        while not rospy.is_shutdown() and count < 10:
+
+        rospy.sleep(1.5)
+        time_limit = 100
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('xy'), err, String(user)).ok  and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
-                rospy.sleep(0.2)
             else: reset += 1
             if reset >= 5:
                 count = 0
                 reset = 0
-            print 'wait xy yaw'
-            print count
+            #print 'wait xy yaw'
+            #print count
 
         print('turn already')
         rand = math.radians(degree)
@@ -263,18 +377,24 @@ class AIControl:
 
         count = 0
         reset = 0
-        rospy.sleep(1.2)
-        while not rospy.is_shutdown() and count < 10:
+
+        rospy.sleep(1.5)
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('xy'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
-                rospy.sleep(0.2)
             else: reset += 1
             if reset >= 5: 
                 count = 0
                 reset = 0
-            print count
-
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'finish turn abs'
+        self.checkpoint = self.auv_state
 
     def depthAbs(self, depth, err=0.2, user='mission_planner'):
         self.stop()
@@ -283,61 +403,87 @@ class AIControl:
         count = 0
         reset = 0
 
-        while not rospy.is_shutdown() and count < 10:
+        cur_z = self.auv_state[2]
+
+        time_limit = (5 * abs(cur_z - depth)) * 4
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('z'), err, String(user)).ok and self.srv_ok_position(String('yaw'), err, String(user)).ok:
                 count += 1
             else: reset += 1
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
-
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'READY Z'
         self.srv_abs_depth(depth, String(user))
+
         count = 0
         reset = 0
 
-        while not rospy.is_shutdown() and count < 10:
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3:
             if self.srv_ok_position(String('z'), err, String(user)).ok:
                 count += 1
             else: reset += 1
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
-            print 'wait for z'
-            rospy.sleep(0.4)
-
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'finish depth abs'
 
     def depthRelative(self, depth, err=0, user='mission_planner'):
         self.stop()
         print 'move to depth %f'%(depth)
+
         count = 0
         reset = 0
-        while not rospy.is_shutdown() and count < 10:
+
+        time_limit = (5 * abs(depth)) * 4
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('z'), err, String(user)).ok :
                 count += 1
             else: reset += 1
             if reset >= 5:
                 count = 0
                 reset = 0
-            print count
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print 'depth already'
         self.srv_rel_depth(depth, String(user))
+
         count = 0
         reset = 0
 
-        while not rospy.is_shutdown() and count < 10:
+        time_check = 0
+
+        while not rospy.is_shutdown() and count < 3 and time_check <= time_limit:
             if self.srv_ok_position(String('z'), err, String(user)).ok:
                 count += 1
-                rospy.sleep(0.4)
             else:reset += 1
             if reset >= 5: 
                 reset = 0
                 count = 0
-            print count
-
+            rospy.sleep(0.2)
+            time_check += 1
+            print ('time check: %d')%(time_check)
+            if time_check >= time_limit:
+                print 'Timeout'
         print'finish depth relative'
 
     def stop(self):
@@ -359,6 +505,16 @@ class AIControl:
         elif cmd == 'off':
             self.srv_io_off(5)
 
+    def fire(self):
+        print 'fire'
+        self.fire_torpedo()
+        rospy.sleep(0.5)
+        self.hold()
+
+    def hold(self):
+        print 'hold'
+        self.hold_torpedo()
+
     def getState(self, data):
         self.pose = data.pose.pose
         pose = self.pose
@@ -378,4 +534,5 @@ if __name__=='__main__':
     rospy.init_node('aicontrol_node')
     aicontrol = AIControl()
     auv = aicontrol
-    print 'done'
+    auv.fire()
+    auv.hold()

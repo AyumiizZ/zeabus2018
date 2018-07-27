@@ -16,8 +16,10 @@ class Path(object) :
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
 
     def detectPath(self) :
-        self.data = self.detect_path(String('path'))
-        self.data = self.data.data
+        try:
+            self.data = self.detect_path(String('path'))
+            self.data = self.data.data
+        except: print 'error'
 
     def run(self) :
         while not rospy.is_shutdown():

@@ -77,6 +77,8 @@ def get_object():
         lower = np.array([0, 120, 0], dtype=np.uint8)
         upper = np.array([37, 255, 255], dtype=np.uint8)
     elif world == "real":
+        #lower = np.array([0, 154, 0], dtype=np.uint8)
+        #upper = np.array([50, 255, 255], dtype=np.uint8)
         lower = np.array([20, 120, 0], dtype=np.uint8)
         upper = np.array([62, 255, 255], dtype=np.uint8)
 
@@ -142,7 +144,7 @@ def find_angle(cx, cy):
     """
     global img_res
     deg = []
-    for i in range(len(cx)):
+    for i in range(len(cx)-1):
         rad = math.atan2(cy[i+1]-cy[i], cx[i+1]-cx[i])
         this_deg = math.degrees(rad)
         if len(deg) > 0 and abs(this_deg-deg[-1]) > 5:

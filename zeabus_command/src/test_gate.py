@@ -17,8 +17,10 @@ class Gate(object):
 
     def detectGate(self):
         # store all data from vision service into gate_data
-        self.gate_data = self.gate_req(String('gate'))
-        self.gate_data = self.gate_data.data
+        try:
+            self.gate_data = self.gate_req(String('casino_gate'))
+            self.gate_data = self.gate_data.data
+        except:print 'error'
 
     def run(self):
         # declare auv for shorter variable name

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="zeabus_command" name="zeabus_command" type="test_path.py" output="screen" respawn="true"/>
+</launch>
