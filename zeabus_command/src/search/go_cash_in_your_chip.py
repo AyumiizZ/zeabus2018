@@ -94,7 +94,7 @@ class go_cash_in_your_chip:
 			if( num_found == 0 ):
 				self.count = 0
 #				self.auv.relative_xy( self.move , 0)
-				self.auv.continue_move( 0.2 , 50 , 0.01 )
+				self.auv.continue_move( [0.2 , 0 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
 				while( not self.auv.check_position( "xy" , 0.1)):
 					print( "Waiting for move xy : " + str( self.count))
 					self.count_move += 1
@@ -107,9 +107,9 @@ class go_cash_in_your_chip:
 		
 		if( num_found == 0 ):
 			print( "Can't find in forward mode next backword")
-			self.auv.continue_move
-
-		
+			self.auv.continue_move( [ 0 , -0.2 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
+			while( not self.auv.check_position( "x" , ))
+			
 
 	def result_information( self ):		
 		# service for call vision for find cash_in_your_chip	
