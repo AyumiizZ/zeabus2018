@@ -17,6 +17,7 @@ class Path(object) :
         self.detect_path = rospy.ServiceProxy('vision_path', vision_srv_path)
         self.centerx = 0
         self.resetx = 0
+        self.failed = False
 
     def detectPath(self) :
         self.data = self.detect_path(String('path'))
@@ -57,10 +58,10 @@ class Path(object) :
                 #check cx's center
                 if cx < -cons.VISION_PATH_ERROR:
                     auv.move('left', cons.AUV_M_SPEED*(abs(cx)))
-                    side = 1
+                    side = 0.5
                 elif cx > cons.VISION_PATH_ERROR:
                     auv.move('right', cons.AUV_M_SPEED*(abs(cx)))
-                    side = -1
+                    side = -0.5
 
                 #check if auv is centerx of path or not
                 if -cons.VISION_PATH_ERROR <= cx <= cons.VISION_PATH_ERROR:
@@ -71,8 +72,7 @@ class Path(object) :
                     print '<<<NOTCENTER: %d>>>'%(self.resetx)
                     self.resetx += 1
             else:
-                #auv.multiMove([0, side, 0, 0, 0, 0])
-                pass
+                auv.multiMove([0, side, 0, 0, 0, 0])
 
             #check centerx's counter
             if self.centerx >= 3:
@@ -190,6 +190,7 @@ class Path(object) :
 
                 if mode == -99:
                     print 'Failed'
+                    self.failed = True
                     mode = -1
 
                 if mode == 99:
