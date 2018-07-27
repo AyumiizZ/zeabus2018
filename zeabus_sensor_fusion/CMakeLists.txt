@@ -101,7 +101,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS 
   LIBRARIES zeabus_sensor_fusion
   CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs nav_msgs
   DEPENDS 
