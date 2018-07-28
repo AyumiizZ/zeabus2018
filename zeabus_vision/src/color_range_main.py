@@ -8,6 +8,7 @@ import numpy as np
 import constant as CONST
 from vision_lib import *
 from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 from sensor_msgs.msg import CompressedImage
 
 img = None
