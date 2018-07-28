@@ -35,9 +35,9 @@ void listen_switch(std_msgs::Bool order);
 bool service_mode( zeabus_controller::control_mode::Request &request , zeabus_controller::control_mode::Response &response);
 manage_control_file manage_control = manage_control_file();
 
-//this file quaruntee only origin controller
+//this file guaruntee only origin controller
 
-/*
+
 int main(int argc, char **argv){
 	ros::init(argc , argv , "manage_controller");
 	std::cout << "My node's name is manage_controller" << std::endl;
@@ -46,7 +46,7 @@ int main(int argc, char **argv){
 	ros::ServiceServer ser_cli_mode = nh.advertiseService("/mode_control" , service_mode);
 	ros::spin();
 }
-*/
+
 
 bool service_mode( zeabus_controller::control_mode::Request &request , zeabus_controller::control_mode::Response &response){
 	if(request.mode.data == true && mode == 0){
