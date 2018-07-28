@@ -1,1 +1,889 @@
 ----------------- start log control -----------------
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is yaw and add is 0.1
+target is 0
+current is 0
+error is 0
+--- result is true
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:17 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- type is xy and add is 0.1
+target_01 is 0
+current_01 is 0
+error_01 is 0
+target_02 is 0
+current_02 is 0
+error_02 is 0
+--- result is true
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is yaw and add is 0.1
+target is 0
+current is 0
+error is 0
+--- result is true
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:38 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is z and add is 0.1
+target is -0.5
+current is 0
+error is -0.5
+--- result is false
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- type is xy and add is 0.1
+target_01 is 0
+current_01 is 0
+error_01 is 0
+target_02 is 0
+current_02 is 0
+error_02 is 0
+--- result is true
+

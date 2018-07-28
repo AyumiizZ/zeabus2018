@@ -1,1 +1,27 @@
 ----------------- start log control -----------------
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- order to absolute yaw
+now target is 0
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:16 2018
+--- order to absolute depth
+now target is -0.5
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:18 2018
+--- order to relative xy
+form origin_01 is 0 adding_01 is 0 so new_01 is 0
+form origin_02 is 0 adding_02 is 0 so new_02 is 0
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- order to absolute yaw
+now target is 0
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:37 2018
+--- order to absolute depth
+now target is -0.5
+
+------ Order by : go_cash_in_your_chip when Sun Jul 29 02:08:39 2018
+--- order to relative xy
+form origin_01 is 0 adding_01 is 0 so new_01 is 0
+form origin_02 is 0 adding_02 is 0 so new_02 is 0
+
