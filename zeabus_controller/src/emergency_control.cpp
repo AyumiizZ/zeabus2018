@@ -11,17 +11,18 @@ bool active_close = false;
 int count_open_close = 0;
 int count_close_close = 0;
 
+/*
 int main(int argc, char **argv){
 	ros::init(argc , argv , "manage_controller");
 	ros::NodeHandle nh;
 	ros::Subscriber sub_state = nh.subscribe("/auv/state" , 1000, &listen_current_state);
-/*	ros::Rate sleep(0.25);
+	ros::Rate sleep(0.25);
 	std::cout << "Waiting for open 4 second\n";
 	sleep.sleep();
 	manage_control.run_launch( "zeabus_controller" , "offset_control.launch");
-	std::cout << "finish open\n";*/
+	std::cout << "finish open\n";
 	ros::spin();
-}
+}*/
 
 void listen_current_state( const nav_msgs::Odometry message){
 	double depth = message.pose.pose.position.z;
