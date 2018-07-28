@@ -1,6 +1,8 @@
 source /opt/ros/kinetic/setup.zsh
 source /home/zeabus/catkin_ws/devel/setup.zsh
 
+alias poweroff='sudo shutdown -P'
+
 alias roszeabus01='export ROS_MASTER_URI=http://zeabus01:11311'
 alias roszeabus02='export ROS_MASTER_URI=http://zeabus02:11311'
 alias roszeabus03='export ROS_MASTER_URI=http://zeabus03:11311'
