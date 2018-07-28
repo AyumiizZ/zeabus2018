@@ -56,7 +56,9 @@ int main( int argc , char** argv){
 			tell_state.publish( auv_state );
 		}
 		else{
-			ROS_FATAL("DON'T ALREADY");
+			if( ! get_dvl ) ROS_FATAL("DON'T ALREADY\t\t DVL");
+			if( ! get_imu ) ROS_FATAL("DON'T ALREADY\t\t IMU");
+			if( ! get_pressure ) ROS_FATAL("DON'T ALREADY\t\t PRESSURE");
 		}
 		rate.sleep();
 		ros::spinOnce();
