@@ -9,15 +9,37 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import color_text
 
-def img_is_none():
-    print(color_text.RED+'img is none.\nPlease check topic name or check camera is running'+color_text.DEFAULT)
 
-def print_result(msg,color=color_text.DEFAULT):
+def range_str2list(str):
+    str = str.split(',')
+    return np.array([int(str[0]), int(str[1]), int(str[2])], np.uint8)
+
+
+def get_color_range(color, camera_position, number, mission):
+    lower = None
+    upper = None
+    color_list = CONST.COLOR_LIST
+    if color in color_list:
+        lower = rospy.get_param(
+            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/lower_' + color, '0,0,0')
+        upper = rospy.get_param(
+            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/upper_' + color, '179,255,255')
+        lower = range_str2array(lower)
+        upper = range_str2array(upper)
+        print "FOUND"
+    print(lower, upper)
+    return lower, upper
+
+def img_is_none():
+    print(color_text.RED + 'img is none.\nPlease check topic name or check camera is running' + color_text.DEFAULT)
+
+
+def print_result(msg, color=color_text.DEFAULT):
     """
         print ('<----------') + str(msg) + ('---------->')
         #len of <---msg---> = 50
     """
-    print '<{:-^50}>'.format(' '+color+str(msg)+color_text.DEFAULT+' ')
+    print '<{:-^50}>'.format(' ' + color + str(msg) + color_text.DEFAULT + ' ')
 
 
 def publish_result(img, type, topicName):
@@ -87,20 +109,6 @@ def range_str2array(string):
     return np.array([int(string[0]), int(string[1]), int(string[2])], dtype=np.uint8)
 
 
-def get_color_range(color, camera_position, number, mission):
-    lower = None
-    upper = None
-    color_list = CONST.COLOR_LIST
-    if color in color_list:
-        lower = rospy.get_param(
-            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/lower_' + color, '0,0,0')
-        upper = rospy.get_param(
-            'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/upper_' + color, '179,255,255')
-        lower = range_str2array(lower)
-        upper = range_str2array(upper)
-        print "FOUND"
-    print(lower, upper)
-    return lower, upper
 
 
 def Aconvert(inp, full):
