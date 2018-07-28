@@ -1,7 +1,7 @@
 color_front:
-  upper_yellow: '29,236,255'
+  upper_yellow: '60,255,201'
 
-  lower_yellow: '4,176,156'
+  lower_yellow: '0,92,24'
 
   upper_black: '177,240,255'
 
@@ -11,9 +11,9 @@ color_front:
 
   lower_violet: '69,255,255'
 
-  upper_orange: '33,255,254'
+  upper_orange: '11,234,234'
 
-  lower_orange: '12,157,40'
+  lower_orange: '0,85,12'
 
   upper_green: '172,252,255'
 
@@ -23,7 +23,7 @@ color_front:
 
   lower_white: '77,72,105'
 
-  upper_red: '179,250,255'
+  upper_red: '180,234,234'
 
-  lower_red: '174,165,132'
+  lower_red: '158,85,12'
 
