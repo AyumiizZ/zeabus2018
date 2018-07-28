@@ -238,19 +238,24 @@ int main(int argc , char **argv){
 					#ifdef test_02
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
-					if( count < 2 && use_K_velocity) 
+					if( count < 2 && use_K_velocity){
 // -------------------------------------- force = k * velocity * velocity ------------------
 //						sum_force[count] = K_velocity[count] * 
 //												pow (target_velocity[count] , 2)
 //                                                * find_direction( target_velocity[count]);
 // ----------------------------------force = k * velocity ----------------------------------
-						sum_force[count] = K_velocity[count] * target_velocity[ count ];
+//						sum_force[count] = ( K_velocity[count] * target_velocity[ count ] )
+//												+ 0.08586;
+						sum_force[count] = ( 3.4141 * target_velocity[ count ] )
+										 + ( find_direction( target_velocity[ count ])*0.08586);
+						std::cout << "In linear formular \n";
+						std::cout << " count is " << count 
+								  << " and value is " << sum_force[count] << "\n";
+					}
 //                    *
                         //sum_force[count] = target_velocity[ count ];
-					else sum_force[count] = PID_velocity[count].calculate_velocity(
-											target_velocity[count] - current_velocity[count]);
 //					if( count == 2 && target_velocity[2] < 0) sum_force[2] = -4.5;
-					if( count == 2){
+					else if( count == 2){
                         sum_force[2] = PID_velocity[2].calculate_velocity(
 											target_velocity[2]) + offset_force[count];
                     

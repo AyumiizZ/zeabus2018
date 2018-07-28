@@ -36,8 +36,8 @@ dictitems:
   KPVy: 3.0
   KPVyaw: 1.2
   KPVz: 2.5
-  KVx: 7.0
-  KVy: 7.0
+  KVx: 3.4142
+  KVy: 3.4142
   KVz: 20.0
   OFFSETpitch: 0.0
   OFFSETroll: 0.0
@@ -83,8 +83,8 @@ dictitems:
       KPVy: 3.0
       KPVyaw: 1.2
       KPVz: 2.5
-      KVx: 7.0
-      KVy: 7.0
+      KVx: 3.4142
+      KVy: 3.4142
       KVz: 20.0
       OFFSETpitch: 0.0
       OFFSETroll: 0.0
