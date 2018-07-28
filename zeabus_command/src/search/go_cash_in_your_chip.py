@@ -2,9 +2,9 @@
 
 import rospy , math
 from std_msgs.msg       import String
-from control_auv	import auv_control
-from zeabus_vision.srv	import vision_srv_cash_in
+from control_auv		import auv_control
 from zeabus_vision.msg	import vision_cash_in
+from zeabus_vision.srv	import vision_srv_cash_in
 
 class go_cash_in_your_chip:
 
@@ -44,7 +44,7 @@ class go_cash_in_your_chip:
 		self.start_move_y = relative_y
 		self.start_depth = start_depth
 
-		self.time = rospy.Rate( 60 )
+		self.time = rospy.Rate( 30 )
 
 		self.target_velocity = [ 0 , 0 , 0 , 0 , 0 , 0]
 
@@ -56,21 +56,21 @@ class go_cash_in_your_chip:
 
 		self.auv.absolute_yaw( self.start_yaw )
 		self.count = 0
-		while(not self.auv.check_position( "yaw" , 0.1 )):
+		while(not self.auv.check_position( "yaw" , 0.1 ) and self.count < 60):
 			print( "Waiting for absolute yaw : " + str( self.count ) )
 			self.count += 1
 			self.time.sleep()
 
 		self.auv.absolute_depth( self.start_depth )
 		self.count = 0
-		while( not self.auv.check_position( "z" , 0.1)):
+		while( not self.auv.check_position( "z" , 0.1) and self.count < 60):
 			print( "Waiting for absolute depth : " + str( self.count ))
 			self.count += 1
 			self.time.sleep()
 
 		self.auv.relative_xy( self.start_move_x , self.start_move_y)
 		self.count = 0
-		while( not  self.auv.check_position( "xy" , 0.1)):
+		while( not  self.auv.check_position( "xy" , 0.1) and self.count < 240):
 			print( "Waiting for relative xy : " + str( self.count ))
 			self.count += 1
 			self.time.sleep()
@@ -86,7 +86,7 @@ class go_cash_in_your_chip:
 		
 		mode = 0
 		
-		while( self.count_move < self.limit_move ):
+		while( self.count_move < self.limit_move and not rospy.is_shutdown() ):
 			num_found , cx , cy = self.result_information()
 			print( "-------------------------------------------------------------------------")
 			print( "summary result is " + str( num_found) + " so cx : " + str( cx) + " cy : " + 
@@ -95,7 +95,7 @@ class go_cash_in_your_chip:
 				self.count = 0
 #				self.auv.relative_xy( self.move , 0)
 				self.auv.continue_move( [0.2 , 0 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
-				while( not self.auv.check_position( "xy" , 0.1)):
+				while( not self.auv.check_position( "xy" , 0.1) and self.count_move < 60):
 					print( "Waiting for move xy : " + str( self.count))
 					self.count_move += 1
 					self.time.sleep()
@@ -104,17 +104,75 @@ class go_cash_in_your_chip:
 				break
 			else:
 				self.auv.send_velocity([ cy * 0.6 ,  cx * -1 * 0.8 , 0 , 0 , 0 , 0 , 0 , 0])
-		
+				break
+
+		self.count = 0		
 		if( num_found == 0 ):
 			print( "Can't find in forward mode next backword")
 			self.auv.continue_move( [ 0 , -0.2 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
-			while( not self.auv.check_position( "x" , ))
-			
+			while( not self.auv.check_position( "xy" , 0.1) and self.count < 60):
+				print( "Waiting for move xy : " + str(self.count) )
+				self.count_move += 1
+				self.time.sleep()
+			self.survey_backward()
+		elif( num_found == 1):
+			print( "Find one move to function \" to one object \"")
+			self.to_one_object()
+		else:
+			print( "Find two move to function \" to two object \"")
+			self.to_two_object()
 
+	def	survey_backward( self ):
+		self.now_time = rospy.Time()
+		
+		print( "now use time is " + str( (self.now_time - self.start_time ).to_sec()))
+
+		self.count_move = 0 
+
+		mode = 0
+
+		while( self.count_move < self.limit_move and not rospy.is_shutdown() ):
+			num_found , cx , cy = self.result_information()
+			print( "-------------------------------------------------------------------------")
+			print( "summary result is " + str( num_found) + " so cx : " + str( cx) + " cy : " + 
+					str(cy))
+			if( num_found == 0 ):
+				self.count = 0
+#				self.auv.relative_xy( self.move , 0)
+				self.auv.continue_move( [-0.2 , 0 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
+				while( not self.auv.check_position( "xy" , 0.1) and self.count_move < 60):
+					print( "Waiting for move xy : " + str( self.count))
+					self.count_move += 1
+					self.time.sleep()
+			elif( num_found == 1):
+				self.auv.send_velocity([ cy * 0.6 ,  cx * -1 * 0.8 , 0 , 0 , 0 , 0 , 0 , 0])
+				break
+			else:
+				self.auv.send_velocity([ cy * 0.6 ,  cx * -1 * 0.8 , 0 , 0 , 0 , 0 , 0 , 0])
+				break
+
+		self.count = 0		
+		if( num_found == 0 ):
+			print( "Can't find in forward mode next backword")
+			self.auv.continue_move( [ 0 , -0.2 , 0 , 0 , 0 , 0 ] , 50 , 0.01 )
+			while( not self.auv.check_position( "xy" , 0.1) and self.count < 60):
+				print( "Waiting for move xy : " + str(self.count) )
+				self.count_move += 1
+				self.time.sleep()
+			self.survey_forward()
+		elif( num_found == 1):
+			print( "Find one move to function \" to one object \"")
+			self.to_one_object()
+		else:
+			print( "Find two move to function \" to two object \"")
+			self.to_two_object()
+ 
+					
 	def result_information( self ):		
 		# service for call vision for find cash_in_your_chip	
 		# how to use --> result = self.information( tast , request)
 		# result must return cx1 cy1 cx2 cy2 area mode
+		# new message maybe cx cy area mode
 		print "------------------------ find cash_in_your_chip -----------------------------"
 		count_0 = 0
 		count_1 = 0
@@ -184,5 +242,5 @@ if __name__=='__main__':
 
 #	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth ):
 
-	play_cash = go_cash_in_your_ship( 0 , 0 , 0 , -0.5):
+	play_cash = go_cash_in_your_ship( 0 , 0 , 0 , -0.5)
 	play_cash.main(2)

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
+
 project(zeabus_controller)
 
 ## Find catkin macros and libraries
@@ -61,7 +62,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES
+    LIBRARIES zeabus_controller
     CATKIN_DEPENDS roslib roscpp dynamic_reconfigure geometry_msgs sensor_msgs nav_msgs std_msgs  tf message_runtime
     DEPENDS
 )

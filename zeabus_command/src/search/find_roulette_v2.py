@@ -146,7 +146,7 @@ class find_roulette:
 				if not self.auv.check_position( "xy", 0.05):
 					print("Waiting for constant position")
 				else:	
-					self.move_to_roulette():
+					self.move_to_roulette()
 
 			elif( self.mode == 7):
 				print( "finish move" )
