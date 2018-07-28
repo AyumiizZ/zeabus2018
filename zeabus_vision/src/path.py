@@ -72,8 +72,10 @@ def get_object():
     """
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 0, 31], dtype=np.uint8)
-    upper = np.array([69, 190, 150], dtype=np.uint8)
+    upper = np.array([63,211,243], dtype=np.uint8)
+    lower = np.array([0,7,29], dtype=np.uint8)
+    # lower = np.array([0, 0, 31], dtype=np.uint8)
+    # upper = np.array([69, 190, 150], dtype=np.uint8)
     mask = cv.inRange(hsv, lower, upper)
     return mask
 
