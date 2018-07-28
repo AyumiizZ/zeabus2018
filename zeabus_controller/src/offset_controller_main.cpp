@@ -239,9 +239,12 @@ int main(int argc , char **argv){
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
 					if( count < 2 && use_K_velocity) 
-						sum_force[count] = K_velocity[count] * 
-												pow (target_velocity[count] , 2)
-                                                * find_direction( target_velocity[count]);
+// -------------------------------------- force = k * velocity * velocity ------------------
+//						sum_force[count] = K_velocity[count] * 
+//												pow (target_velocity[count] , 2)
+//                                                * find_direction( target_velocity[count]);
+// ----------------------------------force = k * velocity ----------------------------------
+						sum_force[count] = K_velocity[count] * target_velocity[ count ];
 //                    *
                         //sum_force[count] = target_velocity[ count ];
 					else sum_force[count] = PID_velocity[count].calculate_velocity(
