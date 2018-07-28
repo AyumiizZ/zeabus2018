@@ -8,6 +8,7 @@ import numpy as np
 import constant as CONST
 from vision_lib import *
 from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 from sensor_msgs.msg import CompressedImage
 
 img = None
@@ -287,7 +288,9 @@ def select_color():
         w.show_image(window_name)
         cv.circle(hsv, (int(x), int(y)), 5, (100, 255, 255), -1)
         cv.imshow('image', hsv)
-        cv.imshow('imageBGR', img)
+        image = img.copy()
+        image = cv.resize(image,(0,0),fx=0.5,fy=0.5)
+        cv.imshow('imageBGR', image)
         click = False
         status = False
     cv.destroyAllWindows()
