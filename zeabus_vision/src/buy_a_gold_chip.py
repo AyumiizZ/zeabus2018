@@ -70,8 +70,9 @@ def get_object(obj):
     if obj == "plate":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([0, 92, 24], dtype=np.uint8)
-            upper = np.array([60, 255, 201], dtype=np.uint8)
+            upper,lower = get_color_range("yellow","front","1","buy_a_gold_chip")
+            # lower = np.array([0, 92, 24], dtype=np.uint8)
+            # upper = np.array([60, 255, 201], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
         elif world == "sim":
             lower = np.array([0, 240, 240], dtype=np.uint8)
@@ -95,10 +96,12 @@ def get_object(obj):
     elif obj == "tray":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower1 = np.array([0, 85, 12], dtype=np.uint8)
-            upper1 = np.array([11, 234, 234], dtype=np.uint8)
-            lower2 = np.array([158, 85, 12], dtype=np.uint8)
-            upper2 = np.array([180, 234, 234], dtype=np.uint8)
+            upper1,lower1 = get_color_range("orange","bottom","1","buy_a_gold_chip")
+            # lower1 = np.array([0, 85, 12], dtype=np.uint8)
+            # upper1 = np.array([11, 234, 234], dtype=np.uint8)
+            upper2,lower2 = get_color_range("red","bottom","1","buy_a_gold_chip")
+            # lower2 = np.array([158, 85, 12], dtype=np.uint8)
+            # upper2 = np.array([180, 234, 234], dtype=np.uint8)
             mask1 = cv.inRange(hsv, lower1, upper1)
             mask2 = cv.inRange(hsv, lower2, upper2)
             mask = cv.bitwise_or(mask1, mask2)
