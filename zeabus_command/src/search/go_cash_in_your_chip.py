@@ -8,7 +8,7 @@ from zeabus_vision.srv	import vision_srv_cash_in
 
 class go_cash_in_your_chip:
 
-	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth ):
+	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth , ):
 
 #-------------------------------------- about survey ------------------------------------------
 		self.move = 0.5
@@ -31,8 +31,6 @@ class go_cash_in_your_chip:
 		self.checkpoint[1] = temporary[1]
 		temporary = self.auv.find_target( "yaw")
 		self.checkpoint[5] = temporary[0]
-		self.distance_x = world_distance_x
-		self.distance_y = world_distance_y
 
 		self.mode = 1 	
 
@@ -47,6 +45,9 @@ class go_cash_in_your_chip:
 		self.time = rospy.Rate( 30 )
 
 		self.target_velocity = [ 0 , 0 , 0 , 0 , 0 , 0]
+
+		self.ok_x = False
+		self.ok_y = False
 
 	def main(self , limit_time):
 		
@@ -166,8 +167,84 @@ class go_cash_in_your_chip:
 		else:
 			print( "Find two move to function \" to two object \"")
 			self.to_two_object()
- 
-					
+
+	def to_one_object( self ):
+		print("Welcome mode to center of one object")
+
+		self.now_time = rospy.Time()
+		
+		print( "now use time is " + str( (self.now_time - self.start_time ).to_sec()))
+
+		temporary = self.auv.find_target( "xy")
+		self.checkpoint[0] = temporary[0]
+		self.checkpoint[1] = temporary[1]
+		temporary = self.auv.find_target( "yaw")
+		self.checkpoint[5] = temporary[0]
+
+		count_false = 0
+
+		while( not rospy.is_shutdown() ):
+			num_found , cx , cy = self.result_information()
+			print( "--------------------------- in one object ---------------------------------")
+			print( "summary result is " + str( num_found) + " so cx : " + str( cx) + " cy : " + 
+					str(cy))
+			if( num_found == 1 ):
+				print("found one")
+				self.auv.send_velocity([ cy * 0.6 ,  cx * -1 * 0.8 , 0 , 0 , 0 , 0 , 0 , 0])
+			elif( num_found == 2):
+				print("now found 2")
+				self.auv.send_velocity([ cy * 0.6 ,  cx * -1 * 0.8 , 0 , 0 , 0 , 0 , 0 , 0])
+				break
+			else:
+				print( "not found anything")
+				count_false += 1
+				if( count_false == 5)
+					self.auv.absolute_xy( self.checkpoint[0] , self.checkpoint[1])
+					self.auv.absolute_yaw( self.checkpoint[5] )
+
+	def to_two_object( self ):
+		print( "Welcomde mode to center of two object")
+
+		self.now_time = rospy.Time()
+		
+		print( "now use time is " + str( (self.now_time - self.start_time ).to_sec()))
+
+		while( not rospy.is_shutdown() ):
+			num_found , cx , cy = self.result_information()
+			print( "--------------------------- in two object ---------------------------------")
+			print( "summary result is " + str( num_found) + " so cx : " + str( cx) + " cy : " + 
+					str(cy))	
+
+			if( num_found == 2):		
+				if( self.agree_center( self.auv.state[0] , cy , 0.1 ) ):
+					self.ok_x = True
+				else:
+					self.ok_x = False
+				if( self.agree_center( self.auv.state[1] , cx , 0.1 ) ):
+					self.ok_y = True
+				else:
+					self.ok_y = False
+				if( self.ok_y and self.ok_x):
+					print( "OK_ALL")
+					break
+				elif( self.ok_y and not self.ok_x):
+					self.auv.send_velocity([ cy * 0.5 , 0 , 0 , 0 , 0 , 0 , 0 , 0])
+					print( "now ok only y axis of robot")
+				elif( not self.ok_y and not self.ok_x):
+					self.auv.send_velocity([ 0 ,  cx * -1 * 0.7 , 0 , 0 , 0 , 0 , 0 , 0])
+					print( "now ok only x axis of robot")
+				else:
+					self.auv.send_velocity([ cy * 0.5 ,  cx * -1 * 0.7 , 0 , 0 , 0 , 0 , 0 , 0])
+					print( "not ok any axis")
+				
+			else:
+				print("Don't found anything")
+		
+		self.now_time = rospy.Time()
+	
+		print( "Finish time is " + str( ( self.now_time - self.start_time).to_sec()))
+
+			
 	def result_information( self ):		
 		# service for call vision for find cash_in_your_chip	
 		# how to use --> result = self.information( tast , request)
@@ -237,10 +314,15 @@ class go_cash_in_your_chip:
 			return 1
 		else: 
 			return 0
+
+	def agree_center( self , now , target , agree):
+		distance = target - now
+		if( agree * -1 < target and target < agree ) return True
+		else return False
 	
 if __name__=='__main__':
 
 #	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth ):
-
-	play_cash = go_cash_in_your_ship( 0 , 0 , 0 , -0.5)
+	rospy.init_node("go_cash_in_your_chip")
+	play_cash = go_cash_in_your_chip( 0 , 0 , 0 , -0.5)
 	play_cash.main(2)
