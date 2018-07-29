@@ -7,6 +7,8 @@ from aicontrol_test import AIControl
 from std_msgs.msg import String, Float64
 import constants as cons
 
+debug = True
+
 class Slots(object):
 
     def __init__(self):
@@ -46,6 +48,8 @@ class Slots(object):
         return x, y, z, yaw
 
     def run(self):
+        global debug
+
         auv = self.aicontrol
 
         #auv.depthAbs(-3)
@@ -132,7 +136,7 @@ class Slots(object):
                         auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
 
                 else:
-                    auv.move([0, last_cx * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
+                    auv.multiMove([0, (-last_cx) * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 5:
@@ -186,7 +190,7 @@ class Slots(object):
                             #auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
                 else:
                     #auv.move('down', cons.AUV_L_SPEED)
-                    auv.multiMove([0, last_cx * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
+                    auv.multiMove([0, (-last_cx) * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 10:
@@ -301,7 +305,9 @@ class Slots(object):
                 print 'Abort Mission'
                 mode = -1
 
-        rospy.sleep(0.5)
+        if debug:
+            rospy.sleep(2)
+        rospy.sleep(0.2)
 
 if __name__=='__main__':
     rospy.init_node('slots_node')
