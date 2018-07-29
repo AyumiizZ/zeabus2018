@@ -1,7 +1,7 @@
 color_bottom:
-  upper_yellow: '0,0,0'
+  upper_yellow: '106,209,204'
 
-  lower_yellow: '179,255,255'
+  lower_yellow: '104,205,179'
 
   upper_black: '0,0,0'
 
@@ -11,9 +11,9 @@ color_bottom:
 
   lower_violet: '179,255,255'
 
-  upper_orange: '63,211,243'
+  upper_orange: '69,190,150'
 
-  lower_orange: '0,7,29'
+  lower_orange: '0,0,31'
 
   upper_green: '0,0,0'
 
