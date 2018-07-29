@@ -1,6 +1,10 @@
 #!/usr/bin/python2.7
 
 import math
+import sys
+import rospkg
+rospack = rospkg.RosPack()
+sys.path.append(rospack.get_path('zeabus_vision')+'/src')
 from vision_lib import *
 import rospy
 import cv2 as cv
