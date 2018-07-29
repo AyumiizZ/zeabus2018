@@ -8,7 +8,7 @@ from zeabus_vision.srv	import vision_srv_cash_in
 
 class go_cash_in_your_chip:
 
-	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth , ):
+	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth):
 
 #-------------------------------------- about survey ------------------------------------------
 		self.move = 0.5
@@ -317,8 +317,10 @@ class go_cash_in_your_chip:
 
 	def agree_center( self , now , target , agree):
 		distance = target - now
-		if( agree * -1 < target and target < agree ) return True
-		else return False
+		if( agree * -1 < target and target < agree ):
+			return True
+		else:
+			return False
 	
 if __name__=='__main__':
 
