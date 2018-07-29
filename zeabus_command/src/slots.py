@@ -3,7 +3,7 @@
 import rospy
 from zeabus_vision.msg import vision_slots
 from zeabus_vision.srv import vision_srv_slots
-from aicontrol import AIControl
+from aicontrol_test import AIControl
 from std_msgs.msg import String, Float64
 import constants as cons
 
@@ -58,7 +58,7 @@ class Slots(object):
         target = ['yellow_hole', 'red_hole', 'red_hole']
         size = ['', 'small', 'big']
         piority = 0
-        mode = 4
+        mode = 0
 
         last_cx = 0
         last_cy = 0
@@ -79,8 +79,7 @@ class Slots(object):
                 self.detectSlots(task, req)
 
             appear, cx, cy, right_excess, area = self.getData()
-
-            #appear = (area > 0.001)
+            print 'hello'
 
             #find handle
             if mode == 0:
@@ -120,7 +119,7 @@ class Slots(object):
                 print 'Mode 1'
                 if appear:
                     if cons.VISION_HAND_CY - 0.5 <= cy <= cons.VISION_HAND_CY + 0.5:
-                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
+                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY) * cons.AUV_M_SPEED, 0, 0, 0])
                         if abs(cx) < cons.VISION_HAND_ERROR:
                             auv.multiMove([0, -cx, 0, 0, 0, 0])
                             count += 1
@@ -133,7 +132,7 @@ class Slots(object):
                         auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
 
                 else:
-                    auv.move([0, last_cx + cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
+                    auv.move([0, last_cx * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 5:
@@ -165,14 +164,8 @@ class Slots(object):
                                     auv.move('left', cons.AUV_L_SPEED)
                                 count = 10
                             count += 1
+
                         if cons.VISION_HAND_CY - 0.1 <= cy <= cons.VISION_HAND_CY + 0.06:
-                            '''
-                            if area >= 0.6:
-                                print 'Handle in position'
-                                count += 1
-                                reset = 0
-                                rospy.sleep(1)
-                            '''
                             if cons.VISION_HAND_CX - 0.06 <= cx <= cons.VISION_HAND_CX + 0.2:
                                 if not right_excess or area < 0.15:
                                     auv.move('forward', cons.AUV_M_SPEED * (0.15 - area))
@@ -182,15 +175,18 @@ class Slots(object):
                                     rospy.sleep(1)
                                     count += 1
                                     reset = 0
+
                             elif cx != cons.VISION_HAND_CX:
                                 print 'CX not in position'
                                 auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_L_SPEED, (cy - cons.VISION_HAND_CY)*cons.AUV_L_SPEED, 0, 0, 0])
                                 #auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_L_SPEED, 0, 0, 0, 0])
+
                         elif cy != cons.VISION_HAND_CY:
                             auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_M_SPEED, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
                             #auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
                 else:
                     #auv.move('down', cons.AUV_L_SPEED)
+                    auv.multiMove([0, last_cx * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 10:
@@ -241,18 +237,6 @@ class Slots(object):
 
             #aim torpedo
             if mode == 4:
-
-                ###############
-                '''
-                if -1 < cx < 1 and -1 < cy < 1:
-                    appear = True
-                    print '<<<<<<<<<<<<<<<<<<GOOD DATA>>>>>>>>>>>>>>>>>>'
-                else:
-                    appear = False
-                    print '<<<<<<<<<<<<<<<<<<<BAD DATA>>>>>>>>>>>>>>>>>>>'
-                '''
-                ###############
-
 
                 print 'MODE 4'
                 print 'Target is %s %s'%(size[piority], target[piority])
