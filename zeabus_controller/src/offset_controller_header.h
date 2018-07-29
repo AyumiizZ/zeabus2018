@@ -60,17 +60,17 @@ double	sum_force[6] = {0, 0, 0, 0, 0, 0}; // sum force of 2 part
 double	old_force[6] = {0, 0, 0, 0, 0, 0}; // sum force of 2 part
 
 // for tuning pid calculate
-double 	Kp_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double	Ki_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double	Kd_position[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double 	K_velocity[6] =  {0 ,0 ,0 ,0 ,0 ,0};
-double 	Kp_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double	Ki_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
-double	Kd_velocity[6] = {0 ,0 ,0 ,0 ,0 ,0};
+double 	Kp_position[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double	Ki_position[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double	Kd_position[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double 	K_velocity[6] =  {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double 	Kp_velocity[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double	Ki_velocity[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
+double	Kd_velocity[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 7, 7, 4.0, 0.2, 0.2, 0.2};
+double	bound_force[6] = { 3.3, 3.3, 4.0, 0.2, 0.2, 0.2};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};
