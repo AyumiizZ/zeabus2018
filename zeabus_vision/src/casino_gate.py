@@ -80,7 +80,7 @@ def get_object():
         Returns:
             mask (ONLY GATE AREA)
     """
-    global img
+    global img  
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     hsv_map = cv.applyColorMap(gray, cv.COLORMAP_HSV)
     hsv = cv.cvtColor(hsv_map, cv.COLOR_BGR2HSV)

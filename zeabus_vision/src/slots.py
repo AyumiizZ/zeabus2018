@@ -63,13 +63,14 @@ def image_bot_callback(msg):
     img_bot_res = img_bot.copy()
 
 
-def message(cx=-1, cy=-1, area=-1, appear=False, mode=1):
+def message(cx=-1, cy=-1, area=-1, appear=False, mode=1,w_h_ratio=-1):
     m = vision_slots()
     m.cx = cx
     m.cy = cy
     m.area = area
     m.appear = appear
     m.mode = mode
+    m.w_h_ratio = w_h_ratio
     print(m)
     return m
 
@@ -83,8 +84,9 @@ def get_object(img, color):
     if color == "yellow":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([20, 115, 0], dtype=np.uint8)
-            upper = np.array([60, 255, 255], dtype=np.uint8)
+            lower,upper = get_color_range("yellow","front","1","slots")
+            # lower = np.array([20, 115, 0], dtype=np.uint8)
+            # upper = np.array([60, 255, 255], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
         elif world == "sim":
             lower = np.array([0, 240, 240], dtype=np.uint8)
@@ -102,10 +104,12 @@ def get_object(img, color):
             # mask = cv.bitwise_or(mask1, mask2)
         if world == "sim":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower1 = np.array([0, 85, 12], dtype=np.uint8)
-            upper1 = np.array([11, 234, 234], dtype=np.uint8)
-            lower2 = np.array([158, 85, 12], dtype=np.uint8)
-            upper2 = np.array([180, 234, 234], dtype=np.uint8)
+            lower1,upper1 = get_color_range("orange","front","1","slots")
+            # lower1 = np.array([0, 85, 12], dtype=np.uint8)
+            # upper1 = np.array([11, 234, 234], dtype=np.uint8)
+            lower2,upper2 = get_color_range("red","front","1","slots")
+            # lower2 = np.array([158, 85, 12], dtype=np.uint8)
+            # upper2 = np.array([180, 234, 234], dtype=np.uint8)
             mask1 = cv.inRange(hsv, lower1, upper1)
             mask2 = cv.inRange(hsv, lower2, upper2)
             mask = cv.bitwise_or(mask1, mask2)
@@ -113,7 +117,7 @@ def get_object(img, color):
 
 
 def get_ROI_hole(mask):
-    hhimg, wimg = mask.shape[:2]
+    himg, wimg = mask.shape[:2]
     ROI = []
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
