@@ -293,11 +293,11 @@ def get_ROI_handle(mask):
 
 
 def find_handle():
-    global img_bot, img_bot_res
-    while img_bot is None and not rospy.is_shutdown():
+    global img_top, img_top_res
+    while img_top is None and not rospy.is_shutdown():
         img_is_none()
-    himg, wimg = img_bot.shape[:2]
-    mask = get_object(img=img_bot, color="yellow")
+    himg, wimg = img_top.shape[:2]
+    mask = get_object(img=img_top, color="yellow")
     ROI = get_ROI_handle(mask)
     if ROI == []:
         mode = 1
@@ -312,19 +312,19 @@ def find_handle():
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
     if mode == 1:
-        publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
+        publish_result(img_top_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
         return message()
     elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
-        cv.rectangle(img_bot_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         area = 1.0*w*h/(wimg*himg)
         cx = x+(w/2)
         cy = y+(h/2)
-        cv.circle(img_bot_res, (cx, cy), 3, (0, 0, 255), -1)
+        cv.circle(img_top_res, (cx, cy), 3, (0, 0, 255), -1)
         cx = Aconvert(cx, wimg)
         cy = -1.0*Aconvert(cy, himg)
-        publish_result(img_bot_res, 'bgr', pub_topic + 'handle/result')
+        publish_result(img_top_res, 'bgr', pub_topic + 'handle/result')
         publish_result(mask, 'gray', pub_topic + 'handle/mask')
         return message(cx=cx, cy=cy, area=area, appear=True, mode=mode)
 
