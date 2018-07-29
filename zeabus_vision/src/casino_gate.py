@@ -84,8 +84,9 @@ def get_object():
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     hsv_map = cv.applyColorMap(gray, cv.COLORMAP_HSV)
     hsv = cv.cvtColor(hsv_map, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 0, 0], dtype=np.uint8)
-    upper = np.array([32, 255, 255], dtype=np.uint8)
+    lower,upper = get_color_range("black","front","1","casino_gate")
+    # lower = np.array([0, 0, 0], dtype=np.uint8)
+    # upper = np.array([32, 255, 255], dtype=np.uint8)
     map_mask = cv.inRange(hsv, lower, upper)
     not_bg = rm_sure_bg(img)
     if not_bg.shape[:2] != map_mask.shape[:2]:

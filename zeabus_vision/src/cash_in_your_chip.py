@@ -70,12 +70,16 @@ def message(cx1=-1, cy1=-1, cx2=-1, cy2=-1, area=-1, mode=0):
 
 
 def get_object(img, obj, color):
-    if obj == "bin" or obj == "cone":
-        if color == "yellow":
-            hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([0, 92, 24], dtype=np.uint8)
-            upper = np.array([60, 255, 201], dtype=np.uint8)
-            mask = cv.inRange(hsv, lower, upper)
+    if color == "yellow":
+        hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+        if obj == "bin" :
+            lower,upper = get_color_range("yellow","bottom","1","cash_in_your_chip")
+        elif obj == "cone" :
+            lower,upper = get_color_range("yellow","front","1","cash_in_your_chip")
+            # lower = np.array([0, 92, 24], dtype=np.uint8)
+            # upper = np.array([60, 255, 201], dtype=np.uint8)
+        mask = cv.inRange(hsv, lower, upper)
+
     return mask
 
 
