@@ -455,3 +455,24 @@ def pre_process(img_bgr, mission):
     #     return pre_process_xxx(img_bgr)
     else:
         return img_bgr
+
+# def Aconvert(inp, full):
+#     """
+#         Convert cx cy to int in range of -1 to 1
+#         Returns:
+#             float: result
+#     """
+#     inp = float(inp)
+#     full = float(full)
+#     res = (inp - (full / 2.0)) / (full / 2.0)
+#     return res
+class Points:
+    self.converted_cx = -1
+    self.converted_cy = -1
+    def __init__(self,cx,cy,himg=-1,wimg=-1):
+        self.cx = cx
+        self.cy = cy
+        if wimg != -1:
+            self.converted_cx = ((2.0*cx)/wimg)-1
+        if himg != -1:
+            self.converted_cy = ((-2.0*cy)/himg)-1
