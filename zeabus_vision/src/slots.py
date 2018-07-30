@@ -34,7 +34,7 @@ def mission_callback(msg):
         elif req == 'small':
             find_red_hole('small')
     elif task == 'handle':
-        return find_handle(cam)
+        return find_handle('front')
 
 
 def image_top_callback(msg):
