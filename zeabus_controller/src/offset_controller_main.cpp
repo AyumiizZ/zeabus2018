@@ -225,8 +225,13 @@ int main(int argc , char **argv){
 					#ifdef test_02
 						std::cout << "Count is " << count << " use pid\n";
 					#endif
-					if( absolute(robot_error[count]) < ok_error[count]) 
+					if( absolute(robot_error[count]) < ok_error[count] && count != 2){
 						sum_force[count] = offset_force[count];
+					}
+					else if( count == 2){
+						sum_force[2] += PID_position[ count ].calculate_velocity( 
+							robot_error[2] );
+					}
 					else{
 						pid_force[count] = 
 							PID_position[ count ].calculate_velocity( robot_error[ count]);
@@ -256,8 +261,10 @@ int main(int argc , char **argv){
                         //sum_force[count] = target_velocity[ count ];
 //					if( count == 2 && target_velocity[2] < 0) sum_force[2] = -4.5;
 					else if( count == 2){
-                        sum_force[2] = PID_velocity[2].calculate_velocity(
-											target_velocity[2]) + offset_force[count];
+//                        sum_force[2] += PID_velocity[2].calculate_velocity(
+//											target_velocity[2]) + offset_force[count];
+                        sum_force[2] += PID_velocity[2].calculate_velocity(
+											target_velocity[2]);
                     
                     }
 					else {
