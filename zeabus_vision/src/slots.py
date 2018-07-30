@@ -34,7 +34,7 @@ def mission_callback(msg):
         elif req == 'small':
             find_red_hole('small')
     elif task == 'handle':
-        return find_handle()
+        return find_handle(cam)
 
 
 def image_top_callback(msg):
@@ -297,7 +297,7 @@ def get_ROI_handle(mask):
     return ROI
 
 
-def find_handle():
+def find_handle(cam):
     global img_bot, img_bot_res,img_top,img_top_res
     if cam == 'front':
         img = img_top
