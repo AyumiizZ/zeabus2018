@@ -2,8 +2,8 @@
 import rospy
 import numpy as np
 import cv2 as cv
-from zeabus_vision.msg import vision_cash_in_your_chip
-from zeabus_vision.srv import vision_srv_cash_in_your_chip
+from zeabus_vision.msg import vision_cash_in
+from zeabus_vision.srv import vision_srv_cash_in
 from cv_bridge import CvBridge, CvBridgeError
 from vision_lib import *
 from sensor_msgs.msg import CompressedImage, Image
@@ -58,7 +58,7 @@ def image_bot_callback(msg):
 
 
 def message(cx1=-1, cy1=-1, cx2=-1, cy2=-1, area=-1, mode=0):
-    m = vision_cash_in_your_chip()
+    m = vision_cash_in()
     m.cx1 = cx1
     m.cy1 = cy1
     m.cx2 = cx2
@@ -76,8 +76,6 @@ def get_object(img, obj, color):
             lower,upper = get_color_range("yellow","bottom","1","cash_in_your_chip")
         elif obj == "cone" :
             lower,upper = get_color_range("yellow","front","1","cash_in_your_chip")
-            # lower = np.array([0, 92, 24], dtype=np.uint8)
-            # upper = np.array([60, 255, 201], dtype=np.uint8)
         mask = cv.inRange(hsv, lower, upper)
 
     return mask
@@ -251,7 +249,7 @@ def find_cone_bot(color):
             print_result("CAN FIND BUT HAVE A LOT OF NOISE", color_text.YELLOW)
         cone = ROI[0]
         himg, wimg = img_top.shape[:2]
-        x, y, w, h = cv.boundingRect(cone1)
+        x, y, w, h = cv.boundingRect(cone)
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
         cx1 = x+(w/2)
         cy1 = y+(h/2)
@@ -265,14 +263,14 @@ def find_cone_bot(color):
 
 
 if __name__ == '__main__':
-    rospy.init_node('vision_cash_in_your_chip', anonymous=False)
+    rospy.init_node('vision_cash_in', anonymous=False)
     print_result("INIT NODE", color_text.GREEN)
     front_topic = get_topic("front", world)
     bottom_topic = get_topic("bottom", world)
     rospy.Subscriber(front_topic, CompressedImage, image_top_callback)
     rospy.Subscriber(bottom_topic, CompressedImage, image_bot_callback)
     print_result("INIT SUBSCRIBER", color_text.GREEN)
-    rospy.Service('vision_cash_in_your_chip', vision_srv_cash_in_your_chip(),
+    rospy.Service('vision_cash_in', vision_srv_cash_in(),
                   mission_callback)
     print_result("INIT SERVICE", color_text.GREEN)
     rospy.spin()
