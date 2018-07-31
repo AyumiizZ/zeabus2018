@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 	std::string rootPath = "/home/zeabus/bvtsdk/";
 	std::string dataPath = rootPath + "data/";
 	std::string mapperPath = rootPath + "colormaps/bone.cmap";
-	std::string fileName = "16July-cubic5.son";
+	std::string fileName = "robosub2018-t1.son";
 	//std::string fileName = "g.son";
 	//std::string fileName = "2June-marker1.son";
 	//std::string fileName = "9July-5m.son";

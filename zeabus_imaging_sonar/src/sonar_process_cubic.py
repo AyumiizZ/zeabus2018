@@ -224,7 +224,7 @@ if __name__ == '__main__':
 	## Publish for show an image
 	pub = rospy.Publisher('/image/Tracking', CompressedImage, queue_size=1)
 	#connect or open (connect_image_sonar,imaging_sonar)
-	subTopic = "/imaging_sonar"
+	subTopic = "/connect_image_sonar"
 	sub = rospy.Subscriber(subTopic, Image, image_callback,  queue_size = 1)
 	rospy.Service('/sonar_image', sonar_cubicsrv, tracking_callback)
 	print("finished setup")
