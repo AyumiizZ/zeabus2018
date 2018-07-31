@@ -1,3 +1,5 @@
+unsetopt share_history
+alias rec='rosbag record /stereo/right/image_raw/compressed /bottom/left/image_raw/compressed'
 source /opt/ros/kinetic/setup.zsh
 source /home/zeabus/catkin_ws/devel/setup.zsh
 
