@@ -475,4 +475,4 @@ class Points:
         if wimg != -1:
             self.converted_cx = ((2.0*cx)/wimg)-1
         if himg != -1:
-            self.converted_cy = ((-2.0*cy)/himg)-1
+            self.converted_cy = -1.0*(((2.0*cy)/himg)-1)

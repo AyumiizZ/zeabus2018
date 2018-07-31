@@ -219,7 +219,12 @@ def find_yellow_hole():
         print_result("FOUND ONE HOLE", color_text.GREEN)
     elif len(ROI) > 1:
         mode = 3
-        hole = max(ROI, key=cv.contourArea)
+        temp = []
+        for cnt in ROI:
+            x,y,w,h = cv.boundingRect(cnt)
+            if 1.0*w/h > 0.93:
+                temp.append(cnt)
+        hole = max(temp, key=cv.contourArea)
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
     if mode == 1:
