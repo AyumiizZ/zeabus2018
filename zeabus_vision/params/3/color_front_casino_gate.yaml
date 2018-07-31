@@ -3,9 +3,9 @@ color_front:
 
   lower_yellow: '17,41,119'
 
-  upper_black: '177,240,255'
+  upper_black: '85,255,255'
 
-  lower_black: '175,226,255'
+  lower_black: '0,0,0'
 
   upper_violet: '179,209,244'
 
