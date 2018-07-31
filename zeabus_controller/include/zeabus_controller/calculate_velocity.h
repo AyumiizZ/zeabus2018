@@ -76,6 +76,7 @@ namespace find_velocity{
 			double diff_time;
 			double ttl;
 			bool use_ttl;
+            double max_i;
 
 		protected:
 			double P_constant;
@@ -88,6 +89,8 @@ namespace find_velocity{
 			void set_constant(double P_constant , double I_constant , double D_constant);
 			void reset();
 			void check_ttl();	
+            void set_limit_i(double max_i);
+            void bound_i();
 	};
 
 // Init second case and assign value of P I D constant
@@ -108,6 +111,10 @@ namespace find_velocity{
 		reset();
 	}
 
+    void second_case::set_limit_i( double max_i ){
+        this->max_i = max_i;
+    }
+
 // reset value Integral
 	void second_case::reset(){
 		this->sum_error = 0;
@@ -115,6 +122,11 @@ namespace find_velocity{
 		this->previous_time = ros::Time::now();
 		this->ttl = 0;
 	}
+
+    void second_case::bound_i(){
+        if( this->sum_error < this->max_i * - 1 ) this->sum_error = this->max_i * -1;
+        else if( this->sum_error > this->max_i ) this->sum_error = this->max_i;
+    }
 
 // calculate velocity by use PID
 	double second_case::calculate_velocity(double error_distance){
@@ -125,6 +137,7 @@ namespace find_velocity{
 		this->diff_error = error_distance - this->previous_error;
 // Sum error is area of graph must use 1/2 * sum of || height
 		this->sum_error += (this->previous_error + error_distance) * this->diff_time/2;
+        bound_i();
 		this->previous_time = current_time; 
 // plus diff time to ttl
 		this->ttl += diff_time;		

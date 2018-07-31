@@ -12,12 +12,15 @@ class order_log{
 		std::string location_file;
 
 	public:
-		order_log( str::string name_file );
-		void save_log( str::string data);
+		order_log();
+		void set_log( std::string name_file , std::string package , std::string adding);
+		void save_log( std::string data);
 
 };
 
-	order_log::order_log( str::string name_file , str::string package , str::string adding){
+	order_log::order_log(){}
+
+	void order_log::set_log( std::string name_file , std::string package , std::string adding){
 		this->name_file = name_file
 		this->adding_path = adding;
 		this->package_path = ros::package::getPath(" package ");
@@ -31,7 +34,7 @@ class order_log{
 		std::system( cmd_string.c_str() );
 	}
 
-	order_log::save_log( str::string data){
+	void order_log::save_log( str::string data){
 		std::string cmd_string = "echo " + "\"" + data + "\" >> " + this->name_file + ".txt";
 		std::system( cmd_string.c_str() );
 	}

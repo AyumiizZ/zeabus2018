@@ -3,17 +3,20 @@
 import rospy
 from zeabus_vision.msg import vision_slots
 from zeabus_vision.srv import vision_srv_slots
-from aicontrol_test import AIControl
+from aicontrol import AIControl
 from std_msgs.msg import String, Float64
 import constants as cons
 
-debug = True
+debug = False
 
 class Slots(object):
 
     def __init__(self):
         self.data = vision_slots()
         self.aicontrol = AIControl()
+
+        if debug:
+            print 'Debug mode is activated'
 
         print '<====INIT SLOTS===>'
         print 'wait for vision service'
@@ -83,7 +86,10 @@ class Slots(object):
                 self.detectSlots(task, req)
 
             appear, cx, cy, right_excess, area = self.getData()
-            print 'hello'
+            if appear:
+                last_cx = cx
+                last_cy = cy
+                last_area = area
 
             #find handle
             if mode == 0:
@@ -92,7 +98,7 @@ class Slots(object):
                 if fail >= 10:
                     print 'FAILED MODE 0'
                     auv.fixXY(start_x, start_y)
-                    auv.turnAbs(cons.SLOTS_DEGREES)
+                    #auv.turnAbs(cons.SLOTS_DEGREES)
                     redo += 1
                     fail = -10
 
@@ -102,7 +108,7 @@ class Slots(object):
                     print 'Found handle: %d'%(count)
                 else:
                     print 'Not found handle: %d'%(reset)
-                    auv.move('forward', cons.AUV_M_SPEED)
+                    auv.move('forward', cons.AUV_L_SPEED)
                     reset += 1
 
                 if count >= 10:
@@ -123,7 +129,7 @@ class Slots(object):
                 print 'Mode 1'
                 if appear:
                     if cons.VISION_HAND_CY - 0.5 <= cy <= cons.VISION_HAND_CY + 0.5:
-                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY) * cons.AUV_M_SPEED, 0, 0, 0])
+                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY) * cons.AUV_L_SPEED, 0, 0, 0])
                         if abs(cx) < cons.VISION_HAND_ERROR:
                             auv.multiMove([0, -cx, 0, 0, 0, 0])
                             count += 1
@@ -133,10 +139,11 @@ class Slots(object):
                             auv.multiMove([0, -cx, 0, 0, 0, 0])
                     elif cy != cons.VISION_HAND_CY:
                         print 'fixing y'
-                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
+                        print (cy)
+                        auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_L_SPEED, 0, 0, 0])
 
                 else:
-                    auv.multiMove([0, (-last_cx) * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
+                    auv.multiMove([0, (-last_cx) * cons.AUV_L_SPEED, last_cy * cons.AUV_L_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 5:
@@ -156,7 +163,14 @@ class Slots(object):
 
             #get to pulling position
             if mode == 2:
+                print '======================'
                 print 'MODE 2'
+                '''
+                print 'cx:%f'%(cx)
+                print 'cy:%f'%(cy)
+                print 'appear:%s'%(appear)
+                print 'area:%f'%(area)
+                '''
                 if appear:
                     fail = 0
                     if area <= 0.005 and cons.VISION_HAND_CY - 0.1 <= cy <= cons.VISION_HAND_CY + 0.06 and cons.VISION_HAND_CX - 0.06 <= cx <= cons.VISION_HAND_CX + 0.2:
@@ -182,15 +196,14 @@ class Slots(object):
 
                             elif cx != cons.VISION_HAND_CX:
                                 print 'CX not in position'
-                                auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_L_SPEED, (cy - cons.VISION_HAND_CY)*cons.AUV_L_SPEED, 0, 0, 0])
+                                auv.multiMove([0, (cons.VISION_HAND_CX - cx) * cons.AUV_M_SPEED, (cy - cons.VISION_HAND_CY) * cons.AUV_L_SPEED, 0, 0, 0])
                                 #auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_L_SPEED, 0, 0, 0, 0])
 
                         elif cy != cons.VISION_HAND_CY:
-                            auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_M_SPEED, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
+                            auv.multiMove([0, (cons.VISION_HAND_CX - cx)*cons.AUV_L_SPEED, (cy - cons.VISION_HAND_CY) * cons.AUV_L_SPEED, 0, 0, 0])
                             #auv.multiMove([0, 0, (cy - cons.VISION_HAND_CY)*cons.AUV_M_SPEED, 0, 0, 0])
                 else:
                     #auv.move('down', cons.AUV_L_SPEED)
-                    auv.multiMove([0, (-last_cx) * cons.AUV_M_SPEED, last_cy * cons.AUV_M_SPEED, 0, 0, 0])
                     fail += 1
 
                 if count >= 10:
@@ -234,9 +247,31 @@ class Slots(object):
                 #mode = -1
 
                 auv.depthAbs(check_z)
+                ###########
+                # no dvl
+                ###########
+                for _ in range(5):
+                    auv.move('backward', cons.AUV_M_SPEED)
+
+                while not rospy.is_shutdown() and not appear:
+                    task = target[piority]
+                    req = size[piority]
+                    self.detectSlots(task, req)
+
+                    appear, cx, cy, right_excess, area = self.getData()
+                    auv.move('left', cons.AUV_L_SPEED)
+
+                ###########
+
+                ###########
+                # with dvl
+                ###########
+                '''
                 auv.fixXY(check_x, check_y)
                 auv.driveX(-0.3)
                 auv.driveY(0.3)
+                '''
+                ###########
                 mode = 4
 
             #aim torpedo
@@ -251,8 +286,6 @@ class Slots(object):
                         pos = -1
                     elif cx < 0:
                         pos = 1
-                    last_cx = cx
-                    last_cy = cy
                     print 'Found'
                     fail = 0
                     if area < 0.05:
@@ -263,25 +296,26 @@ class Slots(object):
                     elif 0.05 <= area <= 0.06:
                         if cons.VISION_TORPEDO_CX - 0.07 <= cx <= cons.VISION_TORPEDO_CX + 0.07 and cons.VISION_TORPEDO_CY - 0.1 <= cy <= cons.VISION_TORPEDO_CY + 0.1:
                             print 'Ready to fire torpedo: %d'%(count)
-                            auv.multiMove([0, cons.AUV_L_SPEED * (cons.VISION_TORPEDO_CX - cx), cons.AUV_L_SPEED * (cy - cons.VISION_TORPEDO_CY), 0, 0, 0])
+                            auv.multiMove([0, cons.AUV_L_SPEED * (cons.VISION_TORPEDO_CX - cx), cons.AUV_H_SPEED * (cy - cons.VISION_TORPEDO_CY), 0, 0, 0])
                             #auv.multiMove([0, (cons.AUV_H_SPEED - 0.2) * (-cx), (cons.AUV_H_SPEED - 0.2) * cy, 0, 0, 0])
                             count += 1
                             reset = 0
                         else:
                             print 'Get in position: %d'%(reset)
-                            auv.multiMove([0, cons.AUV_M_SPEED * (cons.VISION_TORPEDO_CX - cx), cons.AUV_M_SPEED * (cy - cons.VISION_TORPEDO_CY), 0, 0, 0])
+                            auv.multiMove([0, cons.AUV_M_SPEED * (cons.VISION_TORPEDO_CX - cx), cons.AUV_H_SPEED * (cy - cons.VISION_TORPEDO_CY), 0, 0, 0])
                             reset += 1
 
                 elif not self.data.appear and cx == -1 and cy == -1:
                     if last_area < 0.05:
-                        auv.multiMove([((cons.AUV_H_SPEED - 0.2) * (cons.VISION_SLOTS_AREA - last_area)) + 0.03, cons.AUV_M_SPEED * last_cx, cons.AUV_M_SPEED * last_cy, 0, 0, 0])
+                        auv.multiMove([((cons.AUV_H_SPEED - 0.2) * (cons.VISION_SLOTS_AREA - last_area)) + 0.03, cons.AUV_L_SPEED * last_cx, cons.AUV_M_SPEED * last_cy, 0, 0, 0])
                     elif last_area > 0.06:
-                        auv.multiMove([((cons.AUV_H_SPEED - 0.2) * (cons.VISION_SLOTS_AREA - last_area)) - 0.03, cons.AUV_M_SPEED * last_cx, cons.AUV_M_SPEED * last_cy, 0, 0, 0])
+                        auv.multiMove([((cons.AUV_H_SPEED - 0.2) * (cons.VISION_SLOTS_AREA - last_area)) - 0.03, cons.AUV_L_SPEED * last_cx, cons.AUV_M_SPEED * last_cy, 0, 0, 0])
 
                     #fail += 1
 
                 if count >= 5:
                     auv.fire()
+                    print 'FIREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
                     mode = -1
                     print 'Done'
                 if reset >= 5:

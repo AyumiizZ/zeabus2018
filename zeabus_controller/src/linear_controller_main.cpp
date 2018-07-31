@@ -1,8 +1,8 @@
 // please :set nu tabstop=4
 
 // include 2 part file
-#include "offset_controller_header.h"
-#include "offset_controller_detail.h"
+#include "linear_controller_header.h"
+#include "linear_controller_detail.h"
 
 // initial code run 1 time
 void init(){
@@ -80,8 +80,6 @@ int main(int argc , char **argv){
 // -------------------------------------- end part --------------------------------------------
 
 	ros::Rate rate(20);
-
-    PID_velocity[2].set_limit_i(0.5);
 	while(nh.ok()){
 		if(first_time_tune){
 			#ifdef test_02
@@ -109,7 +107,8 @@ int main(int argc , char **argv){
 			reset_all_I();
 		}
 		else{}
-		if( mode_control == 1 ){
+/////////////////////////---------------- not use ---------------------////////////////////////
+/*		if( mode_control == 1 ){
 			#ifdef print_data
 				std::cout << "mode control is 1 : test offset z : " << offset_force[2] << "\n"; 
 				std::cout << "value of depth is " << current_position[2] << "\n";
@@ -195,8 +194,9 @@ int main(int argc , char **argv){
 				}
 			}
 			tell_force.publish( create_msg_force() );	
-		}
-		else if( mode_control == 5){
+		}*/
+//		else if( mode_control == 5){
+        if( mode_control == 5){
 			#ifdef test_02
 				std::cout << "----------------- now you are mode 5 -------------------\n";
 			#endif	
@@ -222,6 +222,11 @@ int main(int argc , char **argv){
 			robot_error[3] = convert_min_radian( target_position[3] - current_position[3]);
 			robot_error[4] = convert_min_radian( target_position[4] - current_position[4]);
 			robot_error[5] = convert_min_radian( target_position[5] - current_position[5]);
+			if( target_position[2] > -0.3)
+				offset_force[2] = 3.3333 * target_position[2] - 1.7;
+			else
+				offset_force[2] = 0.2 * target_position[2] - 2;
+
 			for( int count = 0 ; count < 6 ; count++){
 				if( can_fix[ count ] && want_fix[ count ]){
 					#ifdef test_02
@@ -231,8 +236,7 @@ int main(int argc , char **argv){
 						sum_force[count] = offset_force[count];
 					}
 					else if( count == 2){
-						pid_force[2] += PID_position[ count ].calculate_velocity( 
-							robot_error[2] );
+						pid_force[2] = PID_position[count].calculate_velocity(robot_error[2]);
                         sum_force[2] = pid_force[2] + offset_force[2];
 					}
 					else{
@@ -247,26 +251,14 @@ int main(int argc , char **argv){
 						std::cout << "Count is " << count << " use velocity\n";
 					#endif
 					if( count < 2 && use_K_velocity){
-// -------------------------------------- force = k * velocity * velocity ------------------
-//						sum_force[count] = K_velocity[count] * 
-//												pow (target_velocity[count] , 2)
-//                                                * find_direction( target_velocity[count]);
-// ----------------------------------force = k * velocity ----------------------------------
-//						sum_force[count] = ( K_velocity[count] * target_velocity[ count ] )
-//												+ 0.08586;
 						sum_force[count] = ( 3.4141 * target_velocity[ count ] )
 										 + ( find_direction( target_velocity[ count ])*0.08586);
 						std::cout << "In linear formular \n";
 						std::cout << " count is " << count 
 								  << " and value is " << sum_force[count] << "\n";
 					}
-//                    *
-                        //sum_force[count] = target_velocity[ count ];
-//					if( count == 2 && target_velocity[2] < 0) sum_force[2] = -4.5;
 					else if( count == 2){
-//                        sum_force[2] += PID_velocity[2].calculate_velocity(
-//											target_velocity[2]) + offset_force[count];
-                        pid_force[2] += PID_velocity[2].calculate_velocity(
+                        pid_force[2] = PID_velocity[2].calculate_velocity(
 											target_velocity[2]);
                         sum_force[2] = pid_force[2] + offset_force[2];
                     
@@ -276,11 +268,8 @@ int main(int argc , char **argv){
 											target_velocity[count] - current_velocity[count]);
 
                     }
-                        //sum_force[count] = target_velocity[ count ];
 				}
-//                if( count == 5 ) sum_force[count] *= -1;
                 if( count == 2 ){
-//                    if( robot_error[count] < -0.1) sum_force[ count ] = -4.5;
                     if( ( target_position[2] < epsilon ) && (target_position[2] > -1*epsilon) ){
                         if( current_position[2] < -1 ) sum_force[2] = 1;
                         else sum_force[count] = 0;
@@ -293,8 +282,6 @@ int main(int argc , char **argv){
 					ROS_FATAL("Controller force over bound warning : %d" , count);
 					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
 					else sum_force[count] = -1*bound_force[count];
-                    if( count == 2 and sum_force[count] > 0) pid_force[2] = 1.5;
-                    else if(count == 2) pid_force[2] = -1.5;
 				}
 			}
 			tell_force.publish( create_msg_force() );

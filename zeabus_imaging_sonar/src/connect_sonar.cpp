@@ -41,19 +41,19 @@ int main(int argc, char** argv){
 	//std::string dataPath = rootPath + "data/";
 	std::string mapperPath = rootPath + "colormaps/bone.cmap";
 	std::string fileName = "g.son";
-	std::string storePath = "/home/cheesilybutter/catkin_ws/src/cpp_sonar/data" ;
+	std::string storePath = "/home/zeabus/catkin_ws/src/cpp_sonar/data" ;
 	std::string fullPath = storePath + fileName;
 
     	pos = 1500;
 	intensity = 30;
 	thres = 155 ;
 
-	cv::namedWindow("RawImage" , cv::WINDOW_NORMAL);
-	cv::namedWindow("BinaryThresholding" , cv::WINDOW_NORMAL);
-	cv::namedWindow("RThetaImage", cv::WINDOW_NORMAL );
-	cv::createTrackbar("Sound Speed" , "RawImage" , &pos , 2000 , SpeedChange);
-	cv::createTrackbar("Threshold" , "BinaryThresholding" , &thres , 255 , ThresholdChange);
-	cv::createTrackbar("Sound Speed" , "RThetaImage" , &pos , 2000 , SpeedChange);
+	// cv::namedWindow("RawImage" , cv::WINDOW_NORMAL);
+	// cv::namedWindow("BinaryThresholding" , cv::WINDOW_NORMAL);
+	// cv::namedWindow("RThetaImage", cv::WINDOW_NORMAL );
+	// cv::createTrackbar("Sound Speed" , "RawImage" , &pos , 2000 , SpeedChange);
+	// cv::createTrackbar("Threshold" , "BinaryThresholding" , &thres , 255 , ThresholdChange);
+	// cv::createTrackbar("Sound Speed" , "RThetaImage" , &pos , 2000 , SpeedChange);
 
 	printf("SDK Ready!!!\n") ;
 
@@ -130,8 +130,6 @@ int main(int argc, char** argv){
 		pub.publish(msg);
 		ros::spinOnce();
 		loop_rate.sleep();
-
 		
-
     }
 }
