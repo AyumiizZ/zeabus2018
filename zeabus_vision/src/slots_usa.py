@@ -25,7 +25,7 @@ def mission_callback(msg):
     print_result('mission_callback', color_text.CYAN)
     task = msg.task.data
     req = msg.req.data
-    print('task:', str(task),'req: ',str(req))
+    print('task:', str(task), 'req: ', str(req))
     if task == 'yellow_hole':
         return find_yellow_hole()
     elif task == 'red_hole':
@@ -52,7 +52,7 @@ def image_top_callback(msg):
     img_top_res = img_top.copy()
 
 
-def message(cx=-1, cy=-1, area=-1, appear=False, mode=1, w_h_ratio=-1):
+def message(cx=-1, cy=-1, area=-1, appear=False, mode=1, w_h_ratio=-1, right_excess=False):
     m = vision_slots()
     m.cx = cx
     m.cy = cy
@@ -60,6 +60,7 @@ def message(cx=-1, cy=-1, area=-1, appear=False, mode=1, w_h_ratio=-1):
     m.appear = appear
     m.mode = mode
     m.w_h_ratio = w_h_ratio
+    m.right_excess = right_excess
     print(m)
     return m
 
@@ -240,7 +241,7 @@ def find_yellow_hole():
         publish_result(img_top_res, 'bgr', pub_topic + '/hole/yellow/result')
         publish_result(mask, 'gray', pub_topic + '/hole/yellow/mask')
         rospy.sleep(0.1)
-        return message(cx=pt.converted_cx, cy=pt.converted_cy, area=area, appear=True, mode=mode, w_h_ratio=w_h_ratio)
+        return message(cx=pt.converted_cx, cy=pt.converted_cy, area=area, appear=True, w_h_ratio=w_h_ratio)
 
 
 def get_ROI_handle(mask):
@@ -267,9 +268,10 @@ def find_handle():
     global img_top, img_top_res, himg_top, wimg_top
     while img_top is None and not rospy.is_shutdown():
         img_is_none()
-    cv.line(img_res, (int(0.75*wimg_top), 0),
+    cv.line(img_top_res, (int(0.75*wimg_top), 0),
             (int(0.75*wimg_top), himg_top), (255, 0, 0), 3)
-    cv.line(img_res, (0, int(0.6*himg_top)), (wimg_top, int(0.6*himg_top)), (255, 0, 0), 3)
+    cv.line(img_top_res, (0, int(0.6*himg_top)),
+            (wimg_top, int(0.6*himg_top)), (255, 0, 0), 3)
     mask = get_object(img=img_top, color="yellow")
     ROI = get_ROI_handle(mask)
     if ROI == []:
@@ -285,27 +287,27 @@ def find_handle():
         print_result("FOUND BUT HAVE SOME NOISE", color_text.YELLOW)
 
     if mode == 1:
-        publish_result(img_res, 'bgr', pub_topic + '/handle/result')
+        publish_result(img_top_res, 'bgr', pub_topic + '/handle/result')
         publish_result(mask, 'gray', pub_topic + '/handle/mask')
         return message()
     elif mode == 2 or mode == 3:
         x, y, w, h = cv.boundingRect(handle)
-        right_excess = ((x+w) > 0.90*wimg)
-        cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        right_excess = ((x+w) > 0.90*wimg_top)
+        cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         area = float(w*h)/float(wimg_top*himg_top)
-        cv.circle(img_res, (cx, cy), 3, (0, 0, 255), -1)
-        publish_result(img_res, 'bgr', pub_topic + '/handle/result')
+        cv.circle(img_top_res, (cx, cy), 3, (0, 0, 255), -1)
+        publish_result(img_top_res, 'bgr', pub_topic + '/handle/result')
         publish_result(mask, 'gray', pub_topic + '/handle/mask')
-        return message(cx=pt.converted_cx, cy=pt.converted_cy, area=area, appear=True, mode=mode, right_excess=right_excess)
+        return message(cx=pt.converted_cx, cy=pt.converted_cy, area=area, appear=True, right_excess=right_excess)
 
 
 if __name__ == '__main__':
     rospy.init_node('vision_slots', anonymous=False)
     print_result("INIT NODE", color_text.GREEN)
-    front_topic = get_topic("front", world)
+    front_topic = get_topic("front", 'real')
     rospy.Subscriber(front_topic, CompressedImage, image_top_callback)
     print_result("INIT SUBSCRIBER", color_text.GREEN)
     rospy.Service('vision_slots', vision_srv_slots(),

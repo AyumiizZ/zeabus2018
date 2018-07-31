@@ -54,7 +54,7 @@ if __name__ == '__main__':
             print "[" + str(i+1) + "] " + task[i]
         no_task = input("plz input no of task: ")
         if no_task == 1 or no_task == 3:
-            str_call = [task[no_task-1]]
+            str_call = [task[no_task-1],'aon']
         if no_task == 2:
             req = ['big', 'small']
             for i in range(len(req)):
