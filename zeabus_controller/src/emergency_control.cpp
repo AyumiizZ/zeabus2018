@@ -4,7 +4,7 @@
 #include 	<std_msgs/Bool.h>
 #include	<nav_msgs/Odometry.h>
 
-#include	"manage_control.cpp"
+#include	<zeabus_controller/manage_control.h>"
 
 void listen_current_state( const nav_msgs::Odometry message);
 bool active_close = false;

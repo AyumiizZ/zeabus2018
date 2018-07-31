@@ -85,7 +85,7 @@ class	auv_control:
 		self.state[5] = euler_angular[2]
 
 	def send_velocity( self , velocity):
-		print("------------------------>you send velocity is " + velocity)
+		print("------------------------>you send velocity only")
 		self.velocity.linear.x = velocity[0]
 		self.velocity.linear.y = velocity[1]
 		self.velocity.linear.z = velocity[2]
@@ -98,7 +98,7 @@ class	auv_control:
 			self.pub_velocity.publish(self.velocity)
 
 	def continue_move( self , velocity , amont_round , time_sleep):
-		print("------------------------>you send velocity is " + velocity)
+		print("------------------------>you send velocity continue ")
 		self.velocity.linear.x = velocity[0]
 		self.velocity.linear.y = velocity[1]
 		self.velocity.linear.z = velocity[2]

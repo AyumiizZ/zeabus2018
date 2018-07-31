@@ -357,12 +357,16 @@ def enclosing_circle(cnt):
 
 def find_point(img_bin):
     global img_result
-    print('Find POint')
+    print('Find Point')
     r, c = img_bin.shape
     result = np.zeros((r, c), np.uint8)
     result_data = []
     _, cnts, hierarchy = cv.findContours(
         img_bin, cv.RETR_CCOMP, cv.CHAIN_APPROX_NONE)
+    # print(len(hierarchy ))
+    if hierarchy is None or len(hierarchy) <= 0:
+        return result, result_data
+    
     hierarchy = hierarchy[0]
 
     for (cnt, hh) in zip(cnts, hierarchy):
@@ -396,7 +400,7 @@ def find_mask_threshold(img_bgr):
     h, s, v = cv.split(hsv)
     v_avg = np.average(v)
 
-    _, mask = cv.threshold(gray, v_avg / 1.75, 255, cv.THRESH_BINARY_INV)
+    _, mask = cv.threshold(gray, v_avg / 1, 255, cv.THRESH_BINARY_INV)
     erode = cv.erode(mask, get_kernel('rect', (3, 3)))
     mask = cv.dilate(erode, get_kernel('rect', (3, 3)))
 
@@ -460,9 +464,10 @@ def run(img):
     dice_dict = find_dice(img, mask_circles, circles)
     dice_dict = mask_dice(dice_dict)
     # cv.imshow('mask_circles', mask_circles)
+    # cv.imshow('mask_th', mask_th)
     # cv.imshow('result', img_result)
     # cv.waitKey(1)
-    return img_result, dice_dict
+    return img_result, dice_dict, mask_th
 
 
 def main():

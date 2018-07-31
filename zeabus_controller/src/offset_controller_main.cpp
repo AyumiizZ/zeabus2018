@@ -79,7 +79,9 @@ int main(int argc , char **argv){
 	server.setCallback( tunning );
 // -------------------------------------- end part --------------------------------------------
 
-	ros::Rate rate(50);
+	ros::Rate rate(20);
+
+    PID_velocity[2].set_limit_i(0.5);
 	while(nh.ok()){
 		if(first_time_tune){
 			#ifdef test_02
@@ -229,8 +231,9 @@ int main(int argc , char **argv){
 						sum_force[count] = offset_force[count];
 					}
 					else if( count == 2){
-						sum_force[2] += PID_position[ count ].calculate_velocity( 
+						pid_force[2] += PID_position[ count ].calculate_velocity( 
 							robot_error[2] );
+                        sum_force[2] = pid_force[2] + offset_force[2];
 					}
 					else{
 						pid_force[count] = 
@@ -263,8 +266,9 @@ int main(int argc , char **argv){
 					else if( count == 2){
 //                        sum_force[2] += PID_velocity[2].calculate_velocity(
 //											target_velocity[2]) + offset_force[count];
-                        sum_force[2] += PID_velocity[2].calculate_velocity(
+                        pid_force[2] += PID_velocity[2].calculate_velocity(
 											target_velocity[2]);
+                        sum_force[2] = pid_force[2] + offset_force[2];
                     
                     }
 					else {
@@ -289,6 +293,8 @@ int main(int argc , char **argv){
 					ROS_FATAL("Controller force over bound warning : %d" , count);
 					if( sum_force[count] > 0) sum_force[count] = bound_force[count];
 					else sum_force[count] = -1*bound_force[count];
+                    if( count == 2 and sum_force[count] > 0) pid_force[2] = 1.5;
+                    else if(count == 2) pid_force[2] = -1.5;
 				}
 			}
 			tell_force.publish( create_msg_force() );

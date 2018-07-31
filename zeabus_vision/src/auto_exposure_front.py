@@ -4,7 +4,7 @@ from auto_exposure import AutoExposure
 
 
 def main():
-    EVmin = 0
+    EVmin = 0.3
     EVdefault = 0.7
     subTopicC = rospy.get_param(
         "/auto_exposure_front/topic_right", None)

@@ -12,7 +12,7 @@ class go_cash_in_your_chip:
 
 #-------------------------------------- about survey ------------------------------------------
 		self.move = 0.5
-		self.limit_move = 5
+		self.limit_move = 2
 
 #------------------------------------ for order to auv ------------------------------------
 		self.auv = auv_control("go_cash_in_your_chip") 
@@ -198,7 +198,7 @@ class go_cash_in_your_chip:
 			else:
 				print( "not found anything")
 				count_false += 1
-				if( count_false == 5)
+                                if( count_false == 5):
 					self.auv.absolute_xy( self.checkpoint[0] , self.checkpoint[1])
 					self.auv.absolute_yaw( self.checkpoint[5] )
 
@@ -283,15 +283,15 @@ class go_cash_in_your_chip:
 				double_found_cy_02 *= count_2
 				count_2 += 1
 				if match_type == 1 :
-					double_found_cx_01 = ( double_found_cx_01 + double_found_cx_01 ) / count_2
-					double_found_cx_02 = ( double_found_cx_02 + double_found_cx_02 ) / count_2
-					double_found_cy_01 = ( double_found_cy_01 + double_found_cy_01 ) / count_2
-					double_found_cy_02 = ( double_found_cy_02 + double_found_cy_02 ) / count_2
+					double_found_cx_01 = ( double_found_cx_01 + result.data.cx1 ) / count_2
+					double_found_cx_02 = ( double_found_cx_02 + result.data.cx2 ) / count_2
+					double_found_cy_01 = ( double_found_cy_01 + result.data.cy1 ) / count_2
+					double_found_cy_02 = ( double_found_cy_02 + result.data.cy2 ) / count_2
 				else:
-					double_found_cx_01 = ( double_found_cx_01 + double_found_cx_02 ) / count_2
-					double_found_cx_02 = ( double_found_cx_02 + double_found_cx_01 ) / count_2
-					double_found_cy_01 = ( double_found_cy_01 + double_found_cy_02 ) / count_2
-					double_found_cy_02 = ( double_found_cy_02 + double_found_cy_01 ) / count_2
+					double_found_cx_01 = ( double_found_cx_01 + result.data.cx2 ) / count_2
+					double_found_cx_02 = ( double_found_cx_02 + result.data.cx1 ) / count_2
+					double_found_cy_01 = ( double_found_cy_01 + result.data.cy2 ) / count_2
+					double_found_cy_02 = ( double_found_cy_02 + result.data.cy1 ) / count_2
                 print("after request data count_0 : " + str(count_0)
                     ,"                   count_1 : " + str(count_1)
                     ,"                   count_2 : " + str(count_2))
@@ -303,8 +303,8 @@ class go_cash_in_your_chip:
 			move_y = found_cx * -1
 			return 1 , move_x , move_y
 		elif( count_2 == 10): 
-			move_x = ( double_found_cx_01 + double_found_cx_02 ) / 2
-			move_y = ( double_found_cy_01 + double_found_cy_02 ) / -2 
+			move_x = ( double_found_cx_01 + double_found_cx_02 ) / 2.0
+			move_y = ( double_found_cy_01 + double_found_cy_02 ) / -2.0 
 			return 2 , move_x , move_y
 
 	def check_match_type( self , origin_1 , origin_2 , new_1 , new_2):
@@ -314,6 +314,10 @@ class go_cash_in_your_chip:
 			return 1
 		else: 
 			return 0
+
+	def find_distance( self , point_01 , point_02):
+                return math.sqrt( math.pow( point_01[0] - point_02[0] , 2) 
+                            +     math.pow( point_01[1] - point_02[1] , 2) )
 
 	def agree_center( self , now , target , agree):
 		distance = target - now
@@ -326,5 +330,5 @@ if __name__=='__main__':
 
 #	def __init__( self , absolute_yaw , relative_x , relative_y , start_depth ):
 	rospy.init_node("go_cash_in_your_chip")
-	play_cash = go_cash_in_your_chip( 0 , 0 , 0 , -0.5)
+	play_cash = go_cash_in_your_chip( 5.1 , 0 , 0 , -0.1)
 	play_cash.main(2)

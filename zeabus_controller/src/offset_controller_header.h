@@ -15,9 +15,11 @@
 #include	<ros/ros.h>
 
 // include other file
-#include	"calculate_velocity.cpp" // will use pid of this file to calculate force out
-#include	"manage_file.cpp" // this file about save / load value of dynamic reconfigure
-#include	"helping_function.cpp" // this file about manage string to write log
+#include	<zeabus_controller/calculate_velocity.h> 
+			// will use pid of this file to calculate force out
+//#include	"manage_file.cpp" // this file about save / load value of dynamic reconfigure
+#include	<zeabus_controller/manage_file.h>
+#include	<zeabus_controller/helping_function.h> // this file about manage string to write log
 
 #include 	<math.h> // for math
 
@@ -70,7 +72,7 @@ double	Kd_velocity[6] = {0.00 ,0.00 ,0.00 ,0.00 ,0.00 ,0.00};
 bool use_K_velocity = true;
 
 // for these variable [ x , y , z , roll , pitch , yaw]
-double	bound_force[6] = { 3.3, 3.3, 4.0, 0.2, 0.2, 0.2};
+double	bound_force[6] = { 3.3, 3.3, 3.8, 0.2, 0.2, 0.2};
 double	current_velocity[6] = {0, 0, 0, 0, 0, 0};
 double	target_velocity[6] = {0, 0, 0, 0, 0, 0}; // this part will use check want to fix position or not?
 double	current_position[6] = {0, 0, 0, 0, 0, 0};

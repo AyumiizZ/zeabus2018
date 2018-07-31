@@ -2,7 +2,6 @@
 import rospy
 import cv2 as cv
 import numpy as np
-import statistics
 import constant as CONST
 import math
 from sensor_msgs.msg import Image

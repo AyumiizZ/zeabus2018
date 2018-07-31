@@ -30,9 +30,15 @@ def mission_callback(msg):
         return find_yellow_hole()
     elif task == 'red_hole':
         if req == 'big':
+<<<<<<< HEAD
             return find_red_hole('big')
         elif req == 'small':
             return find_red_hole('small')
+=======
+            find_red_hole('big')
+        elif req == 'small':
+            find_red_hole('small')
+>>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
     elif task == 'handle':
         return find_handle()
 
@@ -73,7 +79,11 @@ def get_object(img, color):
     """
     if color == "yellow":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+<<<<<<< HEAD
         lower, upper = get_color_range("yellow", "front", "morning", "slots_usa")
+=======
+        lower, upper = get_color_range("yellow", "front", "3", "slots_usa")
+>>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
         mask = cv.inRange(hsv, lower, upper)
     elif color == "red":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
@@ -238,7 +248,10 @@ def find_yellow_hole():
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
+<<<<<<< HEAD
         area = (1.0*w*h)/(himg_top*wimg_top)
+=======
+>>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
         cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
@@ -260,12 +273,22 @@ def get_ROI_handle(mask):
             continue
         x, y, w, h = cv.boundingRect(cnt)
         top_excess = (y < 0.05*himg)
+<<<<<<< HEAD
         bot_excess = ((y+h) > 0.95*himg)
         left_excess = (x < 0.05*wimg)
         window_excess = top_excess or bot_excess or left_excess
         window_excess = False
         w_h_ratio = 1.0*w/h
         if not window_excess and w_h_ratio > 1.5:
+=======
+        print ('y',y,y+h,himg)
+        bot_excess = ((y+h) > 0.95*himg)
+        print bot_excess
+        left_excess = (x < 0.05*wimg)
+        window_excess = top_excess or bot_excess or left_excess
+        w_h_ratio = 1.0*w/h
+        if (not window_excess) and w_h_ratio > 1.5:
+>>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
             ROI.append(cnt)
     return ROI
 
@@ -302,6 +325,8 @@ def find_handle():
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
+        print ('cx',cx,wimg_top)
+        print ('cy',cy,himg_top)
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         area = float(w*h)/float(wimg_top*himg_top)
         cv.circle(img_top_res, (cx, cy), 3, (0, 0, 255), -1)

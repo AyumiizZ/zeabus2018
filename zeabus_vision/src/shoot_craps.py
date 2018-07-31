@@ -65,8 +65,9 @@ def find_dice():
     global img, publish_topic
 
     if img is not None:    
-        img_result, dice_data = run(img)
+        img_result, dice_data, mask_th = run(img)
         publish_result(img_result, 'bgr', publish_topic + 'result')
+        publish_result(mask_th, 'gray', publish_topic + 'mask')
         m = message(dice_data)
         return m
     return message()

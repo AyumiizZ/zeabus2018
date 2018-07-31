@@ -16,7 +16,7 @@ int main(int argc, char** argv){
     /// Setup Path ///
 	std::string rootPath = "/home/zeabus/bvtsdk/";
 	std::string dataPath = rootPath + "data/";
-	std::string fileName = "23July-slot.son";
+	std::string fileName = "robosub2018-t1.son";
 	std::string fullPath = dataPath + fileName;
 
     printf("SDK Ready!!!\n") ;
@@ -43,8 +43,8 @@ int main(int argc, char** argv){
     BVTSDK::Head file_head = file.GetHead(0) ;
     printf("Create BVTSDK:Head for record : Success\n") ;
 
-    int ping_num = 0 ;
-    int max_ping = 700 ;
+    int ping_num = 0;
+    int max_ping = 10000;
 
     BVTSDK::Ping ping = head.GetPing(0);
     printf("Ready for record\n") ;
@@ -54,7 +54,6 @@ int main(int argc, char** argv){
 
         file_head.PutPing(ping) ;
 
-        printf("kkkkk");
         printf("Getting ping %d \n", ping_num);
     }
 
