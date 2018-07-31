@@ -235,8 +235,12 @@ def find_tray():
 
     mask = get_object("tray")
     cnt = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
-    if cnt > 1:
+    if len(cnt) >= 1:
         cnt = max(cnt, key=cv.contourArea)
+    elif len(cnt) == 1:
+        cnt = cnt[0]
+    else:
+        return -1,-1,-1,-1
     x, y, w, h = cv.boundingRect(cnt)
     cv.rectangle(img_res, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return x, y, w, h

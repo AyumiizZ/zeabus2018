@@ -30,9 +30,9 @@ def mission_callback(msg):
         return find_yellow_hole()
     elif task == 'red_hole':
         if req == 'big':
-            find_red_hole('big')
+            return find_red_hole('big')
         elif req == 'small':
-            find_red_hole('small')
+            return find_red_hole('small')
     elif task == 'handle':
         return find_handle()
 
