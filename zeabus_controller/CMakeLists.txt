@@ -71,6 +71,9 @@ catkin_package(
 ## Build ##
 ###########
 add_library(zeabus_controller src/offset_controller_main.cpp)
+add_library(zeabus_controller src/linear_controller_main.cpp)
+add_library(zeabus_controller src/assign_close.cpp)
+add_library(zeabus_controller src/manage_control.cpp)
 
 ##################add_executable(zeabus_controller src/other_file/old_code/zeabus_controller.cpp)
 ##############add_dependencies(zeabus_controller ${PROJECT_NAME}_gencfg zeabus_controller_gencpp)
