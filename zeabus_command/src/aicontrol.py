@@ -121,10 +121,39 @@ class AIControl:
 
     def multiMove(self, speed):
         self.stop()
-        if speed[2] > 0:
-            speed[2] += 0.1
-        elif speed[2] < 0:
-            speed[2] -= 0.1
+        x = speed[0]
+        y = speed[1]
+        z = speed[2]
+
+        if 0 < x < 0.2:
+            x = 0.2
+        elif x > 0.5:
+            x = 0.5
+        if -0.2 < x < 0:
+            x = -0.2
+        elif x < -0.5:
+            x = -0.5
+
+        if 0 < y < 0.2:
+            y = 0.2
+        elif y > 0.5:
+            y = 0.5
+        if -0.2 < y < 0:
+            y = -0.2
+        elif y < -0.5:
+            y = -0.5
+
+        if -0.25 < z < 0:
+            z = -0.25
+        elif z < 0.35:
+            z = 0.35
+        elif z > 0:
+            z = 0.025
+
+        speed[0] = x
+        speed[1] = y
+        speed[2] = z
+
         temp = self.listToTwist(speed)
         print 'MOVE'
         print 'X: %f'%speed[0]
@@ -137,6 +166,19 @@ class AIControl:
     def move(self, direction, speed, yaw=0):
         print("speed : %.2f"%(speed))
         self.stop()
+
+        if direction == 'down':
+            if speed < 0.25:
+                speed = 0.25
+            elif speed > 0.35:
+                speed = 0.35
+        elif direction == 'up':
+            speed = 0.025
+        else:
+            if speed < 0.2:
+                speed = 0.2
+            elif speed > 0.5:
+                speed = 0.5
 
         print 'Move %s at speed %f m/s, yaw: %f'%(direction, speed, yaw)
 
@@ -509,7 +551,7 @@ class AIControl:
         print 'fire'
         self.fire_torpedo()
         rospy.sleep(0.5)
-        self.hold()
+        #    self.hold()
 
     def hold(self):
         print 'hold'
@@ -535,4 +577,3 @@ if __name__=='__main__':
     aicontrol = AIControl()
     auv = aicontrol
     auv.fire()
-    auv.hold()

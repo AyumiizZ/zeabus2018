@@ -77,6 +77,7 @@ class Gate(object):
             if mode == 0:
                 print '---mode 0---'
 
+                '''
                 print '==============='
                 print 'count round: %d'%(count_round)
                 print '==============='
@@ -89,10 +90,13 @@ class Gate(object):
 
                     rospy.sleep(5)
                     side *= -1
-
+                '''
                 # check if gate is appear
                 if appear:
+                    count += 1
+                    '''
                     have_found = True
+
                     if abs(ratio - 2) <= 0.3:
                         count += 1
                     reset = 0
@@ -124,12 +128,9 @@ class Gate(object):
                     print '========================'
 
                     prev_ratio = ratio
-
+                    '''
                 elif not appear:
-                    if have_found:
-                        auv.multiMove([0, 0, 0, 0, 0, side*0.01 * (abs(ratio - 2))])
-                    else:
-                        auv.multiMove([0, 0, 0, 0, 0, -0.01])
+                    auv.mutiMove([0.3, 0, 0 ,0, 0, 0])
                     reset += 1
                     print 'NOT FOUND GATE: %d'%(reset)
 
