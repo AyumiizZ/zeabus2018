@@ -19,6 +19,7 @@ def get_color_range(color, camera_position, number, mission):
     lower = None
     upper = None
     color_list = CONST.COLOR_LIST
+    print('color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/lower_' + color)
     if color in color_list:
         lower = rospy.get_param(
             'color_range_' + str(camera_position) + '_' + str(number) + '_' + str(mission) + '/color_' + camera_position + '/lower_' + color, '0,0,0')

@@ -73,7 +73,7 @@ def get_object(img, color):
     """
     if color == "yellow":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-        lower, upper = get_color_range("yellow", "front", "1", "slots")
+        lower, upper = get_color_range("yellow", "front", "morning", "slots_usa")
         mask = cv.inRange(hsv, lower, upper)
     elif color == "red":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
@@ -238,6 +238,7 @@ def find_yellow_hole():
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
+        area = (1.0*w*h)/(himg_top*wimg_top)
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
         cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
@@ -255,7 +256,7 @@ def get_ROI_handle(mask):
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
-        if cv.contourArea(cnt) < 1000:
+        if cv.contourArea(cnt) < 300:
             continue
         x, y, w, h = cv.boundingRect(cnt)
         top_excess = (y < 0.05*himg)

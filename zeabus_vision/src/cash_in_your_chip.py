@@ -87,7 +87,7 @@ def get_ROI(mask):
     himg, wimg = mask.shape[:2]
     ROI = []
     for cnt in contours:
-        if cv.contourArea(cnt) < 100:
+        if cv.contourArea(cnt) < 300:
             continue
         x, y, w, h = cv.boundingRect(cnt)
         top_excess = (y < 0.05 * himg)
