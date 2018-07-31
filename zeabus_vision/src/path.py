@@ -72,10 +72,11 @@ def get_object():
     """
     global img
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-    upper,lower = get_color_range('orange','bottom','3','path')
-    print upper
-    print lower
-    # upper = np.array([63,211,243], dtype=np.uint8)
+    lower,upper = get_color_range('orange','bottom','1','path')
+    # upper,lower = get_color_range()
+    # print upper
+    # print lower
+    # upper = np.array([63,211,243], dtype=np.uint8)x   
     # lower = np.array([0,7,29], dtype=np.uint8)
     # lower = np.array([0, 0, 31], dtype=np.uint8)
     # upper = np.array([69, 190, 150], dtype=np.uint8)

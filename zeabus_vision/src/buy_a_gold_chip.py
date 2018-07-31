@@ -21,6 +21,7 @@ def mission_callback(msg):
             a group of process value from this program
     """
     print_result('mission_callback', color_text.CYAN)
+    print(msg)
     task = msg.task.data
     req = msg.req.data
     print('task:', str(task))
@@ -70,7 +71,7 @@ def get_object(obj):
     if obj == "plate":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            upper,lower = get_color_range("yellow","front","1","buy_a_gold_chip")
+            lower,upper = get_color_range("yellow","front","1","buy_a_gold_chip")
             # lower = np.array([0, 92, 24], dtype=np.uint8)
             # upper = np.array([60, 255, 201], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
@@ -81,8 +82,9 @@ def get_object(obj):
     elif obj == "chip":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower = np.array([17, 41, 119], dtype=np.uint8)
-            upper = np.array([62, 189, 255], dtype=np.uint8)
+            lower,upper = get_color_range("yellow","bottom","1","buy_a_gold_chip")
+            # lower = np.array([17, 41, 119], dtype=np.uint8)
+            # upper = np.array([62, 189, 255], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)
         # if world == "real":
         #     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
@@ -96,12 +98,12 @@ def get_object(obj):
     elif obj == "tray":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            upper1,lower1 = get_color_range("orange","bottom","1","buy_a_gold_chip")
-            # lower1 = np.array([0, 85, 12], dtype=np.uint8)
-            # upper1 = np.array([11, 234, 234], dtype=np.uint8)
-            upper2,lower2 = get_color_range("red","bottom","1","buy_a_gold_chip")
-            # lower2 = np.array([158, 85, 12], dtype=np.uint8)
-            # upper2 = np.array([180, 234, 234], dtype=np.uint8)
+            # upper1,lower1 = get_color_range("orange","bottom","1","buy_a_gold_chip")
+            lower1 = np.array([0, 85, 12], dtype=np.uint8)
+            upper1 = np.array([11, 234, 234], dtype=np.uint8)
+            # upper2,lower2 = get_color_range("red","bottom","1","buy_a_gold_chip")
+            lower2 = np.array([158, 85, 12], dtype=np.uint8)
+            upper2 = np.array([180, 234, 234], dtype=np.uint8)
             mask1 = cv.inRange(hsv, lower1, upper1)
             mask2 = cv.inRange(hsv, lower2, upper2)
             mask = cv.bitwise_or(mask1, mask2)
