@@ -84,7 +84,7 @@ def get_object(img, color):
     if color == "yellow":
         if world == "real":
             hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-            lower,upper = get_color_range("yellow","front","3","slots")
+            lower,upper = get_color_range("yellow","front","1","slots")
             # lower = np.array([20, 115, 0], dtype=np.uint8)
             # upper = np.array([60, 255, 255], dtype=np.uint8)
             mask = cv.inRange(hsv, lower, upper)

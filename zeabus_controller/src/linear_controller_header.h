@@ -17,9 +17,10 @@
 // include other file
 #include	<zeabus_controller/calculate_velocity.h> 
 			// will use pid of this file to calculate force out
-//#include	"manage_file.cpp" // this file about save / load value of dynamic reconfigure
-#include	<zeabus_controller/manage_file.h>
-#include	<zeabus_controller/helping_function.h> // this file about manage string to write log
+#include	<zeabus_controller/manage_file.h> 
+			// this file about save / load value of dynamic reconfigure
+#include	<zeabus_controller/helping_function.h> 
+			// this file about manage string to write log
 
 #include 	<math.h> // for math
 
@@ -53,7 +54,7 @@
 #define PI 3.14159265
 #define epsilon 1.0e-7 // this define I think it mean error by double type when value is 0
 // **-------------------------------------------------------------------------------**
-static	std::string tune_file = "offset_ku.yaml"; // this for save and load tune file
+static	std::string tune_file = "linear_ku.yaml"; // this for save and load tune file
 // **-------------------------------------------------------------------------------**
 
 double	pid_force[6] = {0, 0, 0, 0, 0, 0}; // force output part 01 have calculate by pid

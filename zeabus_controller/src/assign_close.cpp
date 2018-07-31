@@ -4,14 +4,13 @@
 #include 	<std_msgs/Bool.h>
 #include	<nav_msgs/Odometry.h>
 
-#include	<zeabus_controller/manage_control.h>"
+#include	<zeabus_controller/manage_control.h>
 
 void listen_current_state( const nav_msgs::Odometry message);
 bool active_close = false;
 int count_open_close = 0;
 int count_close_close = 0;
 
-/*
 int main(int argc, char **argv){
 	ros::init(argc , argv , "manage_controller");
 	ros::NodeHandle nh;
@@ -22,7 +21,7 @@ int main(int argc, char **argv){
 	manage_control.run_launch( "zeabus_controller" , "offset_control.launch");
 	std::cout << "finish open\n";
 	ros::spin();
-}*/
+}
 
 void listen_current_state( const nav_msgs::Odometry message){
 	double depth = message.pose.pose.position.z;
