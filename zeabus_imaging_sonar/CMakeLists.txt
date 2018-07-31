@@ -63,7 +63,7 @@ generate_messages(
 )
 
 catkin_package(
-  INCLUDE_DIRS $ENV{BLUEVIEW_SDK_ROOT}/include
+  INCLUDE_DIRS include $ENV{BLUEVIEW_SDK_ROOT}/include
   LIBRARIES ${LIB_NAME}
   CATKIN_DEPENDS roscpp rospy std_msgs
 )
