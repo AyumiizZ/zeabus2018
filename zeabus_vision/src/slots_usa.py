@@ -30,15 +30,9 @@ def mission_callback(msg):
         return find_yellow_hole()
     elif task == 'red_hole':
         if req == 'big':
-<<<<<<< HEAD
             return find_red_hole('big')
         elif req == 'small':
             return find_red_hole('small')
-=======
-            find_red_hole('big')
-        elif req == 'small':
-            find_red_hole('small')
->>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
     elif task == 'handle':
         return find_handle()
 
@@ -79,11 +73,8 @@ def get_object(img, color):
     """
     if color == "yellow":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-<<<<<<< HEAD
-        lower, upper = get_color_range("yellow", "front", "morning", "slots_usa")
-=======
-        lower, upper = get_color_range("yellow", "front", "3", "slots_usa")
->>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
+        lower, upper = get_color_range(
+            "yellow", "front", "morning", "slots_usa")
         mask = cv.inRange(hsv, lower, upper)
     elif color == "red":
         hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
@@ -101,7 +92,7 @@ def get_ROI_hole(mask):
     contours = cv.findContours(
         mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
     for cnt in contours:
-        if cv.contourArea(cnt) < 100:
+        if cv.contourArea(cnt) < 500:
             continue
         have_hole = False
         x, y, w, h = cv.boundingRect(cnt)
@@ -110,7 +101,7 @@ def get_ROI_hole(mask):
         hole_contours = cv.findContours(
             not_mask_crop, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[1]
         for hole_cnt in hole_contours:
-            if cv.contourArea(hole_cnt) < 100:
+            if cv.contourArea(hole_cnt) < 200:
                 continue
             hole_himg, hole_wimg = not_mask_crop.shape[:2]
             x_hole, y_hole, w_hole, h_hole = cv.boundingRect(hole_cnt)
@@ -231,7 +222,7 @@ def find_yellow_hole():
         mode = 3
         temp = []
         for cnt in ROI:
-            x,y,w,h = cv.boundingRect(cnt)
+            x, y, w, h = cv.boundingRect(cnt)
             if 1.0*w/h > 0.93:
                 temp.append(cnt)
         hole = max(temp, key=cv.contourArea)
@@ -248,10 +239,6 @@ def find_yellow_hole():
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 5)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
-<<<<<<< HEAD
-        area = (1.0*w*h)/(himg_top*wimg_top)
-=======
->>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         cv.circle(img_top_res, (cx, cy), 5, (0, 0, 255), 1)
         cv.circle(img_top_res, (cx, cy), 10, (0, 0, 255), 1)
@@ -273,22 +260,13 @@ def get_ROI_handle(mask):
             continue
         x, y, w, h = cv.boundingRect(cnt)
         top_excess = (y < 0.05*himg)
-<<<<<<< HEAD
-        bot_excess = ((y+h) > 0.95*himg)
-        left_excess = (x < 0.05*wimg)
-        window_excess = top_excess or bot_excess or left_excess
-        window_excess = False
-        w_h_ratio = 1.0*w/h
-        if not window_excess and w_h_ratio > 1.5:
-=======
-        print ('y',y,y+h,himg)
+        print ('y', y, y+h, himg)
         bot_excess = ((y+h) > 0.95*himg)
         print bot_excess
         left_excess = (x < 0.05*wimg)
         window_excess = top_excess or bot_excess or left_excess
         w_h_ratio = 1.0*w/h
         if (not window_excess) and w_h_ratio > 1.5:
->>>>>>> 50c0475130d855f4d465cb8401603c3f66ec411a
             ROI.append(cnt)
     return ROI
 
@@ -302,6 +280,11 @@ def find_handle():
     cv.line(img_top_res, (0, int(0.6*himg_top)),
             (wimg_top, int(0.6*himg_top)), (255, 0, 0), 3)
     mask = get_object(img=img_top, color="yellow")
+    kernel_erode = np.ones((3, 3), np.uint8)
+    kernel_dilate = np.ones((1, 11), np.uint8)
+    erode = cv.erode(mask, kernel_erode)
+    dilate = cv.dilate(erode, kernel_dilate)
+    mask = dilate
     ROI = get_ROI_handle(mask)
     if ROI == []:
         mode = 1
@@ -325,8 +308,8 @@ def find_handle():
         cv.rectangle(img_top_res, (x, y), (x+w, y+h), (0, 255, 0), 3)
         cx = int(x + (w/2))
         cy = int(y + (h/2))
-        print ('cx',cx,wimg_top)
-        print ('cy',cy,himg_top)
+        print ('cx', cx, wimg_top)
+        print ('cy', cy, himg_top)
         pt = Points(cx=cx, cy=cy, himg=himg_top, wimg=wimg_top)
         area = float(w*h)/float(wimg_top*himg_top)
         cv.circle(img_top_res, (cx, cy), 3, (0, 0, 255), -1)
